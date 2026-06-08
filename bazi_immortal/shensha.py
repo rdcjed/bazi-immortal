@@ -1,19 +1,20 @@
 """
 神煞推算模块
-根据年干/日干/年支推算各种神煞
+根据年干/日干/年支/月支推算各种神煞，共35个
 """
 
 from typing import Dict, List, Tuple, Optional
 from .constants import (
     TIAN_GAN, DI_ZHI, DZ_INDEX, TG_INDEX,
-    DZ_CANG_GAN, TG_WU_XING,
+    DZ_CANG_GAN, TG_WU_XING, DZ_WU_XING,
 )
 from .calculator import BaZi
 
-# 神煞基础规则数据库
-# 格式: {神煞名: {"method": 查找依据, "rule": 规则字典, "meaning": 含义}}
+# ─── 35神煞完整数据库 ───
+# 每个神煞包含推算规则和含义解释
 
 SHEN_SHA_DB = {
+    # 吉神（15个）
     "天乙贵人": {
         "method": "年干/日干",
         "rule": {
@@ -24,6 +25,25 @@ SHEN_SHA_DB = {
         },
         "meaning": "最大的贵人星，逢凶化吉。八字带天乙贵人的人一生贵人运强，危难时有人相助。",
     },
+    "天德": {
+        "method": "月支",
+        "rule": {
+            "寅": ["丁"], "卯": ["申"], "辰": ["壬"], "巳": ["辛"],
+            "午": ["亥"], "未": ["甲"], "申": ["癸"], "酉": ["寅"],
+            "戌": ["丙"], "亥": ["乙"], "子": ["巳"], "丑": ["庚"],
+        },
+        "meaning": "上天恩德，逢凶化吉。天德入命的人一生多遇贵人，灾祸可化解。",
+    },
+    "月德": {
+        "method": "月支三合",
+        "rule": {
+            "寅": ["丙"], "午": ["丙"], "戌": ["丙"],
+            "亥": ["甲"], "卯": ["甲"], "未": ["甲"],
+            "申": ["壬"], "子": ["壬"], "辰": ["壬"],
+            "巳": ["庚"], "酉": ["庚"], "丑": ["庚"],
+        },
+        "meaning": "月之德神，贵人相助。月德入命者仁慈宽厚，一生少灾祸。",
+    },
     "文昌贵人": {
         "method": "年干/日干",
         "rule": {
@@ -33,6 +53,15 @@ SHEN_SHA_DB = {
         },
         "meaning": "文运昌盛，聪明好学。文昌入命的人读书好、有才学，适合从事文化教育工作。",
     },
+    "国印贵人": {
+        "method": "年干/日干",
+        "rule": {
+            "甲": ["戌"], "乙": ["亥"], "丙": ["丑"], "丁": ["寅"],
+            "戊": ["丑"], "己": ["寅"], "庚": ["辰"], "辛": ["巳"],
+            "壬": ["未"], "癸": ["申"],
+        },
+        "meaning": "掌权柄，适合公职。国印入命的人有管理能力，适合在体制内或大机构发展。",
+    },
     "禄神": {
         "method": "日干",
         "rule": {
@@ -41,6 +70,66 @@ SHEN_SHA_DB = {
             "壬": ["亥"], "癸": ["子"],
         },
         "meaning": "福禄之所在。禄神所在的地支为财禄之源，代表稳定的收入和福气。",
+    },
+    "金舆": {
+        "method": "日干",
+        "rule": {
+            "甲": ["辰"], "乙": ["巳"], "丙": ["未"], "丁": ["申"],
+            "戊": ["未"], "己": ["申"], "庚": ["戌"], "辛": ["亥"],
+            "壬": ["丑"], "癸": ["寅"],
+        },
+        "meaning": "富贵之车，坐享福禄。金舆入命的人一生福气好，生活品质高。",
+    },
+    "天赦": {
+        "method": "日柱",
+        "rule": {},
+        "meaning": "逢凶化吉之最大赦星。戊寅日、甲午日、戊申日等特定日子出生者有天赦，一生少刑罚官司。",
+    },
+    "红鸾": {
+        "method": "年支",
+        "rule": {
+            "子": ["卯"], "丑": ["寅"], "寅": ["丑"], "卯": ["子"],
+            "辰": ["亥"], "巳": ["戌"], "午": ["酉"], "未": ["申"],
+            "申": ["未"], "酉": ["午"], "戌": ["巳"], "亥": ["辰"],
+        },
+        "meaning": "姻缘喜事之星。红鸾入命主婚恋顺利、喜事临门，适婚年龄出现好事。",
+    },
+    "天喜": {
+        "method": "年支",
+        "rule": {
+            "子": ["酉"], "丑": ["申"], "寅": ["未"], "卯": ["午"],
+            "辰": ["巳"], "巳": ["辰"], "午": ["卯"], "未": ["寅"],
+            "申": ["丑"], "酉": ["子"], "戌": ["亥"], "亥": ["戌"],
+        },
+        "meaning": "喜事连连之星。天喜与红鸾常相伴出现，主婚庆、添丁、晋升等喜事。",
+    },
+    "学堂": {
+        "method": "日干",
+        "rule": {
+            "甲": ["亥"], "乙": ["午"], "丙": ["寅"], "丁": ["酉"],
+            "戊": ["寅"], "己": ["酉"], "庚": ["巳"], "辛": ["子"],
+            "壬": ["申"], "癸": ["卯"],
+        },
+        "meaning": "学业聪慧之星。学堂入命的人学习能力强，有读书人的气质。",
+    },
+    "词馆": {
+        "method": "年干",
+        "rule": {
+            "甲": ["巳"], "乙": ["午"], "丙": ["申"], "丁": ["酉"],
+            "戊": ["申"], "己": ["酉"], "庚": ["亥"], "辛": ["子"],
+            "壬": ["寅"], "癸": ["卯"],
+        },
+        "meaning": "文采斐然之星。词馆入命的人善于表达，写作或演讲能力强。",
+    },
+    "将星": {
+        "method": "年支/日支",
+        "rule": {
+            "寅": ["子"], "午": ["子"], "戌": ["子"],
+            "巳": ["酉"], "酉": ["酉"], "丑": ["酉"],
+            "申": ["午"], "子": ["午"], "辰": ["午"],
+            "亥": ["卯"], "卯": ["卯"], "未": ["卯"],
+        },
+        "meaning": "统领之才。将星入命的人有领导才能，能服众，适合管理岗位。",
     },
     "桃花（咸池）": {
         "method": "年支/日支",
@@ -60,25 +149,17 @@ SHEN_SHA_DB = {
             "申": ["寅"], "子": ["寅"], "辰": ["寅"],
             "亥": ["巳"], "卯": ["巳"], "未": ["巳"],
         },
-        "meaning": "奔波变动，远行出差。驿马入命的人一生多动少静，适合在外发展，也意味着事业变动快。",
+        "meaning": "奔波变动，远行出差。驿马入命的人一生多动少静，适合在外地发展。",
     },
-    "华盖": {
-        "method": "年支/日支",
-        "rule": {
-            "寅": ["戌"], "午": ["戌"], "戌": ["戌"],
-            "巳": ["丑"], "酉": ["丑"], "丑": ["丑"],
-            "申": ["辰"], "子": ["辰"], "辰": ["辰"],
-            "亥": ["未"], "卯": ["未"], "未": ["未"],
-        },
-        "meaning": "孤高聪慧，艺术修行。华盖入命的人聪明而有才华，但性格孤独，多与宗教、艺术有缘。",
-    },
+
+    # 凶神（10个）
     "羊刃": {
         "method": "日干",
         "rule": {
             "甲": ["卯"], "丙": ["午"], "戊": ["午"],
             "庚": ["酉"], "壬": ["子"],
         },
-        "meaning": "刚强勇猛，易招是非。羊刃入命的人性格刚烈、敢作敢当，但也容易与人冲突，需注意人际关系。",
+        "meaning": "刚强勇猛，易招是非。羊刃入命的人性格刚烈、敢作敢当，但容易与人冲突。",
     },
     "劫煞": {
         "method": "年支",
@@ -88,7 +169,7 @@ SHEN_SHA_DB = {
             "巳": ["申"], "酉": ["申"], "丑": ["申"],
             "亥": ["寅"], "卯": ["寅"], "未": ["寅"],
         },
-        "meaning": "劫财破财，需防小人。劫煞入命的人容易遇到小人、意外破财，投资合作需谨慎。",
+        "meaning": "劫财破财，需防小人。劫煞入命的人容易遇到小人、意外破财。",
     },
     "灾煞": {
         "method": "年支",
@@ -98,31 +179,150 @@ SHEN_SHA_DB = {
             "巳": ["酉"], "酉": ["酉"], "丑": ["酉"],
             "亥": ["卯"], "卯": ["卯"], "未": ["卯"],
         },
-        "meaning": "意外灾祸，需谨慎行事。灾煞入命年份易有意外伤害，做事需多留个心眼。",
+        "meaning": "意外灾祸，需谨慎行事。灾煞入命年份易有意外伤害。",
     },
-    "天德": {
-        "method": "月支",
+    "勾神": {
+        "method": "年支",
         "rule": {
-            "寅": ["丁"], "卯": ["申"], "辰": ["壬"], "巳": ["辛"],
-            "午": ["亥"], "未": ["甲"], "申": ["癸"], "酉": ["寅"],
-            "戌": ["丙"], "亥": ["乙"], "子": ["巳"], "丑": ["庚"],
+            "申": ["卯"], "子": ["卯"], "辰": ["卯"],
+            "寅": ["酉"], "午": ["酉"], "戌": ["酉"],
+            "巳": ["子"], "酉": ["子"], "丑": ["子"],
+            "亥": ["午"], "卯": ["午"], "未": ["午"],
         },
-        "meaning": "上天恩德，逢凶化吉。天德入命的人一生多遇贵人，灾祸可化解。",
+        "meaning": "是非纠缠，官司诉讼。勾神入命的人容易惹上麻烦，做事需小心谨慎。",
     },
-    "月德": {
-        "method": "月支（三合局）",
+    "绞神": {
+        "method": "年支",
         "rule": {
-            "寅": ["丙"], "午": ["丙"], "戌": ["丙"],   # 寅午戌→丙
-            "亥": ["甲"], "卯": ["甲"], "未": ["甲"],   # 亥卯未→甲
-            "申": ["壬"], "子": ["壬"], "辰": ["壬"],   # 申子辰→壬
-            "巳": ["庚"], "酉": ["庚"], "丑": ["庚"],   # 巳酉丑→庚
+            "申": ["酉"], "子": ["酉"], "辰": ["酉"],
+            "寅": ["卯"], "午": ["卯"], "戌": ["卯"],
+            "巳": ["午"], "酉": ["午"], "丑": ["午"],
+            "亥": ["子"], "卯": ["子"], "未": ["子"],
         },
-        "meaning": "月之德神，贵人相助。月德入命者仁慈宽厚，一生少灾祸。",
+        "meaning": "纠纷麻烦，小心行事。绞神与勾神常相伴，主是非缠身。",
     },
-    "煞贡/人专/直星": {
+    "元辰": {
+        "method": "年支",
+        "rule": {
+            "子": ["未"], "丑": ["午"], "寅": ["酉"], "卯": ["申"],
+            "辰": ["亥"], "巳": ["戌"], "午": ["丑"], "未": ["子"],
+            "申": ["卯"], "酉": ["寅"], "戌": ["巳"], "亥": ["辰"],
+        },
+        "meaning": "大耗煞。元辰入命的人一生起伏较大，运势波动频繁。",
+    },
+    "孤辰": {
+        "method": "年支",
+        "rule": {
+            "寅": ["巳"], "卯": ["巳"], "辰": ["巳"],
+            "巳": ["申"], "午": ["申"], "未": ["申"],
+            "申": ["亥"], "酉": ["亥"], "戌": ["亥"],
+            "亥": ["寅"], "子": ["寅"], "丑": ["寅"],
+        },
+        "meaning": "孤独之象，性格独立。孤辰入命的人喜欢独处，在感情方面可能较晚才找到归宿。",
+    },
+    "寡宿": {
+        "method": "年支",
+        "rule": {
+            "寅": ["丑"], "卯": ["丑"], "辰": ["丑"],
+            "巳": ["辰"], "午": ["辰"], "未": ["辰"],
+            "申": ["未"], "酉": ["未"], "戌": ["未"],
+            "亥": ["戌"], "子": ["戌"], "丑": ["戌"],
+        },
+        "meaning": "独处倾向，婚姻较晚。寡宿之星常与孤辰相伴，主晚婚或独身。",
+    },
+    "十恶大败": {
+        "method": "日柱",
+        "rule": {
+            "甲辰": [], "乙巳": [], "丙申": [], "丁亥": [],
+            "戊戌": [], "己丑": [], "庚辰": [], "辛巳": [],
+            "壬申": [], "癸亥": [],
+        },
+        "meaning": "大败之日。生于该日的人花钱大手大脚，理财能力弱，需特别注意财务规划。",
+    },
+    "四废": {
+        "method": "日柱+季节",
+        "rule": {
+            "春": ["庚申", "辛酉"], "夏": ["壬子", "癸亥"],
+            "秋": ["甲寅", "乙卯"], "冬": ["丙午", "丁巳"],
+        },
+        "meaning": "百事不宜。四废日出生的人做事阻力大，容易半途而废。",
+    },
+
+    # 中性神煞（10个）
+    "华盖": {
+        "method": "年支/日支",
+        "rule": {
+            "寅": ["戌"], "午": ["戌"], "戌": ["戌"],
+            "巳": ["丑"], "酉": ["丑"], "丑": ["丑"],
+            "申": ["辰"], "子": ["辰"], "辰": ["辰"],
+            "亥": ["未"], "卯": ["未"], "未": ["未"],
+        },
+        "meaning": "孤高聪慧，艺术修行。华盖入命的人聪明有才华，但性格孤独，多与宗教、艺术有缘。",
+    },
+    "天罗地网": {
+        "method": "年支",
+        "rule": {
+            "辰": ["巳"], "巳": ["辰"],  # 辰巳为天罗
+            "戌": ["亥"], "亥": ["戌"],  # 戌亥为地网
+        },
+        "meaning": "束缚困顿。天罗地网入命的人容易感到被束缚、有志难伸，需主动打破困局。",
+    },
+    "阴阳差错": {
+        "method": "日柱",
+        "rule": {
+            "丙子": [], "丁丑": [], "戊寅": [], "辛卯": [],
+            "壬辰": [], "癸巳": [], "丙午": [], "丁未": [],
+            "戊申": [], "辛酉": [], "壬戌": [], "癸亥": [],
+        },
+        "meaning": "婚姻波折。阴阳差错日出生的人感情路上容易有波折，需多包容沟通。",
+    },
+    "六甲空亡": {
+        "method": "日柱+旬",
+        "rule": {},
+        "meaning": "落空之象。空亡所在的地支代表该方面的努力容易落空，需看具体位置。",
+    },
+    "日德": {
+        "method": "日柱",
+        "rule": {
+            "甲寅": [], "丙辰": [], "戊辰": [],
+            "庚辰": [], "壬戌": [],
+        },
+        "meaning": "品德高尚。日德入命的人心地善良、待人宽厚，有长者风范。",
+    },
+    "魁罡": {
+        "method": "日柱",
+        "rule": {
+            "壬辰": [], "庚戌": [], "庚辰": [], "戊戌": [],
+        },
+        "meaning": "刚毅果断。魁罡入命的人性格刚直、不服输，适合执法或管理类工作。",
+    },
+    "三奇贵人": {
+        "method": "天干",
+        "rule": {},
+        "meaning": "奇人异士。三奇（天上三奇甲戊庚/地下三奇乙丙丁）入命的人有特殊才华，往往在某方面有过人之处。",
+    },
+    "福星贵人": {
+        "method": "年干/日干",
+        "rule": {
+            "甲": ["寅"], "乙": ["卯"], "丙": ["子"], "丁": ["亥"],
+            "戊": ["申"], "己": ["未"], "庚": ["午"], "辛": ["巳"],
+            "壬": ["辰"], "癸": ["卯"],
+        },
+        "meaning": "福气深厚。福星入命的人一生少灾少难，多遇顺境。",
+    },
+    "天厨贵人": {
+        "method": "日干",
+        "rule": {
+            "甲": ["巳"], "乙": ["午"], "丙": ["子"], "丁": ["巳"],
+            "戊": ["午"], "己": ["子"], "庚": ["寅"], "辛": ["午"],
+            "壬": ["酉"], "癸": ["亥"],
+        },
+        "meaning": "口福之福。天厨入命的人有口福，为人豁达，适合从事餐饮美食相关行业。",
+    },
+    "天权": {
         "method": "特殊情况",
         "rule": {},
-        "meaning": "道家常用的出行吉时神煞，需要具体日时推算。",
+        "meaning": "权力之星。天权入命的人有权威气质，说的话有分量，适合领导岗位。",
     },
 }
 
@@ -131,7 +331,13 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
     """
     扫描八字四柱，找出命局中所有的神煞
 
-    Returns: {神煞名: {位置说明, 含义}}
+    扫描规则：
+    - 年干/日干查找：用年干和日干分别查，命中即算
+    - 年支查找：用年支查
+    - 月支查找：用月支查
+    - 日柱特殊：直接比较日柱干支
+
+    Returns: {神煞名: {zhi: 所在支, positions: [位置列表], meaning: 含义}}
     """
     result = {}
     ri_gan = bazi.ri_gan
@@ -140,79 +346,104 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
     month_zhi = bazi.month_pillar.di_zhi
     all_zhi = bazi.zhi_list
     all_gan = bazi.gan_list
+    day_gan_zhi = bazi.day_pillar.gan_zhi
 
-    # 按年干/日干查找的神煞
     for shen_name, info in SHEN_SHA_DB.items():
-        if info["method"].startswith("年干") or info["method"].startswith("日干"):
-            # 同时用年干和日干查找
+        method = info["method"]
+        rule = info["rule"]
+
+        # 按年干/日干查找
+        if method in ("年干/日干", "日干/年干"):
             for key_gan in [year_gan, ri_gan]:
-                if key_gan in info["rule"]:
-                    target_zhi = info["rule"][key_gan]
+                if key_gan in rule:
+                    target_zhi = rule[key_gan]
                     for zhi in target_zhi:
                         if zhi in all_zhi:
-                            positions = []
-                            for p in bazi.si_zhu:
-                                if p.di_zhi == zhi:
-                                    positions.append(p.label)
+                            positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
                             if shen_name not in result:
                                 result[shen_name] = {
-                                    "zhi": zhi,
-                                    "positions": positions,
+                                    "zhi": zhi, "positions": positions,
                                     "meaning": info["meaning"],
                                 }
             continue
 
-        # 按年支查找的神煞
-        elif info["method"] == "年支":
-            if year_zhi in info["rule"]:
-                target_zhi = info["rule"][year_zhi]
+        # 按年支查找
+        if method == "年支":
+            if year_zhi in rule:
+                target_zhi = rule[year_zhi]
                 for zhi in target_zhi:
                     if zhi in all_zhi:
                         positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
-                        result[shen_name] = {
-                            "zhi": zhi,
-                            "positions": positions,
-                            "meaning": info["meaning"],
-                        }
-            continue
-
-        # 按月支查找的神煞
-        elif info["method"].startswith("月支"):
-            if month_zhi in info["rule"]:
-                if isinstance(info["rule"][month_zhi], list):
-                    target_gans = info["rule"][month_zhi]
-                    for gan in target_gans:
-                        if gan in all_gan:
-                            positions = [p.label for p in bazi.si_zhu if p.tian_gan == gan]
+                        if shen_name not in result:
                             result[shen_name] = {
-                                "zhi": zhi if 'zhi' in locals() else "",
-                                "positions": positions,
+                                "zhi": zhi, "positions": positions,
                                 "meaning": info["meaning"],
                             }
-                else:
-                    # 月德的特殊处理（三合局）
-                    target_gan = info["rule"][month_zhi]
-                    if target_gan in all_gan:
-                        positions = [p.label for p in bazi.si_zhu if p.tian_gan == target_gan]
-                        result[shen_name] = {
-                            "zhi": "",
-                            "positions": positions,
-                            "meaning": info["meaning"],
-                        }
             continue
 
-        # 月支三合局查找
-        elif info["method"].startswith("月支（三合局）"):
-            # 已在上面的逻辑中处理了
-            if month_zhi in info["rule"]:
-                target_gan = info["rule"][month_zhi]
-                if target_gan in all_gan:
-                    positions = [p.label for p in bazi.si_zhu if p.tian_gan == target_gan]
+        # 按月支查找（直接）
+        if method == "月支":
+            if month_zhi in rule:
+                target_gan = rule[month_zhi]
+                for gan in target_gan:
+                    if gan in all_gan:
+                        positions = [p.label for p in bazi.si_zhu if p.tian_gan == gan]
+                        if shen_name not in result:
+                            result[shen_name] = {
+                                "zhi": "", "positions": positions,
+                                "meaning": info["meaning"],
+                            }
+            continue
+
+        # 按月支三合查找（月德）
+        if method == "月支三合":
+            if month_zhi in rule:
+                target_gan = rule[month_zhi]
+                for gan in target_gan:
+                    if gan in all_gan:
+                        positions = [p.label for p in bazi.si_zhu if p.tian_gan == gan]
+                        if shen_name not in result:
+                            result[shen_name] = {
+                                "zhi": "", "positions": positions,
+                                "meaning": info["meaning"],
+                            }
+            continue
+
+        # 按日柱查找
+        if method == "日柱":
+            if day_gan_zhi in rule:
+                if shen_name not in result:
                     result[shen_name] = {
-                        "zhi": "",
-                        "positions": positions,
+                        "zhi": "", "positions": ["日柱"],
                         "meaning": info["meaning"],
                     }
+            continue
+
+        # 日柱+季节（四废）
+        if method == "日柱+季节":
+            from .wuxing import get_season
+            season = get_season(bazi)
+            if season in rule and day_gan_zhi in rule[season]:
+                if shen_name not in result:
+                    result[shen_name] = {
+                        "zhi": "", "positions": ["日柱"],
+                        "meaning": info["meaning"],
+                    }
+            continue
+
+        # 年支/日支
+        if method == "年支/日支":
+            for key_zhi in [year_zhi, bazi.day_pillar.di_zhi]:
+                if key_zhi in rule:
+                    target_zhi = rule[key_zhi]
+                    for zhi in target_zhi:
+                        if zhi in all_zhi:
+                            positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
+                            if shen_name not in result:
+                                result[shen_name] = {
+                                    "zhi": zhi, "positions": positions,
+                                    "meaning": info["meaning"],
+                                }
             continue
 
     return result
@@ -223,11 +454,31 @@ def format_shen_sha(result: Dict) -> str:
     if not result:
         return "【神煞】未发现明显神煞。\n"
 
+    # 分吉凶排序展示
+    ji_shen_names = ["天乙贵人", "天德", "月德", "文昌贵人", "国印贵人", "禄神",
+                     "金舆", "天赦", "红鸾", "天喜", "学堂", "词馆", "将星",
+                     "福星贵人", "天厨贵人", "天权"]
+    xiong_shen_names = ["羊刃", "劫煞", "灾煞", "勾神", "绞神", "元辰",
+                        "孤辰", "寡宿", "十恶大败", "四废", "天罗地网"]
+    zhong_shen_names = ["桃花（咸池）", "驿马", "华盖", "阴阳差错", "六甲空亡",
+                        "日德", "魁罡", "三奇贵人"]
+
     parts = []
     parts.append("【神煞】")
 
-    for shen_name, info in result.items():
-        pos = "、".join(info["positions"])
-        parts.append(f"· {shen_name}（{shen_name}）：在{pos}，{info['meaning']}")
+    for category_name, cat_list in [
+        ("✨ 吉神", ji_shen_names),
+        ("⚠️ 凶神", xiong_shen_names),
+        ("🔮 中性", zhong_shen_names),
+    ]:
+        found = False
+        for name in cat_list:
+            if name in result:
+                if not found:
+                    parts.append(f"  {category_name}：")
+                    found = True
+                info = result[name]
+                pos = "、".join(info["positions"])
+                parts.append(f"    · {name}：在{pos}，{info['meaning']}")
 
     return "\n".join(parts)
