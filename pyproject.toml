@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bazi-immortal"
+version = "1.0.0"
+description = "命运道士 - 八字命理运势推算工具"
+readme = "README.md"
+authors = [
+    {name = "云中子"},
+]
+license = {text = "MIT"}
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Religion :: Taoism",
+]
+
+[project.scripts]
+bazi = "bazi_immortal.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["bazi_immortal*"]
