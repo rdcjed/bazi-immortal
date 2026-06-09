@@ -155,13 +155,48 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     zhi_list = bazi.zhi_list
     gan_list = bazi.gan_list
 
-    # 1. 得令分析
+    # 1. 得令分析 — 结合四季旺衰 + 十二长生
     monthly_state = get_monthly_state(ri_gan, month_zhi)
-    strong_states = {"长生", "沐浴", "冠带", "临官", "帝旺"}
-    weak_states = {"衰", "病", "死", "墓", "绝", "胎", "养"}
-    
-    is_de_ling = monthly_state in strong_states
-    is_shi_ling = monthly_state in weak_states
+    season = get_season(bazi)
+    season_wangxiang = SI_JI_WANG_XIANG[season]  # e.g. {"木":"旺","火":"相","水":"休","金":"囚","土":"死"}
+    ri_wx_season_status = season_wangxiang[ri_wx]  # 日主五行在当季的旺衰状态
+
+    # 十二长生强弱状态
+    strong_life_states = {"临官", "帝旺", "长生"}
+    weak_life_states = {"绝", "死", "墓", "病"}
+    moderate_life_states = {"沐浴", "冠带", "衰", "胎", "养"}
+
+    # 综合得分规则：
+    # 四季旺衰：旺+3, 相+2, 休+0, 囚-1, 死-2
+    # 十二长生额外调整：临官/帝旺/长生+1, 绝/死-1
+    de_ling_score = 0
+    de_ling_reasons = []
+
+    if ri_wx_season_status == "旺":
+        de_ling_score += 3
+        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【旺】，当令")
+    elif ri_wx_season_status == "相":
+        de_ling_score += 2
+        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【相】，次旺")
+    elif ri_wx_season_status == "休":
+        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【休】，退气")
+    elif ri_wx_season_status == "囚":
+        de_ling_score -= 1
+        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【囚】，不得令")
+    elif ri_wx_season_status == "死":
+        de_ling_score -= 2
+        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【死】，失令")
+
+    # 十二长生额外调整
+    if monthly_state in strong_life_states:
+        de_ling_score += 1
+        de_ling_reasons.append(f"长生状态：{ri_gan}在{month_zhi}月为【{monthly_state}】，加旺")
+    elif monthly_state in weak_life_states:
+        de_ling_score -= 1
+        de_ling_reasons.append(f"长生状态：{ri_gan}在{month_zhi}月为【{monthly_state}】，减力")
+
+    is_de_ling = de_ling_score >= 2  # 综合≥2算得令
+    is_shi_ling = de_ling_score <= -2  # 综合≤-2算失令
 
     # 2. 得地分析
     roots = get_roots_in_branches(ri_gan, zhi_list)
@@ -198,12 +233,10 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     score = 0
     reasoning = []
 
-    if is_de_ling:
-        score += 3
-        reasoning.append(f"得令：{ri_gan}在{month_zhi}月为{monthly_state}，当令得气")
-    else:
-        score -= 2
-        reasoning.append(f"失令：{ri_gan}在{month_zhi}月为{monthly_state}，不得月令")
+    # 得令得分（精细版）
+    score += de_ling_score
+    for r in de_ling_reasons:
+        reasoning.append(r)
 
     if has_strong_root:
         score += 2

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命运道士 - 八字命理推算</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+    background: #0f0f14;
+    color: #e0e0e0;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+  /* 头部 */
+  .header {
+    text-align: center;
+    padding: 30px 0;
+    border-bottom: 1px solid #2a2a35;
+    margin-bottom: 30px;
+  }
+  .header h1 {
+    font-size: 28px;
+    background: linear-gradient(135deg, #f6d365, #fda085);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p { color: #888; font-size: 14px; }
+  .header .subtitle { color: #666; font-size: 12px; margin-top: 4px; }
+
+  /* 表单 */
+  .form-card {
+    background: #1a1a24;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #2a2a35;
+  }
+  .form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .form-group {
+    flex: 1;
+    min-width: 120px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    background: #252531;
+    border: 1px solid #333345;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: #f6d365;
+  }
+  .form-group input::placeholder { color: #555; }
+  .form-group select { cursor: pointer; }
+  .form-group select option { background: #252531; }
+
+  .time-hint {
+    font-size: 11px;
+    color: #555;
+    margin-top: 4px;
+  }
+
+  /* 按钮 */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .btn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #f6d365, #fda085);
+    color: #1a1a24;
+    flex: 1;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: #252531;
+    color: #999;
+    border: 1px solid #333345;
+  }
+  .btn-secondary:hover { background: #303045; }
+
+  /* 加载 */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 40px;
+  }
+  .loading.active { display: block; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #333;
+    border-top-color: #f6d365;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: #888; font-size: 14px; }
+
+  /* 结果 */
+  .result {
+    display: none;
+    background: #1a1a24;
+    border: 1px solid #2a2a35;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #ccc;
+    overflow-x: auto;
+  }
+  .result.active { display: block; }
+
+  .result .highlight-g { color: #4ade80; }
+  .result .highlight-y { color: #facc15; }
+  .result .highlight-r { color: #f87171; }
+  .result .highlight-b { color: #60a5fa; }
+  .result .section-title { color: #f6d365; font-weight: bold; }
+  .result .warning { color: #fb923c; }
+
+  /* 建议标签 */
+  .tags { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  .tag-g { background: #14532d; color: #4ade80; }
+  .tag-r { background: #7f1d1d; color: #f87171; }
+
+  /* 页脚 */
+  .footer {
+    text-align: center;
+    padding: 30px 0;
+    color: #555;
+    font-size: 12px;
+  }
+
+  /* 选填提示 */
+  .optional-hint {
+    font-size: 11px;
+    color: #fda085;
+    margin-top: 4px;
+  }
+
+  /* 错误 */
+  .error-msg {
+    display: none;
+    background: #2d1b1b;
+    border: 1px solid #5c2a2a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #f87171;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .error-msg.active { display: block; }
+
+  /* 小屏适配 */
+  @media (max-width: 600px) {
+    .form-row { flex-direction: column; }
+    .form-group { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- 头部 -->
+  <div class="header">
+    <h1>☯ 命运道士</h1>
+    <p>八字命理运势推算</p>
+    <div class="subtitle">云中子 · 基于子平八字理论</div>
+  </div>
+
+  <!-- 表单 -->
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>出生年份</label>
+        <input type="number" id="year" placeholder="例：1990" min="1900" max="2100">
+      </div>
+      <div class="form-group">
+        <label>月份</label>
+        <select id="month">
+          <option value="1">1月</option><option value="2">2月</option>
+          <option value="3">3月</option><option value="4">4月</option>
+          <option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option>
+          <option value="9">9月</option><option value="10">10月</option>
+          <option value="11">11月</option><option value="12">12月</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>日期</label>
+        <input type="number" id="day" placeholder="例：15" min="1" max="31">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>出生时间</label>
+        <select id="hour">
+          <option value="23">子时 23:00-00:59</option>
+          <option value="1">丑时 01:00-02:59</option>
+          <option value="3">寅时 03:00-04:59</option>
+          <option value="5">卯时 05:00-06:59</option>
+          <option value="7">辰时 07:00-08:59</option>
+          <option value="9">巳时 09:00-10:59</option>
+          <option value="11" selected>午时 11:00-12:59</option>
+          <option value="13">未时 13:00-14:59</option>
+          <option value="15">申时 15:00-16:59</option>
+          <option value="17">酉时 17:00-18:59</option>
+          <option value="19">戌时 19:00-20:59</option>
+          <option value="21">亥时 21:00-22:59</option>
+        </select>
+        <div class="time-hint">不记得时间选午时（默认）</div>
+      </div>
+      <div class="form-group">
+        <label>性别</label>
+        <select id="gender">
+          <option value="男">男</option>
+          <option value="女">女</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>流年（选填）</label>
+        <input type="number" id="liunian" placeholder="默认当前年份" min="2020" max="2050">
+        <div class="optional-hint">留空自动使用今年</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="submitForm()">☯ 推算运势</button>
+      <button class="btn btn-secondary" onclick="fillExample()">📋 示例</button>
+    </div>
+  </div>
+
+  <!-- 错误 -->
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- 加载 -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>正在推算八字命盘...</p>
+  </div>
+
+  <!-- 结果 -->
+  <div class="result" id="result"></div>
+
+  <div class="footer">
+    基于子平八字理论 · 仅供娱乐参考<br>
+    命运掌握在自己手中
+  </div>
+</div>
+
+<script>
+function fillExample() {
+  document.getElementById('year').value = 1990;
+  document.getElementById('month').value = 5;
+  document.getElementById('day').value = 15;
+  document.getElementById('hour').value = 11;
+  document.getElementById('gender').value = '男';
+  document.getElementById('liunian').value = '';
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('active');
+}
+
+function submitForm() {
+  // 清除旧状态
+  document.getElementById('errorMsg').classList.remove('active');
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('loading').classList.add('active');
+
+  const year = document.getElementById('year').value;
+  const month = document.getElementById('month').value;
+  const day = document.getElementById('day').value;
+  const hour = document.getElementById('hour').value;
+  const gender = document.getElementById('gender').value;
+  const liunian = document.getElementById('liunian').value;
+
+  if (!year || !month || !day) {
+    showError('请填写完整的出生年月日');
+    document.getElementById('loading').classList.remove('active');
+    return;
+  }
+
+  const y = parseInt(year);
+  const m = parseInt(month);
+  const d = parseInt(day);
+  const h = parseInt(hour);
+
+  if (y < 1900 || y > 2100) {
+    showError('年份范围：1900-2100');
+    document.getElementById('loading').classList.remove('active');
+    return;
+  }
+  if (d < 1 || d > 31) {
+    showError('日期范围：1-31');
+    document.getElementById('loading').classList.remove('active');
+    return;
+  }
+
+  const params = new URLSearchParams({
+    year: y, month: m, day: d,
+    hour: h, gender: gender,
+  });
+  if (liunian) params.set('liunian', parseInt(liunian));
+
+  fetch('/api/bazi?' + params.toString())
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('loading').classList.remove('active');
+      if (data.error) {
+        showError(data.error);
+        return;
+      }
+      renderResult(data);
+    })
+    .catch(err => {
+      document.getElementById('loading').classList.remove('active');
+      showError('请求失败：' + err.message);
+    });
+}
+
+function renderResult(data) {
+  const el = document.getElementById('result');
+  let html = '';
+
+  // 八字排盘
+  html += '<div class="section-title">【八字排盘】</div>';
+  html += `<div>八字：<b>${data.bazi}</b></div>`;
+  html += `<div>日主：${data.ri_gan}（${data.ri_wx}） | 性别：${data.gender}</div>`;
+  html += `<div style="color:#888;font-size:12px">${data.bazi_detail || ''}</div>`;
+
+  // 五行
+  html += '\n\n<div class="section-title">【五行分析】</div>';
+  if (data.wuxing_distribution) {
+    const wx = data.wuxing_distribution;
+    html += `<div>五行分布：木${wx.木} 火${wx.火} 土${wx.土} 金${wx.金} 水${wx.水}</div>`;
+  }
+  html += `<div>月令状态：${data.monthly_state}</div>`;
+  html += `<div>综合判定：<b class="highlight-y">${data.strong_weak}</b>（得分${data.score}）</div>`;
+  if (data.reasoning) {
+    data.reasoning.forEach(r => html += `<div style="color:#999">  · ${r}</div>`);
+  }
+  html += `<div>用神：<span class="highlight-g">${data.useful_god}</span>　忌神：<span class="highlight-r">${data.avoid_god}</span></div>`;
+
+  // 十神
+  html += '\n\n<div class="section-title">【十神分析】</div>';
+  html += `<div>${data.shisheng_summary || ''}</div>`;
+
+  // 神煞
+  if (data.shensha && data.shensha.length > 0) {
+    html += '\n\n<div class="section-title">【神煞】</div>';
+    data.shensha.forEach(s => {
+      const cls = s.type === '吉' ? 'highlight-g' : s.type === '凶' ? 'highlight-r' : 'highlight-b';
+      html += `<div class="${cls}">${s.name}（${s.position}）</div>`;
+    });
+  }
+
+  // 大运
+  if (data.da_yun && data.da_yun.length > 0) {
+    html += '\n\n<div class="section-title">【大运走势】</div>';
+    html += `<div>起运年龄：${data.start_age}岁</div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px">`;
+    data.da_yun.forEach(dy => {
+      const cls = dy.is_current ? 'highlight-y' : '';
+      html += `<div class="${cls}" style="background:#252531;padding:6px 10px;border-radius:6px;text-align:center;font-size:12px">
+        <div>${dy.range}</div>
+        <div style="font-weight:bold">${dy.gan_zhi}</div>
+        <div style="color:#888">${dy.shi_shen}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // 流年
+  html += '\n\n<div class="section-title">【流年运势】</div>';
+  html += `<div>流年干支：${data.liu_nian}</div>`;
+  html += `<div>太岁关系：${data.tai_sui || '无冲刑害'}</div>`;
+  html += `<div>流年十神：${data.liu_nian_shi_shen || ''}</div>`;
+  html += `<div style="color:#facc15">${data.liu_nian_forecast || ''}</div>`;
+
+  // 建议
+  if (data.advice && data.advice.length > 0) {
+    html += '\n\n<div class="section-title">【趋吉避凶】</div>';
+    data.advice.forEach(a => {
+      html += `<div>· ${a}</div>`;
+    });
+  }
+
+  // 温馨提示
+  html += '\n\n<div class="warning">⚠ 命理分析反映的是一种趋势和可能性，而非绝对的命运。人生的精彩在于选择与努力，命运掌握在自己手中。</div>';
+
+  el.innerHTML = html;
+  el.classList.add('active');
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
