@@ -185,6 +185,21 @@ Web 版功能：
 - 完整的运势报告展示（八字/五行/十神/神煞/大运/流年/建议）
 - 手机端自适应
 
+### Docker 部署（一行命令）
+
+```bash
+docker run -d -p 5000:5000 --name bazi-immortal ghcr.io/rdcjed/bazi-immortal:latest
+```
+
+或自己构建：
+
+```bash
+git clone https://github.com/rdcjed/bazi-immortal.git
+cd bazi-immortal
+docker compose up -d
+# 浏览器打开 http://localhost:5000
+```
+
 ---
 
 ## 📦 依赖
