@@ -329,6 +329,8 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         "ri_gan": ri_gan,
         "ri_wx": ri_wx,
         "monthly_state": monthly_state,
+        "season": season,
+        "de_ling_score": de_ling_score,
         "distribution": distribution,
         "strong_weak": strong_weak,
         "score": score,
@@ -352,7 +354,7 @@ def format_wuxing_analysis(result: Dict) -> str:
     parts.append(f"五行分布：{dist_str}")
     
     # 日主
-    parts.append(f"日主：{result['ri_gan']}（{result['ri_wx']}），月令状态：{result['monthly_state']}")
+    parts.append(f"日主：{result['ri_gan']}（{result['ri_wx']}），月令状态：{result['monthly_state']}，季节：{result.get('season', '?')}")
     
     # 强弱
     parts.append(f"综合判定：{result['strong_weak']}（得分{result['score']}）")
