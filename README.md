@@ -165,10 +165,33 @@ bazi-immortal/
 
 ---
 
+## 🌐 Web Demo
+
+> 一个漂亮的暗色主题网页版，支持交互式运势查询
+
+```bash
+# 安装 Flask
+pip install flask
+
+# 启动
+python web/app.py
+
+# 浏览器打开
+open http://localhost:5000
+```
+
+Web 版功能：
+- 表单输入出生年月日时+性别
+- 完整的运势报告展示（八字/五行/十神/神煞/大运/流年/建议）
+- 手机端自适应
+
+---
+
 ## 📦 依赖
 
 - Python 3.9+
-- 标准库（无需第三方依赖）
+- 标准库（引擎无需第三方依赖）
+- Flask（仅 Web Demo 需要，`pip install flask`）
 
 ---
 
