@@ -57,6 +57,10 @@ def get_shi_shen_for_gan(ri_gan: str, other_gan: str) -> str:
     other_yin_yang = TG_YIN_YANG[other_gan]
     same_yy = (ri_yin_yang == other_yin_yang)
 
+    # ⚠ 先检查同五行不同天干（比肩/劫财），再检查生克
+    if ri_wx == other_wx:
+        return "比肩" if same_yy else "劫财"
+
     # 生我者为印枭
     if WU_XING_SHENG.get(other_wx) == ri_wx:
         return "正印" if not same_yy else "偏印"
