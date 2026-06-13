@@ -1,175 +1,265 @@
 """
-命运道士 Web 服务
-Flask 后端，提供八字推算 API
+八字命理推算 - Web 交互页面
+基于 bazi_immortal 引擎的 Flask Web 应用
 """
 
-import sys
-import os
+import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, jsonify, request, send_from_directory
-from bazi_immortal import (
-    calculate_bazi, bazi_to_string,
-    analyze_ri_zuo_strong_weak, analyze_all_shi_shen,
-    calculate_da_yun, get_liu_nian, analyze_liu_nian,
-    find_shen_sha,
-)
-from bazi_immortal.wuxing import (
-    analyze_wuxing_distribution, WU_XING_COLORS, WU_XING_DIRECTIONS,
-    WU_XING_ORGANS, WU_XING_SEASONS, WU_XING_LIST,
-)
+from flask import Flask, request, render_template
 
-app = Flask(__name__, static_folder=None)
+from bazi_immortal import calculate_bazi, find_shen_sha
+from bazi_immortal.wuxing import analyze_ri_zuo_strong_weak, analyze_wuxing_distribution
+from bazi_immortal.shisheng import analyze_all_shi_shen
+from bazi_immortal.dayun import calculate_da_yun, get_liu_nian, analyze_liu_nian
+from bazi_immortal.contextual import analyze_shi_shen_features, get_guiren_analysis, analyze_pillars, analyze_life_fortune
+from bazi_immortal.predictions import predict_monthly, predict_ten_years
+from bazi_immortal.location import analyze_location_compatibility
+from bazi_immortal.constants import TG_WU_XING
 
-# ─── 静态文件 ───
-HTML_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "web")
+app = Flask(__name__)
+
+TEN_YEAR_PASSWORD = "111111"
 
 
-@app.route("/")
-def index():
-    return send_from_directory(HTML_DIR, "index.html")
+def generate_report(year, month, day, hour, minute, gender, target_year=None,
+                    location_province=None, location_city=None):
+    """完整的推算流程，返回结构化结果"""
+    bazi = calculate_bazi(year, month, day, hour, minute, gender)
+    if bazi is None:
+        return {"error": "八字推算失败，请检查日期格式"}
 
+    if target_year is None:
+        target_year = 2026
 
-@app.route("/<path:path>")
-def static_files(path):
-    return send_from_directory(HTML_DIR, path)
+    # ── 基础信息 ──
+    gan_zhi_list = [
+        bazi.year_pillar.gan_zhi, bazi.month_pillar.gan_zhi,
+        bazi.day_pillar.gan_zhi, bazi.hour_pillar.gan_zhi,
+    ]
 
+    # ── 五行分析 ──
+    strength = analyze_ri_zuo_strong_weak(bazi)
+    wx_dist = analyze_wuxing_distribution(bazi)
 
-# ─── API ───
+    # ── 十神 ──
+    ss_data = analyze_all_shi_shen(bazi)
+    ss_counts = {k: v for k, v in sorted(ss_data["counts"].items(), key=lambda x: -x[1]) if v > 0}
+    top_ss = ss_data.get("top_shi_shen", [])
 
-@app.route("/api/bazi")
-def api_bazi():
-    try:
-        year = request.args.get("year", type=int)
-        month = request.args.get("month", type=int)
-        day = request.args.get("day", type=int)
-        hour = request.args.get("hour", type=int, default=12)
-        gender = request.args.get("gender", default="男")
-        liunian = request.args.get("liunian", type=int, default=0)
+    # ── 神煞 ──
+    shensha_result = find_shen_sha(bazi)
 
-        if not all([year, month, day]):
-            return jsonify({"error": "请填写完整的出生年月日"}), 400
+    # ── 大运 ──
+    birth_time = (year, month, day, hour, minute)
+    dayun_data = calculate_da_yun(bazi, birth_time=birth_time)
+    current_age = target_year - year
+    current_dayun = None
+    for step in dayun_data["da_yun_list"]:
+        if step["start_age"] <= current_age <= step["end_age"]:
+            current_dayun = step
+            break
 
-        bazi = calculate_bazi(year, month, day, hour, 0, gender)
-        liunian_year = liunian if liunian else 2026
+    # ── 流年 ──
+    liunian_info = get_liu_nian(target_year)
+    liunian_analysis = analyze_liu_nian(bazi, target_year)
+    ln_shi_shen = liunian_analysis.get("shi_shen", "")
 
-        # ─── 五行分析 ───
-        wx = analyze_ri_zuo_strong_weak(bazi)
-        wx_dist = analyze_wuxing_distribution(bazi)
+    # ── 命格特质分析(分情况) ──
+    features = analyze_shi_shen_features(bazi.ri_gan, ss_data, strength)
 
-        # ─── 十神分析 ───
-        ss = analyze_all_shi_shen(bazi)
-
-        # ─── 神煞 ───
-        shensha_result = find_shen_sha(bazi)
-        shensha_list = []
-        # 分吉凶
-        ji_names = ["天乙贵人", "天德", "月德", "文昌贵人", "国印贵人", "禄神",
-                     "金舆", "天赦", "红鸾", "天喜", "学堂", "词馆", "将星",
-                     "福星贵人", "天厨贵人", "天权"]
-        xiong_names = ["羊刃", "劫煞", "灾煞", "勾神", "绞神", "元辰",
-                        "孤辰", "寡宿", "十恶大败", "四废", "天罗地网"]
-        for name, info in shensha_result.items():
-            if name in ji_names:
-                stype = "吉"
-            elif name in xiong_names:
-                stype = "凶"
-            else:
-                stype = "中"
-            shensha_list.append({
-                "name": name,
-                "position": "、".join(info["positions"]),
-                "meaning": info["meaning"],
-                "type": stype,
-            })
-
-        # ─── 大运 ───
-        dy = calculate_da_yun(bazi)
-        da_yun_list = []
-        # 用默认年龄30岁来标记当前
-        for yun in dy["da_yun_list"]:
-            da_yun_list.append({
-                "range": yun["range"],
-                "start_age": yun["start_age"],
-                "end_age": yun["end_age"],
-                "gan_zhi": yun["gan_zhi"],
-                "shi_shen": yun["shi_shen"],
-                "is_current": yun["start_age"] <= 30 < yun["end_age"],
-            })
-
-        # ─── 流年 ───
-        ln = get_liu_nian(liunian_year)
-        ln_analysis = analyze_liu_nian(bazi, liunian_year)
-
-        ss_forecast = {
-            "正官": "事业运旺，有晋升机会，但也需注意压力",
-            "七杀": "挑战与机遇并存，有突破但也有阻力",
-            "正印": "学习运佳，贵人运好，适合进修提升",
-            "偏印": "偏门路数有收获，但要注意判断",
-            "正财": "正财运好，工资收入稳定增长",
-            "偏财": "偏财机会多，适合投资但不宜贪心",
-            "比肩": "朋友助力多，但也需防竞争",
-            "劫财": "开销大，谨防投资亏损和朋友借钱",
-            "食神": "才华显现，有意外惊喜和口福",
-            "伤官": "名利显露但容易得罪人，言语需谨慎",
-        }
-
-        # ─── 建议 ───
-        useful_god = wx["useful_god"]
-        advice = []
-        for ug in useful_god:
-            color = WU_XING_COLORS.get(ug, "?")
-            direction = WU_XING_DIRECTIONS.get(ug, "?")
-            season = WU_XING_SEASONS.get(ug, "?")
-            organ = WU_XING_ORGANS.get(ug, "?")
-            advice.append(f"用神为{ug}：多穿{color}色系，往{direction}发展有利，{season}季运势最佳")
-
-        wuxing_careers = {
-            "木": "教育、文化、医疗、环保、园艺",
-            "火": "互联网、能源、设计、餐饮、传媒",
-            "土": "房地产、建筑、农业、矿业、仓储",
-            "金": "金融、法律、机械、汽车、科技",
-            "水": "物流、旅游、贸易、媒体、水产",
-        }
-        for ug in useful_god:
-            careers = wuxing_careers.get(ug, "")
-            if careers:
-                advice.append(f"适合行业（{ug}）：{careers}")
-
-        # ─── 响应 ───
-        return jsonify({
-            "bazi": " ".join(p.gan_zhi for p in bazi.si_zhu),
-            "bazi_detail": bazi_to_string(bazi).split("\n")[3],
-            "ri_gan": bazi.ri_gan,
-            "ri_wx": wx["ri_wx"],
-            "gender": bazi.gender,
-            # 五行
-            "wuxing_distribution": wx_dist,
-            "monthly_state": wx["monthly_state"],
-            "strong_weak": wx["strong_weak"],
-            "score": wx["score"],
-            "reasoning": wx["reasoning"],
-            "useful_god": "、".join(wx["useful_god"]),
-            "avoid_god": "、".join(wx["avoid_god"]),
-            # 十神
-            "shisheng_summary": ss["summary"],
-            # 神煞
-            "shensha": shensha_list,
-            # 大运
-            "da_yun": da_yun_list,
-            "start_age": dy["start_age"],
-            # 流年
-            "liu_nian": f"{ln['tian_gan']}{ln['di_zhi']}",
-            "tai_sui": "、".join(ln_analysis["tai_sui_relations"]),
-            "liu_nian_shi_shen": ln_analysis["liu_nian_shi_shen"],
-            "liu_nian_forecast": ss_forecast.get(ln_analysis["liu_nian_shi_shen"], ""),
-            # 建议
-            "advice": advice,
+    # ── 贵人评估 ──
+    guiren = get_guiren_analysis(shensha_result)
+    shaguan_count = ss_data["counts"].get("七杀", 0) + ss_data["counts"].get("正官", 0)
+    if shaguan_count > 0:
+        is_yong = "为用神" if strength.get("strong_weak") == "身强" else "需印星化杀"
+        guiren["guiren_list"].append({
+            "name": "官杀贵人",
+            "desc": f"官杀旺（{shaguan_count}）{is_yong}：职场/上司贵人运强",
+            "positions": "",
         })
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # ── 月度运势预测（用流年的年干，不是出生年干）──
+    liunian_gan = get_liu_nian(target_year)["tian_gan"]
+    months = predict_monthly(
+        liunian_gan, bazi.ri_gan, bazi.zhi_list,
+        strength["strong_weak"], strength.get("useful_god", [])
+    )
+
+    # ── 四柱逐柱分析 ──
+    yongshen_info = {
+        "strong_weak": strength["strong_weak"],
+        "useful_god": strength.get("useful_god", []),
+        "avoid_god": strength.get("avoid_god", []),
+    }
+    pillar_analysis = analyze_pillars(bazi, strength, ss_data, yongshen_info)
+
+    # ── 一生运势综合 ──
+    life_fortune = analyze_life_fortune(bazi, ss_data, strength, dayun_data)
+
+    # ── 地点分析 ──
+    location_result = None
+    if location_province:
+        location_result = analyze_location_compatibility(
+            location_province, location_city or "",
+            strength.get("useful_god", []),
+            strength.get("avoid_god", []),
+            strength["strong_weak"],
+            bazi.ri_gan,
+            ss_data["category_counts"],
+            gender,
+        )
+
+    ri_gan = bazi.ri_gan
+    ri_wx = TG_WU_XING[ri_gan]
+
+    return {
+        "basic": {
+            "gan_zhi": gan_zhi_list,
+            "day_gan": ri_gan,
+            "day_wx": ri_wx,
+            "gender": gender,
+            "birth_str": f"{year}年{month}月{day}日 {hour}:{minute:02d}",
+        },
+        "wuxing": {
+            "distribution": {k: v for k, v in sorted(wx_dist.items(), key=lambda x: -x[1])},
+            "strength": strength["strong_weak"],
+            "season": strength.get("season", ""),
+            "monthly_state": strength.get("monthly_state", ""),
+            "score": strength.get("score", 0),
+            "useful_god": strength.get("useful_god", []),
+            "avoid_god": strength.get("avoid_god", []),
+        },
+        "shishen": {
+            "counts": ss_counts,
+            "top_shi_shen": top_ss,
+        },
+        "shensha": {
+            "list": [{"name": k, **v} for k, v in shensha_result.items()],
+        },
+        "dayun": {
+            "direction": dayun_data["direction"],
+            "start_age": dayun_data["start_age"],
+            "list": dayun_data["da_yun_list"],
+            "current": current_dayun,
+            "current_age": current_age,
+        },
+        "liunian": {
+            "gan_zhi": liunian_info["gan_zhi"],
+            "tian_gan": liunian_info["tian_gan"],
+            "di_zhi": liunian_info["di_zhi"],
+            "shi_shen": ln_shi_shen,
+            "tai_sui": liunian_analysis.get("tai_sui_relations", []),
+        },
+        "features": features,
+        "guiren": guiren,
+        "monthly": months,
+        "pillars": pillar_analysis,
+        "life_fortune": life_fortune,
+        "location": location_result,
+    }
+
+
+def generate_ten_year_report(bazi, year, gender, birth_year):
+    """生成10年运势预测"""
+    strength = analyze_ri_zuo_strong_weak(bazi)
+    dayun_data = calculate_da_yun(bazi, birth_time=(
+        birth_year,
+        int(gender == "女"),  # placeholder, will override
+        1, 0, 0
+    ))
+    # Re-calculate with proper birth_time
+    return predict_ten_years(
+        bazi, bazi.ri_gan, bazi.year_pillar.tian_gan,
+        bazi.zhi_list, strength["strong_weak"], strength.get("useful_god", []),
+        None, birth_year, gender, year
+    )
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    """支持 GET（空表单）和 POST（提交+结果）"""
+    result = None
+    error = None
+    form_values = {
+        "year": "1900", "month": "1", "day": "1",
+        "hour": "0", "minute": "0", "gender": "男",
+        "target_year": "2026", "province": "", "city": "",
+    }
+    ten_year_error = None
+    ten_year_data = None
+
+    if request.method == "POST":
+        form_values["year"] = request.form.get("year", "1986")
+        form_values["month"] = request.form.get("month", "3")
+        form_values["day"] = request.form.get("day", "2")
+        form_values["hour"] = request.form.get("hour", "10")
+        form_values["minute"] = request.form.get("minute", "30")
+        form_values["gender"] = request.form.get("gender", "男")
+        form_values["target_year"] = request.form.get("target_year", "2026")
+        form_values["enable_ten_year"] = request.form.get("enable_ten_year", "")
+        form_values["ten_year_password"] = request.form.get("ten_year_password", "")
+        form_values["province"] = request.form.get("province", "")
+        form_values["city"] = request.form.get("city", "")
+
+        try:
+            year = int(form_values["year"])
+            month = int(form_values["month"])
+            day = int(form_values["day"])
+            hour = int(form_values["hour"])
+            minute = int(form_values["minute"])
+            gender = form_values["gender"]
+            target_year = int(form_values["target_year"])
+
+            if not (1900 <= year <= 2100):
+                error = "年份范围：1900-2100"
+            elif not (1 <= month <= 12):
+                error = "月份范围：1-12"
+            elif not (1 <= day <= 31):
+                error = "日期范围：1-31"
+            elif not (0 <= hour <= 23):
+                error = "小时范围：0-23"
+            elif not (0 <= minute <= 59):
+                error = "分钟范围：0-59"
+            elif gender not in ("男", "女"):
+                error = "性别请填'男'或'女'"
+            else:
+                province = form_values.get("province", "")
+                city = form_values.get("city", "")
+                result = generate_report(year, month, day, hour, minute, gender, target_year,
+                                         province if province else None,
+                                         city if city else None)
+                if "error" in result:
+                    error = result["error"]
+                    result = None
+
+            # ── 10年运势预测（需密码验证）──
+            enable_ten = request.form.get("enable_ten_year", "")
+            if enable_ten == "on" and result is not None:
+                password = request.form.get("ten_year_password", "")
+                if password == TEN_YEAR_PASSWORD:
+                    bazi = calculate_bazi(year, month, day, hour, minute, gender)
+                    if bazi:
+                        strength = analyze_ri_zuo_strong_weak(bazi)
+                        dayun_data = calculate_da_yun(bazi, birth_time=(year, month, day, hour, minute))
+                        ten_year_data = predict_ten_years(
+                            bazi, bazi.ri_gan, bazi.year_pillar.tian_gan,
+                            bazi.zhi_list, strength["strong_weak"],
+                            strength.get("useful_god", []),
+                            dayun_data["da_yun_list"], year, gender, target_year
+                        )
+                elif password != "":
+                    ten_year_error = "密码错误，请重新输入"
+
+        except (ValueError, TypeError):
+            error = "请填写有效的数字格式"
+
+    return render_template(
+        "index.html", result=result, error=error, form=form_values,
+        ten_year=ten_year_data, ten_year_error=ten_year_error,
+    )
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    print("☯ 八字命理预测系统已启动 → http://localhost:5000")
+    app.run(host="0.0.0.0", port=5000, debug=False)

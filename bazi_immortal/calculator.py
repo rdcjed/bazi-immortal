@@ -206,34 +206,24 @@ class BaZiCalculator:
 
     def _calc_day_pillar(self, year: int, month: int, day: int) -> Pillar:
         """
-        日柱：使用完整的日干支计算公式
+        日柱：使用基于儒略日（Julian Day Number）的天文算法
 
-        公式（1900-2099年适用）：
-        A = (year_tail + 7) × 5 + 15 + (year_tail + 19) // 4
-        day_offset = (A % 60) + ordinal_days(year, month, day) - 1
-        日干支索引 = day_offset % 60
+        精确适用于所有公历年份（1582年10月15日之后的格里历），
+        不受世纪限制，无1900-2099的限制。
 
-        其中 ordinal_days 是计算该年1月1日到目标日期的天数差 + 1
+        算法：
+        1. 计算该日期的儒略日数（JDN）
+        2. 日干支索引 = (JDN + 39) % 60（39为修正偏移，使甲子日正确对应）
         """
-        year_tail = year % 100
-        century = year // 100
+        # 儒略日计算（格里历）
+        a = (14 - month) // 12
+        y = year + 4800 - a
+        m = month + 12 * a - 3
+        jdn = day + (153 * m + 2) // 5 + 365 * y + y // 4 - y // 100 + y // 400 - 32045
 
-        # 1. 计算该年1月1日的干支序号
-        if century == 19:  # 1900-1999
-            base = (year_tail + 3) * 5 + 55 + (year_tail - 1) // 4
-        elif century == 20:  # 2000-2099
-            base = (year_tail + 7) * 5 + 15 + (year_tail + 19) // 4
-        else:
-            # 1900-2100以外的年份用通用公式
-            base = (year_tail + 7) * 5 + 15 + (year_tail + 19) // 4
-
-        jan1_index = base % 60
-
-        # 2. 计算目标日期是该年的第几天
-        day_of_year = self._day_of_year(year, month, day)
-
-        # 3. 日干支索引 = (1月1日干支索引 + 天数差) % 60
-        target_index = (jan1_index + day_of_year - 1) % 60
+        # 日干支索引 = (JDN + 39) % 60
+        # 其中39是修正偏移，使得JDN(1900-01-01)=2415021的日干支为甲子(index 0)
+        target_index = (jdn + 39) % 60
         tg, dz = LIU_SHI_JIA_ZI[target_index]
 
         return Pillar(TIAN_GAN[tg], DI_ZHI[dz], "日柱")

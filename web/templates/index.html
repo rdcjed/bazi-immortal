@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命运道士 · 八字命理推算</title>
+<style>
+/* ════════════ 全局 ════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d12;
+  --card: #16161e;
+  --card2: #1c1c28;
+  --border: #2a2a3a;
+  --gold: #d4a853;
+  --gold-dim: #a8853a;
+  --red: #c0392b;
+  --red-light: #e74c3c;
+  --text: #e0dcd6;
+  --text-dim: #88869a;
+  --text-bright: #f5f0e8;
+  --accent-green: #27ae60;
+  --accent-blue: #2980b9;
+  --accent-purple: #8e44ad;
+}
+body {
+  font-family: -apple-system, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+.container { max-width: 880px; margin: 0 auto; padding: 40px 20px 80px; }
+
+/* ════════════ 标题 ════════════ */
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--border);
+}
+.header .logo { font-size: 52px; }
+.header h1 {
+  font-size: 28px; color: var(--gold); font-weight: 700;
+  margin: 12px 0 6px; letter-spacing: 6px;
+}
+.header p { color: var(--text-dim); font-size: 14px; letter-spacing: 2px; }
+
+/* ════════════ 输入卡片 ════════════ */
+.input-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 40px;
+  margin-bottom: 36px;
+}
+.input-card h2 {
+  font-size: 18px; color: var(--text-bright);
+  margin-bottom: 24px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border); letter-spacing: 2px;
+}
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.input-group { display: flex; flex-direction: column; }
+.input-group label {
+  font-size: 12px; color: var(--text-dim);
+  margin-bottom: 4px; letter-spacing: 1px;
+}
+.input-group input, .input-group select {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text-bright);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+}
+.input-group input:focus, .input-group select:focus { border-color: var(--gold); }
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #8b6914, var(--gold));
+  border: none;
+  border-radius: 10px;
+  color: #1a1a1a;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-submit:hover { opacity: .9; }
+.btn-submit:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ════════════ 错误提示 ════════════ */
+.error-banner {
+  background: rgba(192,57,43,.12);
+  border: 1px solid rgba(192,57,43,.3);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  color: var(--red-light);
+  font-size: 14px;
+  display: {% if error %}block{% else %}none{% endif %};
+}
+
+/* ════════════ 结果区域 ════════════ */
+.result { margin-top: 36px; }
+.section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .2s;
+}
+.section-header:hover { background: rgba(255,255,255,.02); }
+.section-header h3 {
+  font-size: 16px; color: var(--text-bright);
+  letter-spacing: 2px; font-weight: 600;
+}
+.section-header .icon { font-size: 18px; color: var(--gold); margin-right: 10px; }
+.section-header .arrow {
+  color: var(--text-dim);
+  transition: transform .3s;
+  font-size: 12px;
+}
+.section-header.collapsed .arrow { transform: rotate(-90deg); }
+.section-body { padding: 0 24px 20px; }
+.section-body.hidden { display: none; }
+
+/* ════════════ 内容样式 ════════════ */
+.bazi-display {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+.bazi-cell {
+  text-align: center;
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 14px 8px;
+}
+.bazi-cell .label { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+.bazi-cell .gz { font-size: 22px; color: var(--gold); font-weight: 700; letter-spacing: 4px; }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.stat-row:last-child { border: none; }
+.stat-row .label { color: var(--text-dim); font-size: 14px; }
+.stat-row .value { color: var(--text-bright); font-size: 14px; font-weight: 500; }
+
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 2px 3px;
+}
+.tag.gold { background: rgba(212,168,83,.15); color: var(--gold); }
+.tag.green { background: rgba(39,174,96,.15); color: var(--accent-green); }
+.tag.red { background: rgba(192,57,43,.15); color: var(--red-light); }
+.tag.blue { background: rgba(41,128,185,.15); color: var(--accent-blue); }
+.tag.purple { background: rgba(142,68,173,.15); color: var(--accent-purple); }
+
+.feature-item {
+  padding: 12px 16px;
+  margin: 6px 0;
+  background: var(--card2);
+  border-radius: 8px;
+  border-left: 3px solid var(--gold);
+  font-size: 14px;
+}
+
+.dayun-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+.dayun-table th, .dayun-table td {
+  text-align: center;
+  padding: 10px 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.dayun-table th { color: var(--text-dim); font-weight: 400; font-size: 12px; }
+.dayun-table .active-row {
+  background: rgba(212,168,83,.08);
+  border-left: 3px solid var(--gold);
+}
+.dayun-table .active-row td { color: var(--gold); font-weight: 600; }
+
+.guiren-card {
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 8px 0;
+}
+.guiren-card .name { color: var(--gold); font-weight: 600; font-size: 15px; }
+.guiren-card .desc { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+.level-badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.level-badge.很强 { background: linear-gradient(135deg, rgba(212,168,83,.2), rgba(212,168,83,.05)); color: var(--gold); }
+.level-badge.较强 { background: rgba(212,168,83,.12); color: #e0c06a; }
+.level-badge.一般 { background: rgba(136,134,154,.1); color: var(--text-dim); }
+.level-badge.偏弱 { background: rgba(192,57,43,.1); color: var(--red-light); }
+
+.shensha-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--card2);
+  border-radius: 6px;
+  font-size: 12px;
+  margin: 2px 4px 2px 0;
+  color: var(--text);
+}
+.shensha-tag .name { color: var(--gold); font-weight: 600; }
+
+.liunian-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 10px 0;
+}
+.liunian-item {
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 14px 18px;
+  flex: 1;
+  min-width: 150px;
+}
+.liunian-item .lbl { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+.liunian-item .val { font-size: 16px; color: var(--text-bright); font-weight: 600; }
+
+/* ════════════ 月度运势 ════════════ */
+.month-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.month-card {
+  background: var(--card2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.month-card:hover { background: rgba(212,168,83,.06); border-color: var(--gold-dim); }
+.month-card .m-name { font-weight: 600; font-size: 14px; color: var(--gold); min-width: 50px; }
+.month-card .m-ganzhi { font-size: 13px; color: var(--text-dim); min-width: 80px; }
+.month-card .m-ss { font-size: 12px; color: var(--text-bright); min-width: 60px; }
+.month-card .m-date { font-size: 11px; color: var(--text-dim); }
+.month-card .m-score {
+  display: inline-flex;
+  width: 28px; height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: auto;
+}
+.month-card .m-score.high { background: rgba(39,174,96,.2); color: var(--accent-green); }
+.month-card .m-score.mid { background: rgba(212,168,83,.15); color: var(--gold); }
+.month-card .m-score.low { background: rgba(192,57,43,.15); color: var(--red-light); }
+.month-card .m-date { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+.month-detail {
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 8px 0;
+  display: none;
+  border-left: 3px solid var(--gold);
+}
+.month-detail.show { display: block; }
+.month-detail .cat-row { margin: 6px 0; font-size: 13px; }
+.month-detail .cat-label { color: var(--gold); font-weight: 600; display: inline; }
+.month-detail .cat-text { color: var(--text); display: inline; }
+
+/* ════════════ 10年运势 ════════════ */
+.ten-year-form {
+  margin-top: 14px;
+  padding: 16px;
+  background: var(--card2);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.ten-year-form label.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-bright);
+  cursor: pointer;
+}
+.ten-year-form input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.ten-year-form .password-field {
+  margin-top: 10px;
+  display: none;
+}
+.ten-year-form .password-field.show { display: flex; align-items: center; gap: 10px; }
+.ten-year-form .password-field input[type="password"] {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-bright);
+  font-size: 14px;
+  outline: none;
+  width: 180px;
+}
+.ten-year-form .password-field input:focus { border-color: var(--gold); }
+.ten-year-form .ten-hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+.year-card {
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 8px 0;
+  cursor: pointer;
+  transition: background .2s;
+  border: 1px solid var(--border);
+}
+.year-card:hover { background: rgba(212,168,83,.04); }
+.year-card .y-header { display: flex; justify-content: space-between; align-items: center; }
+.year-card .y-year { font-weight: 600; font-size: 15px; color: var(--gold); }
+.year-card .y-ganzhi { font-size: 13px; color: var(--text-dim); }
+.year-card .y-ss { font-size: 13px; color: var(--text-bright); }
+.year-card .y-score {
+  display: inline-block;
+  width: 28px; height: 28px;
+  line-height: 28px;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+.year-card .y-score.high { background: rgba(39,174,96,.2); color: var(--accent-green); }
+.year-card .y-score.mid { background: rgba(212,168,83,.15); color: var(--gold); }
+.year-card .y-score.low { background: rgba(192,57,43,.15); color: var(--red-light); }
+.year-detail {
+  display: none;
+  padding: 12px 0 0;
+}
+.year-detail.show { display: block; }
+.year-detail .yd-cat { margin: 6px 0; font-size: 13px; }
+.year-detail .yd-label { color: var(--gold); font-weight: 600; }
+.year-detail .yd-text { color: var(--text); }
+
+.ten-summary {
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 12px 0;
+  border-left: 3px solid var(--gold);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .input-grid { grid-template-columns: repeat(3, 1fr); }
+  .bazi-display { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 20px 12px; }
+  .input-card { padding: 24px 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo">☯</div>
+    <h1>命运道士</h1>
+    <p>八字命理 · 排盘推运</p>
+  </div>
+
+  <div class="input-card">
+    <h2>📋 请输入出生信息</h2>
+    <form id="baziForm" action="/" method="POST">
+      <div class="input-grid">
+        <div class="input-group">
+          <label>出生年</label>
+          <input type="number" name="year" value="{{ form.year }}" min="1900" max="2100" required>
+        </div>
+        <div class="input-group">
+          <label>月</label>
+          <input type="number" name="month" value="{{ form.month }}" min="1" max="12" required>
+        </div>
+        <div class="input-group">
+          <label>日</label>
+          <input type="number" name="day" value="{{ form.day }}" min="1" max="31" required>
+        </div>
+        <div class="input-group">
+          <label>时</label>
+          <input type="number" name="hour" value="{{ form.hour }}" min="0" max="23" required>
+        </div>
+        <div class="input-group">
+          <label>分</label>
+          <input type="number" name="minute" value="{{ form.minute }}" min="0" max="59" required>
+        </div>
+        <div class="input-group">
+          <label>性别</label>
+          <select name="gender">
+            <option value="男" {% if form.gender == "男" %}selected{% endif %}>男</option>
+            <option value="女" {% if form.gender == "女" %}selected{% endif %}>女</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div class="input-group" style="max-width:200px;">
+          <label>流年分析</label>
+          <input type="number" name="target_year" value="{{ form.target_year }}" min="1900" max="2100">
+        </div>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="input-group" style="flex:1;min-width:150px;max-width:250px;">
+          <label>📍 所在省市（评估发展适合度）</label>
+          <input type="text" name="province" value="{{ form.province }}" placeholder="省/直辖市" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text-bright);font-size:14px;font-family:inherit;outline:none;width:100%;">
+        </div>
+        <div class="input-group" style="flex:1;min-width:150px;max-width:250px;">
+          <label>&nbsp;</label>
+          <input type="text" name="city" value="{{ form.city }}" placeholder="城市（可选）" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text-bright);font-size:14px;font-family:inherit;outline:none;width:100%;">
+        </div>
+      </div>
+    <!-- ── 10年运势选项 ── -->
+      <div class="ten-year-form">
+        <label class="checkbox-label">
+          <input type="checkbox" id="enableTenYear" name="enable_ten_year"
+                 onchange="document.getElementById('tenYearPwd').classList.toggle('show', this.checked)"
+                 {% if form.enable_ten_year %}checked{% endif %}>
+          🔮 开启未来10年运势预测（详细版）
+        </label>
+        <div class="password-field" id="tenYearPwd">
+          <input type="password" name="ten_year_password" placeholder="输入密码" value="{{ form.ten_year_password or '' }}">
+        </div>
+        <div class="ten-hint">💡 10年详批涵盖事业、财运、感情、健康、家庭等全方位预测</div>
+      </div>
+
+      <button type="submit" class="btn-submit">开始推算</button>
+    </form>
+  </div>
+
+  {% if error %}
+  <div class="error-banner">⚠ {{ error }}</div>
+  {% endif %}
+
+  {% if result %}
+  <div class="result">
+
+    <!-- ── 八字排盘 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">☰</span>八字排盘</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="stat-row"><span class="label">出生</span><span class="value">{{ result.basic.birth_str }} · {{ result.basic.gender }}</span></div>
+        <div class="stat-row"><span class="label">日主</span><span class="value">日主【{{ result.basic.day_gan }} ({{ result.basic.day_wx }})】</span></div>
+        <div class="bazi-display">
+          {% for gz in result.basic.gan_zhi %}
+          <div class="bazi-cell"><div class="label">柱</div><div class="gz">{{ gz }}</div></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 四柱逐柱分析 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">🔍</span>四柱逐柱分析（吉凶详解）</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        {% for p in result.pillars %}
+        <div style="background:var(--card2);border-radius:10px;padding:16px;margin:10px 0;border-left:3px solid {% if p.rating == '吉' or p.rating == '小吉' %}var(--accent-green){% elif p.rating == '凶' or p.rating == '小凶' %}var(--red-light){% else %}var(--gold){% endif %};">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-weight:600;font-size:16px;color:var(--gold);">{{ p.pillar }}</span>
+            <span style="font-size:20px;font-weight:700;letter-spacing:4px;">{{ p.gan_zhi }}</span>
+            <span class="tag {% if p.rating == '吉' or p.rating == '小吉' %}green{% elif p.rating == '凶' or p.rating == '小凶' %}red{% else %}gold{% endif %}">{{ p.rating }}</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">
+            代表：{{ p.meaning }} ·
+            天干{{ p.tiangan }}（{{ p.tiangan_shishen }}）·
+            地支{{ p.dizhi }}（藏干{{ p.dizhi_canggan }}）
+          </div>
+          {% if p.details %}
+          <ul style="list-style:none;padding:0;">
+            {% for d in p.details %}
+            <li style="font-size:13px;padding:3px 0;color:var(--text);">• {{ d }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── 五行分析 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">♨</span>五行分析</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="stat-row">
+          <span class="label">身强/身弱</span>
+          <span class="value"><span class="tag {% if result.wuxing.strength == '身强' %}gold{% else %}blue{% endif %}">{{ result.wuxing.strength }}</span></span>
+        </div>
+        <div class="stat-row"><span class="label">月令状态</span><span class="value">{{ result.wuxing.season }}季 · {{ result.wuxing.monthly_state }}</span></div>
+        <div class="stat-row">
+          <span class="label">五行分布</span>
+          <span class="value">
+            {% set wx_colors = {"金":"tag gold","木":"tag green","水":"tag blue","火":"tag red","土":"tag purple"} %}
+            {% for k,v in result.wuxing.distribution.items() %}
+            <span class="{{ wx_colors.get(k, 'tag') }}">{{ k }}: {{ v }}</span>
+            {% endfor %}
+          </span>
+        </div>
+        <div class="stat-row">
+          <span class="label">用神</span>
+          <span class="value">
+            {% for g in result.wuxing.useful_god %}
+            <span class="{{ wx_colors.get(g, 'tag') }}">{{ g }}</span>
+            {% endfor %}
+          </span>
+        </div>
+        <div class="stat-row">
+          <span class="label">忌神</span>
+          <span class="value">
+            {% for g in result.wuxing.avoid_god %}
+            <span class="tag red">{{ g }}</span>
+            {% endfor %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 十神 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">⚖</span>十神格局</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div>
+          {% set ss_colors = {"伤官":"tag red","七杀":"tag red","劫财":"tag red","正印":"tag green","偏印":"tag green","食神":"tag green","正官":"tag gold","偏财":"tag gold","正财":"tag gold","比肩":"tag blue"} %}
+          {% for k,v in result.shishen.counts.items() %}
+          <span class="{{ ss_colors.get(k, 'tag') }}">{{ k }}: {{ v }}</span>
+          {% endfor %}
+        </div>
+        <div class="stat-row" style="margin-top:12px;">
+          <span class="label">显著十神</span>
+          <span class="value">
+            {% for item in result.shishen.top_shi_shen %}
+            {{ item[0] }}({{ item[1] }}){% if not loop.last %}、{% endif %}
+            {% endfor %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 命格特质 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">✦</span>命格特质分析</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        {% for f in result.features %}
+        <div class="feature-item">{{ f[0] }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── 一生运势 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">🌏</span>一生运势综合分析</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="feature-item" style="border-left-color:var(--accent-green);">
+          <strong style="color:var(--gold);">先天格局</strong><br>
+          {{ result.life_fortune.summary }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--accent-blue);">
+          <strong style="color:var(--gold);">💼 事业运</strong><br>
+          {{ result.life_fortune.career }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--accent-purple);">
+          <strong style="color:var(--gold);">❤️ 感情/婚姻运</strong><br>
+          {{ result.life_fortune.love }}
+        </div>
+        <div class="feature-item" style="border-left-color:#2ecc71;">
+          <strong style="color:var(--gold);">🏠 家庭运</strong><br>
+          {{ result.life_fortune.family }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--red-light);">
+          <strong style="color:var(--gold);">💪 健康运</strong><br>
+          {{ result.life_fortune.health }}
+        </div>
+        <div style="margin-top:16px;">
+          <strong style="color:var(--gold);font-size:15px;">⏳ 人生阶段详解</strong>
+          <table class="dayun-table">
+            <thead><tr><th>大运</th><th>干支</th><th>十神</th><th>评级</th><th>说明</th></tr></thead>
+            <tbody>
+            {% for st in result.life_fortune.stages %}
+            <tr class="{{ 'active-row' if result.dayun.current and st.range == result.dayun.current.range else '' }}">
+              <td>{{ st.range }}</td><td>{{ st.gan_zhi }}</td><td>{{ st.shi_shen }}</td>
+              <td><span class="tag {% if st.rating == '吉祥' %}green{% else %}gold{% endif %}">{{ st.rating }}</span></td>
+              <td>{{ st.desc }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if result.life_fortune.key_years.good or result.life_fortune.key_years.bad %}
+        <div style="margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <strong style="color:var(--accent-green);">✅ 好运年份</strong>
+            {% for y in result.life_fortune.key_years.good %}
+            <div style="background:var(--card2);padding:8px 12px;margin:4px 0;border-radius:6px;font-size:13px;">
+              <strong>{{ y.age }}</strong> — {{ y.reason }}
+            </div>
+            {% endfor %}
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <strong style="color:var(--red-light);">⚠ 注意年份</strong>
+            {% for y in result.life_fortune.key_years.bad %}
+            <div style="background:var(--card2);padding:8px 12px;margin:4px 0;border-radius:6px;font-size:13px;">
+              <strong>{{ y.age }}</strong> — {{ y.reason }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── 贵人 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">🌟</span>贵人评估</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="level-badge {{ result.guiren.level }}">{{ result.guiren.level }}</div>
+        <p style="color:var(--text);font-size:14px;margin-bottom:12px;">{{ result.guiren.summary }}</p>
+        {% for g in result.guiren.guiren_list %}
+        <div class="guiren-card">
+          <div class="name">{{ g.name }}</div>
+          <div class="desc">{{ g.desc }} {{ g.positions }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── 神煞 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">✨</span>神煞一览</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        {% if result.shensha.list %}
+        {% for s in result.shensha.list %}
+        <span class="shensha-tag"><span class="name">{{ s.name }}</span> {{ s.meaning }}</span>
+        {% endfor %}
+        {% else %}
+        <div style="color:var(--text-dim);padding:8px;">神煞较少</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── 大运 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">⏳</span>大运流年</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="stat-row"><span class="label">起运年龄</span><span class="value">{{ result.dayun.start_age }}岁</span></div>
+        <div class="stat-row"><span class="label">大运方向</span><span class="value">{{ result.dayun.direction }}</span></div>
+        <div class="stat-row"><span class="label">当前年龄</span><span class="value">{{ result.dayun.current_age }}岁</span></div>
+        <table class="dayun-table">
+          <thead><tr><th>大运</th><th>干支</th><th>十神</th><th>年龄</th></tr></thead>
+          <tbody>
+          {% for step in result.dayun.list %}
+          {% set active = result.dayun.current and step.start_age == result.dayun.current.start_age %}
+          <tr class="{{ 'active-row' if active else '' }}">
+            <td>{{ step.gan_zhi }}</td><td>{{ step.tian_gan }}{{ step.di_zhi }}</td>
+            <td>{{ step.shi_shen or '' }}</td><td>{{ step.range }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── 流年 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">🔮</span>流年解读</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="liunian-box">
+          <div class="liunian-item"><div class="lbl">流年干支</div><div class="val">{{ result.liunian.gan_zhi }}</div></div>
+          <div class="liunian-item"><div class="lbl">天干</div><div class="val">{{ result.liunian.tian_gan }}</div></div>
+          <div class="liunian-item"><div class="lbl">地支</div><div class="val">{{ result.liunian.di_zhi }}</div></div>
+          <div class="liunian-item"><div class="lbl">流年十神</div><div class="val">{{ result.liunian.shi_shen or "-" }}</div></div>
+        </div>
+        {% if result.liunian.tai_sui %}
+        <div style="margin-top:10px;">
+          <span style="color:var(--text-dim);font-size:13px;">太岁关系：</span>
+          {% for t in result.liunian.tai_sui %}
+          <span class="tag gold">{{ t }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if result.location %}
+    <!-- ── 地点评估 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">📍</span>所在地发展评估（{{ form.province }}{{ form.city }}）</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="stat-row">
+          <span class="label">方位五行</span>
+          <span class="value">{{ result.location.direction }} · {{ result.location.location_wx }}</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">综合评分</span>
+          <span class="value"><span class="tag {% if result.location.overall_score >= 7 %}green{% elif result.location.overall_score >= 5 %}gold{% else %}red{% endif %}">{{ result.location.overall_score }}/10</span></span>
+        </div>
+        <div class="stat-row">
+          <span class="label">总体评价</span>
+          <span class="value" style="white-space:normal;text-align:right;">{{ result.location.overall_verdict }}</span>
+        </div>
+        <div class="feature-item" style="border-left-color:var(--accent-blue);">
+          <strong style="color:var(--gold);">💼 事业发展</strong><br>
+          {{ result.location.career }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--accent-purple);">
+          <strong style="color:var(--gold);">💰 财运</strong><br>
+          {{ result.location.wealth }}
+        </div>
+        <div class="feature-item" style="border-left-color:#2ecc71;">
+          <strong style="color:var(--gold);">❤️ 感情</strong><br>
+          {{ result.location.love }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--red-light);">
+          <strong style="color:var(--gold);">💪 健康</strong><br>
+          {{ result.location.health }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--gold);">
+          <strong style="color:var(--gold);">🏠 家庭</strong><br>
+          {{ result.location.family }}
+        </div>
+        <div class="feature-item" style="border-left-color:var(--accent-blue);background:rgba(39,174,96,.08);">
+          <strong style="color:var(--gold);">🎯 综合建议</strong><br>
+          {{ result.location.advice }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── 月度运势 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">📅</span>月度运势详解（{{ result.liunian.gan_zhi }}年）</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:12px;">
+          点击月份卡片展开详情，查看事业、财运、感情、家庭、健康、开运建议
+        </p>
+        <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-dim);">
+          <span><span class="m-score high" style="display:inline-flex;width:22px;height:22px;line-height:22px;font-size:10px;margin-right:4px;">高</span> 好运月（≥7分）</span>
+          <span><span class="m-score mid" style="display:inline-flex;width:22px;height:22px;line-height:22px;font-size:10px;margin-right:4px;">中</span> 普通月（5-6分）</span>
+          <span><span class="m-score low" style="display:inline-flex;width:22px;height:22px;line-height:22px;font-size:10px;margin-right:4px;">低</span> 注意月（≤4分）</span>
+        </div>
+        <div class="month-grid">
+          {% for m in result.monthly %}
+          <div class="month-card" onclick="toggleMonth(this, {{ m.month_num }})">
+            <span class="m-name">{{ m.month_name }}</span>
+            <span class="m-ganzhi">{{ m.gan_zhi }} · {{ m.shi_shen }}</span>
+            <span class="m-date">{{ m.date_range }}</span>
+            <span class="m-score {% if m.score >= 7 %}high{% elif m.score >= 5 %}mid{% else %}low{% endif %}">{{ m.score }}</span>
+          </div>
+          <div class="month-detail" id="md-{{ m.month_num }}">
+            <div class="cat-row" style="border-left:3px solid var(--gold);padding-left:10px;">
+              <span class="cat-label">评分推理：</span>
+              <span class="cat-text" style="color:var(--text-dim);font-size:13px;">{{ m.score_reasoning }}</span>
+            </div>
+            {% if m.get('analysis') %}
+            <div class="cat-row" style="border-left:3px solid var(--accent-blue);padding-left:10px;">
+              <span class="cat-label">推理详情：</span>
+              <span class="cat-text" style="color:var(--text-dim);font-size:13px;">
+                {{ m.analysis.shi_shen_analysis }}<br>
+                {{ m.analysis.wuxing_analysis }}<br>
+                {{ m.analysis.seasonal_context }}<br>
+                {{ m.analysis.cang_gan_analysis }}
+              </span>
+            </div>
+            {% endif %}
+            <div style="margin:8px 0 4px;color:var(--text-dim);font-size:12px;">
+              地支关系：{{ m.analysis.relations_text if m.get('analysis') else '、'.join(m.relations) }}
+            </div>
+            {% for cat_name, cat_text in m.categories.items() %}
+            <div class="cat-row">
+              <span class="cat-label">{{ cat_name }}：</span>
+              <span class="cat-text">{{ cat_text }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {% if ten_year %}
+    <!-- ── 10年运势 ── -->
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <span><span class="icon">🔮</span>未来10年运势预测（{{ ten_year.start_year }}-{{ ten_year.end_year }}）</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="ten-summary">{{ ten_year.summary }}</div>
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:8px;">
+          点击年份查看详细分析 · 综合评分：{{ ten_year.avg_score }}/10
+        </p>
+        <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-dim);">
+          <span><span class="y-score high" style="display:inline-flex;width:22px;height:22px;line-height:22px;font-size:10px;margin-right:4px;">高</span> 好运年（≥7分）</span>
+          <span><span class="y-score mid" style="display:inline-flex;width:22px;height:22px;line-height:22px;font-size:10px;margin-right:4px;">中</span> 普通年（5-6分）</span>
+          <span><span class="y-score low" style="display:inline-flex;width:22px;height:22px;line-height:22px;font-size:10px;margin-right:4px;">低</span> 挑战年（≤4分）</span>
+        </div>
+        {% for y in ten_year.years %}
+        <div class="year-card" onclick="toggleYear(this, {{ y.year }})">
+          <div class="y-header">
+            <span>
+              <span class="y-year">{{ y.year }}</span>
+              <span class="y-ganzhi">（{{ y.gan_zhi }}）</span>
+              <span class="y-ss">{{ y.shi_shen }}</span>
+            </span>
+            <span class="y-score {% if y.score >= 7 %}high{% elif y.score >= 5 %}mid{% else %}low{% endif %}">{{ y.score }}</span>
+          </div>
+          <div class="year-detail" id="yd-{{ y.year }}">
+            <div class="yd-cat" style="border-left:3px solid var(--gold);padding-left:8px;margin-bottom:6px;">
+              <span class="yd-label">评分推理：</span>
+              <span class="yd-text" style="color:var(--text-dim);font-size:13px;">{{ y.score_reasoning }}</span>
+            </div>
+            {% if y.get('detail') %}
+            <div class="yd-cat" style="border-left:3px solid var(--accent-blue);padding-left:8px;margin-bottom:6px;">
+              <span class="yd-label">推理详情：</span>
+              <span class="yd-text" style="color:var(--text-dim);font-size:13px;">
+                {{ y.detail.shi_shen_analysis }}<br>
+                {{ y.detail.wuxing_analysis }}<br>
+                {{ y.detail.cang_gan_analysis }}<br>
+                {{ y.detail.dy_analysis }}
+              </span>
+            </div>
+            {% endif %}
+            {% if y.dayun_effect %}
+            <div class="yd-cat"><span class="yd-label">大运影响：</span><span class="yd-text">{{ y.dayun_effect }}</span></div>
+            {% endif %}
+            {% for cat_name, cat_text in y.categories.items() %}
+            <div class="yd-cat">
+              <span class="yd-label">{{ cat_name }}：</span>
+              <span class="yd-text">{{ cat_text }}</span>
+            </div>
+            {% endfor %}
+            <div class="yd-cat" style="margin-top:8px;">
+              <span class="yd-label">决策建议：</span>
+              <span class="yd-text">{% for s in y.suggestions %}{{ s }} {% endfor %}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('collapsed');
+  const body = el.nextElementSibling;
+  body.classList.toggle('hidden');
+}
+function toggleMonth(el, id) {
+  document.getElementById('md-' + id).classList.toggle('show');
+}
+function toggleYear(el, id) {
+  document.getElementById('yd-' + id).classList.toggle('show');
+}
+</script>
+</body>
+</html>

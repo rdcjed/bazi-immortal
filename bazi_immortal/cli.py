@@ -6,7 +6,7 @@
 import argparse
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from .calculator import calculate_bazi, bazi_to_string, BaZi
 from .wuxing import analyze_ri_zuo_strong_weak, analyze_wuxing_distribution, format_wuxing_analysis, get_season
@@ -15,7 +15,8 @@ from .dayun import calculate_da_yun, get_liu_nian, analyze_liu_nian, format_da_y
 from .shensha import find_shen_sha, format_shen_sha
 
 
-def generate_fortune_report(bazi: BaZi, liu_nian_year: int = None) -> str:
+def generate_fortune_report(bazi: BaZi, liu_nian_year: int = None,
+                            birth_time: Optional[Tuple[int, int, int, int, int]] = None) -> str:
     """
     生成完整的运势报告
 
@@ -51,8 +52,21 @@ def generate_fortune_report(bazi: BaZi, liu_nian_year: int = None) -> str:
     parts.append("")
 
     # ─── 5. 大运 ───
-    da_yun_result = calculate_da_yun(bazi)
-    parts.append(format_da_yun(da_yun_result))
+    da_yun_result = calculate_da_yun(bazi, birth_time)
+    # 计算当前年龄
+    if birth_time:
+        from datetime import datetime as dt
+        by, bm, bd, bh, bmi = birth_time
+        try:
+            birth_dt = dt(by, bm, bd, bh, bmi)
+            ref_dt = dt(liu_nian_year, 7, 1)  # 以年中为参考
+            current_age = (ref_dt - birth_dt).days / 365.25
+        except:
+            current_age = liu_nian_year - by
+        current_age = max(0, round(current_age, 1))
+    else:
+        current_age = 30
+    parts.append(format_da_yun(da_yun_result, current_age))
     parts.append("")
 
     # ─── 6. 当前流年 ───
@@ -73,7 +87,7 @@ def generate_fortune_report(bazi: BaZi, liu_nian_year: int = None) -> str:
     # ─── 7. 综合运势解读 ───
     parts.append(generate_synthesis(
         bazi, wx_result, ss_result, da_yun_result, ln_analysis,
-        liu_nian_year
+        liu_nian_year, shensha_result
     ))
     parts.append("")
 
@@ -94,6 +108,85 @@ def generate_fortune_report(bazi: BaZi, liu_nian_year: int = None) -> str:
     return "\n".join(parts)
 
 
+def identify_pattern(bazi, wx_result, ss_result):
+    """识别经典命理格局"""
+    ri_gan = bazi.ri_gan
+    ri_wx = wx_result["ri_wx"]
+    sw = wx_result["strong_weak"]
+    cat = ss_result["category_counts"]
+    useful = wx_result["useful_god"]
+    avoid = wx_result["avoid_god"]
+    
+    guan = cat.get("官杀", 0)
+    yin = cat.get("印枭", 0)
+    cai = cat.get("财", 0)
+    shi = cat.get("食伤", 0)
+    bi = cat.get("比劫", 0)
+    
+    # 杀印相生格：官杀旺 + 印星旺 + 印为用神
+    from .wuxing import WU_XING_KE, WU_XING_SHENG
+    guan_wx = None
+    for k, v in WU_XING_KE.items():
+        if v == ri_wx:
+            guan_wx = k
+            break
+    yin_wx = None
+    for k, v in WU_XING_SHENG.items():
+        if v == ri_wx:
+            yin_wx = k
+            break
+    
+    patterns = []
+    
+    # 1. 杀印相生格
+    if guan >= 2.0 and yin >= 1.5 and sw in ("偏弱", "身弱"):
+        patterns.append(("杀印相生格", 
+            "官杀旺而有印星化解，以印化杀。这种格局的人越是压力大越能激发潜力，"
+            "能在逆境中崛起，往往大器晚成。毛泽东、任正非都是这种格局。"))
+    
+    # 2. 食神制杀格
+    if guan >= 2.0 and shi >= 1.5 and yin_wx in useful:
+        patterns.append(("食神制杀格",
+            "以才华智慧（食伤）制衡压力挑战（七杀）。这种格局的人智勇双全，"
+            "能在竞争中以智取胜，适合军警、管理、竞技类职业。"))
+    
+    # 3. 伤官配印格
+    if shi >= 2.0 and yin >= 1.5 and yin_wx in useful:
+        patterns.append(("伤官配印格",
+            "才华（伤官）与学识（正印）相配。这种格局的人才华横溢又有学历加持，"
+            "既聪明又有涵养，艺术造诣和学术成就都很高。"))
+    
+    # 4. 财官双美格
+    if cai >= 1.5 and guan >= 1.5 and sw in ("身强", "偏强"):
+        patterns.append(("财官双美格",
+            "财星生官杀，官杀护财。这种格局的人既有赚钱能力又有社会地位，"
+            "事业财运双向发展，适合经商从政。马云、马化腾都是此格局。"))
+    
+    # 5. 从强/从弱格
+    if sw == "从强":
+        patterns.append(("从强格",
+            "全局都是印比同党，一气专旺。这种格局的人意志力极强，"
+            "不达目的不罢休。运势顺时一飞冲天，逆时则一落千丈，大起大落之命。"))
+    elif sw == "从弱":
+        patterns.append(("从弱格",
+            "全局都是克泄耗，无一帮身。这种格局的人适应能力极强，"
+            "善于借力使力，借别人的资源成就自己的事业，适合与人合作。"))
+    
+    # 6. 比劫夺财格
+    if bi >= 3.0 and cai >= 1.5 and sw in ("偏强", "身强"):
+        patterns.append(("比劫夺财格",
+            "朋友兄弟多（比劫旺），但也容易因朋友破财。合作生意需谨慎，"
+            "适合个人单干或技术型独立工作。"))
+    
+    # 7. 食伤生财格
+    if shi >= 2.0 and cai >= 1.5 and shi >= cai:
+        patterns.append(("食伤生财格",
+            "以才华技艺（食伤）生财。这种格局的人靠本事吃饭，技术流、创意型人才，"
+            "适合IT、设计、咨询、演艺等行业。"))
+    
+    return patterns
+
+
 def generate_synthesis(
     bazi: BaZi,
     wx_result: Dict,
@@ -101,8 +194,9 @@ def generate_synthesis(
     da_yun_result: Dict,
     ln_analysis: Dict,
     year: int,
+    shensha_result: Dict = None,
 ) -> str:
-    """生成综合运势解读"""
+    """生成综合运势解读（增强版）"""
     parts = []
     parts.append("【综合运势解读】")
     
@@ -111,6 +205,28 @@ def generate_synthesis(
     strong_weak = wx_result["strong_weak"]
     useful_god = wx_result["useful_god"]
     avoid_god = wx_result["avoid_god"]
+    season = wx_result.get("season", "?")
+    
+    # 计算财/官/印/食伤/比劫对应的五行
+    try:
+        from .wuxing import WU_XING_KE, WU_XING_SHENG
+        cai_wx = WU_XING_KE.get(ri_wx)  # 我克=财
+        shi_wx = WU_XING_SHENG.get(ri_wx)  # 我生=食伤
+        # 克我=官杀
+        guan_wx = None
+        for k, v in WU_XING_KE.items():
+            if v == ri_wx:
+                guan_wx = k
+                break
+        # 生我=印枭
+        yin_wx = None
+        for k, v in WU_XING_SHENG.items():
+            if v == ri_wx:
+                yin_wx = k
+                break
+        bi_wx = ri_wx  # 比劫=我
+    except:
+        cai_wx = shi_wx = guan_wx = yin_wx = bi_wx = None
 
     # 整体命格评价
     gan_wx_desc = {
@@ -121,38 +237,57 @@ def generate_synthesis(
         "壬": "江河之水", "癸": "雨露之水",
     }
 
-    parts.append(f"命主为{ri_gan}{ri_wx}命（{gan_wx_desc.get(ri_gan, '')}），"
-                 f"综合分析为{strong_weak}之命。")
-    parts.append(f"命局{ri_wx}喜：{'、'.join(useful_god)}，忌：{'、'.join(avoid_god)}。")
+    ri_desc = gan_wx_desc.get(ri_gan, "")
+    
+    # ─── 格局判断 ───
+    patterns = identify_pattern(bazi, wx_result, ss_result)
+    
+    parts.append(f"命主为{ri_gan}{ri_wx}命（{ri_desc}），出生于{season}季。")
+    parts.append(f"综合推断：{strong_weak}之命。命局{'喜' + '、'.join(useful_god)}，{'忌' + '、'.join(avoid_god)}。")
+    
+    if patterns:
+        for p_name, p_desc in patterns:
+            parts.append(f"格局：{p_name} ——{p_desc}")
 
-    # 先天特质
+    # ─── 先天特质 ───
     parts.append("")
     parts.append("【先天命格特质】")
-    category = ss_result["category_counts"]
     features = []
+    category = ss_result["category_counts"]
     
-    if category.get("官杀", 0) >= 2:
-        features.append("官杀旺——有管理能力和事业心，但压力也大")
-    if category.get("印枭", 0) >= 2:
-        features.append("印星旺——学习能力强，贵人运不错")
-    if category.get("财", 0) >= 2:
-        features.append("财星旺——财运不错，但要看身强身弱，弱者财来财去")
-    if category.get("食伤", 0) >= 2:
-        features.append("食伤旺——才华出众，适合创意类工作")
-    if category.get("比劫", 0) >= 2:
-        features.append("比劫旺——朋友多但也容易被拖累，不适合合伙")
-
-    features.append(f"日主{strong_weak}，{'喜补' + '、'.join(useful_god) + '，避免' + '、'.join(avoid_god)}")
+    # 使用新的分情况分析引擎
+    try:
+        from .contextual import analyze_shi_shen_features, get_guiren_analysis
+        new_features = analyze_shi_shen_features(bazi.ri_gan, ss_result, wx_result)
+        for text, conf in new_features:
+            features.append(text)
+    except ImportError:
+        pass
     
     for f in features:
         parts.append(f"· {f}")
+    
+    # ─── 贵人综合评估（独立板块） ───
+    try:
+        if shensha_result:
+            from .contextual import get_guiren_analysis as ga
+            guiren_data = ga(shensha_result)
+            parts.append("")
+            parts.append(f"【贵人综合评估】— {guiren_data['level']}")
+            parts.append(guiren_data['summary'])
+            for g in guiren_data['guiren_list']:
+                parts.append(f"· {g['name']}：{g['desc']}")
+            # 十神贵人补充
+            guan_cat = category.get("官杀", 0)
+            if guan_cat >= 2.0:
+                parts.append(f"· 官杀旺（{guan_cat:.1f}）：职场/上司贵人运强")
+    except ImportError:
+        pass
 
-    # 流年解读
-    parts.append("")
+    # ─── 流年解读 ───
     ln_ss = ln_analysis["liu_nian_shi_shen"]
     ln_year = ln_analysis["liu_nian"]["gan_zhi"]
 
-    # 流年十神白话
     ss_forecast = {
         "正官": "事业运旺，有晋升机会，但也需注意压力",
         "七杀": "挑战与机遇并存，有突破但也有阻力",
@@ -166,6 +301,7 @@ def generate_synthesis(
         "伤官": "名利显露但容易得罪人，言语需谨慎",
     }
 
+    parts.append("")
     parts.append(f"【{year}年流年解读】")
     parts.append(f"流年{ln_year}，天干为{ln_ss}运。")
     parts.append(ss_forecast.get(ln_ss, f"{ln_ss}运，需结合具体八字判断。"))
@@ -293,7 +429,8 @@ def main():
 
     try:
         bazi = calculate_bazi(args.year, args.month, args.day, hour, minute, gender)
-        report = generate_fortune_report(bazi, liu_nian)
+        birth_time = (args.year, args.month, args.day, hour, minute)
+        report = generate_fortune_report(bazi, liu_nian, birth_time)
         print(report)
     except Exception as e:
         print(f"❌ 计算出错：{e}", file=sys.stderr)

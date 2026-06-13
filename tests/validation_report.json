@@ -1,0 +1,2824 @@
+{
+  "stats": {
+    "total": 136,
+    "passed": 0,
+    "failed": 136,
+    "strength_dist": {
+      "身弱": 34,
+      "身强": 37,
+      "偏弱": 31,
+      "中和": 17,
+      "偏强": 17
+    },
+    "common_issues": {
+      "life_error": 136
+    }
+  },
+  "results": [
+    {
+      "name": "毛泽东",
+      "bazi": "癸巳 甲子 丙寅 壬辰",
+      "ri_gan": "丙",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "周恩来",
+      "bazi": "戊戌 甲寅 丙申 壬辰",
+      "ri_gan": "丙",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "邓小平",
+      "bazi": "甲辰 壬申 戊子 乙卯",
+      "ri_gan": "戊",
+      "strength": "偏弱",
+      "score": -2.5,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "孙中山",
+      "bazi": "丙寅 己亥 庚申 己卯",
+      "ri_gan": "庚",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "金"
+      ],
+      "jishen": [
+        "火"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "蒋介石",
+      "bazi": "丁亥 庚戌 戊戌 戊午",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "鲁迅",
+      "bazi": "辛巳 丁酉 辛卯 甲午",
+      "ri_gan": "辛",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "胡适",
+      "bazi": "辛卯 庚子 丙午 甲午",
+      "ri_gan": "丙",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "宋庆龄",
+      "bazi": "壬辰 癸丑 癸巳 戊午",
+      "ri_gan": "癸",
+      "strength": "偏弱",
+      "score": -1.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "陈独秀",
+      "bazi": "己卯 甲戌 甲午 庚午",
+      "ri_gan": "甲",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李大钊",
+      "bazi": "己丑 甲戌 丁未 丙午",
+      "ri_gan": "丁",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "马云",
+      "bazi": "甲辰 癸酉 壬戌 丙午",
+      "ri_gan": "壬",
+      "strength": "偏强",
+      "score": 1.5,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "马化腾",
+      "bazi": "辛亥 戊戌 丁亥 丙午",
+      "ri_gan": "丁",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "雷军",
+      "bazi": "己酉 丙子 乙丑 壬午",
+      "ri_gan": "乙",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "刘强东",
+      "bazi": "甲寅 丁卯 庚戌 壬午",
+      "ri_gan": "庚",
+      "strength": "偏弱",
+      "score": -2.5,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "任正非",
+      "bazi": "甲申 甲戌 壬戌 丙午",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李彦宏",
+      "bazi": "戊申 癸亥 辛卯 甲午",
+      "ri_gan": "辛",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "王健林",
+      "bazi": "甲午 甲戌 癸丑 戊午",
+      "ri_gan": "癸",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "张一鸣",
+      "bazi": "癸亥 丙辰 甲戌 庚午",
+      "ri_gan": "甲",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "黄峥",
+      "bazi": "庚申 甲申 己巳 庚午",
+      "ri_gan": "己",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "丁磊",
+      "bazi": "辛亥 丁酉 己未 庚午",
+      "ri_gan": "己",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "土"
+      ],
+      "jishen": [
+        "木"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "曹德旺",
+      "bazi": "丙戌 癸巳 壬午 丙午",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "董明珠",
+      "bazi": "甲午 壬申 庚子 壬午",
+      "ri_gan": "庚",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "张朝阳",
+      "bazi": "甲辰 甲戌 癸丑 戊午",
+      "ri_gan": "癸",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "周鸿祎",
+      "bazi": "庚戌 乙酉 丁巳 丙午",
+      "ri_gan": "丁",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李开复",
+      "bazi": "辛丑 己亥 庚午 壬午",
+      "ri_gan": "庚",
+      "strength": "中和",
+      "score": -0.5,
+      "yongshen": [
+        "金"
+      ],
+      "jishen": [
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "钱学森",
+      "bazi": "辛亥 庚子 乙卯 壬午",
+      "ri_gan": "乙",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "袁隆平",
+      "bazi": "庚午 甲申 庚申 壬午",
+      "ri_gan": "庚",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "屠呦呦",
+      "bazi": "庚午 戊子 甲寅 庚午",
+      "ri_gan": "甲",
+      "strength": "偏强",
+      "score": 2,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "钟南山",
+      "bazi": "丙子 戊戌 乙亥 壬午",
+      "ri_gan": "乙",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "杨振宁",
+      "bazi": "壬戌 己酉 壬寅 丙午",
+      "ri_gan": "壬",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "水"
+      ],
+      "jishen": [
+        "土"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李政道",
+      "bazi": "丙寅 己亥 丁巳 丙午",
+      "ri_gan": "丁",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "莫言",
+      "bazi": "乙未 戊寅 己酉 庚午",
+      "ri_gan": "己",
+      "strength": "身弱",
+      "score": -4,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "中国文化",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "金庸",
+      "bazi": "甲子 丁卯 戊子 戊午",
+      "ri_gan": "戊",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "中国文化",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "古龙",
+      "bazi": "戊寅 戊午 庚午 壬午",
+      "ri_gan": "庚",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "中国文化",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "琼瑶",
+      "bazi": "戊寅 丙辰 壬午 丙午",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -4.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国文化",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "刘德华",
+      "bazi": "辛丑 丁酉 癸亥 戊午",
+      "ri_gan": "癸",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "周杰伦",
+      "bazi": "戊午 乙丑 乙酉 壬午",
+      "ri_gan": "乙",
+      "strength": "身弱",
+      "score": -4,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "成龙",
+      "bazi": "甲午 戊辰 癸巳 戊午",
+      "ri_gan": "癸",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "梁朝伟",
+      "bazi": "壬寅 丙午 丙申 甲午",
+      "ri_gan": "丙",
+      "strength": "身强",
+      "score": 6,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "张国荣",
+      "bazi": "丙申 丁酉 壬午 丙午",
+      "ri_gan": "壬",
+      "strength": "偏强",
+      "score": 2,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "王菲",
+      "bazi": "己酉 壬申 乙卯 壬午",
+      "ri_gan": "乙",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "张学友",
+      "bazi": "辛丑 乙未 甲辰 庚午",
+      "ri_gan": "甲",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "郭富城",
+      "bazi": "乙巳 丙戌 癸丑 戊午",
+      "ri_gan": "癸",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "周星驰",
+      "bazi": "壬寅 丙午 辛卯 甲午",
+      "ri_gan": "辛",
+      "strength": "身弱",
+      "score": -6,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李连杰",
+      "bazi": "癸卯 丙辰 己亥 庚午",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "甄子丹",
+      "bazi": "癸卯 己未 辛未 甲午",
+      "ri_gan": "辛",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "金"
+      ],
+      "jishen": [
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "章子怡",
+      "bazi": "己未 丙寅 丁未 丙午",
+      "ri_gan": "丁",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "赵薇",
+      "bazi": "丙辰 辛卯 癸亥 戊午",
+      "ri_gan": "癸",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "水"
+      ],
+      "jishen": [
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "林志玲",
+      "bazi": "甲寅 乙亥 甲戌 庚午",
+      "ri_gan": "甲",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "陈奕迅",
+      "bazi": "甲寅 辛未 己巳 庚午",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "王力宏",
+      "bazi": "丙辰 癸巳 己巳 庚午",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "林俊杰",
+      "bazi": "辛酉 辛卯 甲辰 庚午",
+      "ri_gan": "甲",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "蔡依林",
+      "bazi": "庚申 乙酉 辛卯 甲午",
+      "ri_gan": "辛",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "邓紫棋",
+      "bazi": "辛未 丙申 戊午 戊午",
+      "ri_gan": "戊",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "土"
+      ],
+      "jishen": [
+        "木"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "周润发",
+      "bazi": "乙未 辛巳 己卯 庚午",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "洪金宝",
+      "bazi": "辛卯 辛丑 壬子 丙午",
+      "ri_gan": "壬",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "谢霆锋",
+      "bazi": "庚申 甲申 甲戌 庚午",
+      "ri_gan": "甲",
+      "strength": "身弱",
+      "score": -6,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "刘亦菲",
+      "bazi": "丁卯 戊申 丙午 甲午",
+      "ri_gan": "丙",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "孙俪",
+      "bazi": "壬戌 己酉 壬子 丙午",
+      "ri_gan": "壬",
+      "strength": "偏强",
+      "score": 2,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "吴彦祖",
+      "bazi": "甲寅 癸酉 甲戌 庚午",
+      "ri_gan": "甲",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国娱乐",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "张艺谋",
+      "bazi": "庚寅 己卯 丁卯 丙午",
+      "ri_gan": "丁",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "中国导演",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "陈凯歌",
+      "bazi": "壬辰 戊申 庚寅 壬午",
+      "ri_gan": "庚",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国导演",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李安",
+      "bazi": "甲午 甲戌 壬子 丙午",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国导演",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "宫崎骏",
+      "bazi": "庚辰 戊子 癸丑 戊午",
+      "ri_gan": "癸",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "日本导演",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "姚明",
+      "bazi": "庚申 乙酉 戊子 戊午",
+      "ri_gan": "戊",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "刘翔",
+      "bazi": "癸亥 己未 壬寅 丙午",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "李娜",
+      "bazi": "壬戌 壬寅 庚辰 壬午",
+      "ri_gan": "庚",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "林丹",
+      "bazi": "癸亥 壬戌 乙亥 壬午",
+      "ri_gan": "乙",
+      "strength": "偏弱",
+      "score": -1.5,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "孙杨",
+      "bazi": "辛未 己亥 乙巳 壬午",
+      "ri_gan": "乙",
+      "strength": "中和",
+      "score": 0.5,
+      "yongshen": [
+        "木"
+      ],
+      "jishen": [
+        "金"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "邓亚萍",
+      "bazi": "癸丑 甲寅 癸酉 戊午",
+      "ri_gan": "癸",
+      "strength": "偏弱",
+      "score": -1.5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "郎平",
+      "bazi": "庚子 戊子 壬申 丙午",
+      "ri_gan": "壬",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "科比·布莱恩特",
+      "bazi": "戊午 庚申 丁巳 丙午",
+      "ri_gan": "丁",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "迈克尔·乔丹",
+      "bazi": "癸卯 甲寅 辛卯 甲午",
+      "ri_gan": "辛",
+      "strength": "身弱",
+      "score": -4,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "里奥内尔·梅西",
+      "bazi": "丁卯 丙午 甲辰 庚午",
+      "ri_gan": "甲",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "克里斯蒂亚诺·罗纳尔多",
+      "bazi": "乙丑 戊寅 乙亥 壬午",
+      "ri_gan": "乙",
+      "strength": "身强",
+      "score": 6,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "尤塞恩·博尔特",
+      "bazi": "丙寅 丙申 丁酉 丙午",
+      "ri_gan": "丁",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "火"
+      ],
+      "jishen": [
+        "水"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "勒布朗·詹姆斯",
+      "bazi": "甲子 丙子 戊戌 戊午",
+      "ri_gan": "戊",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "土"
+      ],
+      "jishen": [
+        "木"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "斯蒂芬·库里",
+      "bazi": "戊辰 乙卯 戊辰 戊午",
+      "ri_gan": "戊",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "凯文·杜兰特",
+      "bazi": "戊辰 辛酉 丁亥 丙午",
+      "ri_gan": "丁",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "泰格·伍兹",
+      "bazi": "乙卯 戊子 庚戌 壬午",
+      "ri_gan": "庚",
+      "strength": "偏弱",
+      "score": -2.5,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "罗杰·费德勒",
+      "bazi": "辛酉 丙申 戊午 戊午",
+      "ri_gan": "戊",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "土"
+      ],
+      "jishen": [
+        "木"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "拉斐尔·纳达尔",
+      "bazi": "丙寅 癸巳 戊寅 戊午",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "迈克·泰森",
+      "bazi": "丙午 甲午 庚申 壬午",
+      "ri_gan": "庚",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "苏炳添",
+      "bazi": "己巳 壬申 辛酉 甲午",
+      "ri_gan": "辛",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "比尔·盖茨",
+      "bazi": "乙未 丙戌 壬戌 丙午",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -5,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "史蒂夫·乔布斯",
+      "bazi": "乙未 戊寅 丙辰 甲午",
+      "ri_gan": "丙",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "埃隆·马斯克",
+      "bazi": "辛亥 甲午 甲申 庚午",
+      "ri_gan": "甲",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "杰夫·贝佐斯",
+      "bazi": "癸卯 乙丑 庚申 壬午",
+      "ri_gan": "庚",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "马克·扎克伯格",
+      "bazi": "甲子 己巳 戊申 戊午",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "沃伦·巴菲特",
+      "bazi": "庚午 甲申 壬子 丙午",
+      "ri_gan": "壬",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "拉里·佩奇",
+      "bazi": "癸丑 乙卯 辛酉 甲午",
+      "ri_gan": "辛",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "谢尔盖·布林",
+      "bazi": "癸丑 庚申 己丑 庚午",
+      "ri_gan": "己",
+      "strength": "偏弱",
+      "score": -1,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "萨蒂亚·纳德拉",
+      "bazi": "丁未 戊申 戊午 戊午",
+      "ri_gan": "戊",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "土"
+      ],
+      "jishen": [
+        "木"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "山姆·奥特曼",
+      "bazi": "乙丑 庚辰 辛卯 甲午",
+      "ri_gan": "辛",
+      "strength": "中和",
+      "score": 0.5,
+      "yongshen": [
+        "金"
+      ],
+      "jishen": [
+        "火"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "孙正义",
+      "bazi": "丁酉 戊申 乙卯 壬午",
+      "ri_gan": "乙",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "阿尔伯特·爱因斯坦",
+      "bazi": "己卯 丁卯 乙丑 壬午",
+      "ri_gan": "乙",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "国际科学家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "斯蒂芬·霍金",
+      "bazi": "辛巳 辛丑 辛酉 甲午",
+      "ri_gan": "辛",
+      "strength": "偏强",
+      "score": 2,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "国际科学家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "玛丽·居里",
+      "bazi": "丁卯 辛亥 庚申 壬午",
+      "ri_gan": "庚",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际科学家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "弗洛伊德",
+      "bazi": "丙辰 癸巳 戊午 戊午",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际思想家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "弗拉基米尔·普京",
+      "bazi": "壬辰 己酉 丙戌 甲午",
+      "ri_gan": "丙",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "唐纳德·特朗普",
+      "bazi": "丙戌 甲午 己未 庚午",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "巴拉克·奥巴马",
+      "bazi": "辛丑 乙未 己巳 庚午",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "乔·拜登",
+      "bazi": "壬午 辛亥 丁丑 丙午",
+      "ri_gan": "丁",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "金正恩",
+      "bazi": "癸亥 乙丑 辛丑 甲午",
+      "ri_gan": "辛",
+      "strength": "偏强",
+      "score": 1.5,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "纳伦德拉·莫迪",
+      "bazi": "庚寅 乙酉 乙卯 壬午",
+      "ri_gan": "乙",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "伊丽莎白二世",
+      "bazi": "丙寅 壬辰 庚辰 壬午",
+      "ri_gan": "庚",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "金"
+      ],
+      "jishen": [
+        "火"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "巴拉克·奥巴马",
+      "bazi": "辛丑 乙未 己巳 甲戌",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "唐纳德·特朗普",
+      "bazi": "丙戌 甲午 己未 己巳",
+      "ri_gan": "己",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "乔·拜登",
+      "bazi": "壬午 辛亥 丁丑 甲辰",
+      "ri_gan": "丁",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "伊丽莎白二世",
+      "bazi": "丙寅 壬辰 庚辰 丁丑",
+      "ri_gan": "庚",
+      "strength": "偏强",
+      "score": 1.5,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "查尔斯三世",
+      "bazi": "戊子 癸亥 癸卯 癸亥",
+      "ri_gan": "癸",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "温斯顿·丘吉尔",
+      "bazi": "甲戌 乙亥 庚申 丁丑",
+      "ri_gan": "庚",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "约翰·F·肯尼迪",
+      "bazi": "丁巳 乙巳 辛未 丙申",
+      "ri_gan": "辛",
+      "strength": "身弱",
+      "score": -4,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "比尔·克林顿",
+      "bazi": "丙戌 丙申 乙丑 庚辰",
+      "ri_gan": "乙",
+      "strength": "身弱",
+      "score": -3.5,
+      "yongshen": [
+        "木",
+        "水"
+      ],
+      "jishen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "乔治·华盛顿",
+      "bazi": "壬子 壬寅 戊戌 丁巳",
+      "ri_gan": "戊",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "土",
+        "火"
+      ],
+      "jishen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "亚伯拉罕·林肯",
+      "bazi": "己巳 丙寅 戊子 丙辰",
+      "ri_gan": "戊",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "土"
+      ],
+      "jishen": [
+        "木"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "史蒂夫·乔布斯",
+      "bazi": "乙未 戊寅 丙辰 戊戌",
+      "ri_gan": "丙",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "马克·扎克伯格",
+      "bazi": "甲子 己巳 戊申 己未",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 5,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "杰夫·贝佐斯",
+      "bazi": "癸卯 乙丑 庚申 庚辰",
+      "ri_gan": "庚",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "国际企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "阿尔伯特·爱因斯坦",
+      "bazi": "己卯 丁卯 乙丑 壬午",
+      "ri_gan": "乙",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "国际科学家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "玛丽·居里",
+      "bazi": "丁卯 辛亥 庚申 丁亥",
+      "ri_gan": "庚",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际科学家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "西格蒙德·弗洛伊德",
+      "bazi": "丙辰 癸巳 戊午 辛酉",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "国际思想家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "尼采",
+      "bazi": "甲辰 甲戌 丁酉 乙巳",
+      "ri_gan": "丁",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "jishen": [
+        "火",
+        "木"
+      ],
+      "category": "国际思想家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "卡尔·马克思",
+      "bazi": "戊寅 丙辰 丁酉 辛丑",
+      "ri_gan": "丁",
+      "strength": "偏弱",
+      "score": -1.5,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际思想家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "拿破仑",
+      "bazi": "己丑 壬申 丁未 丙午",
+      "ri_gan": "丁",
+      "strength": "偏弱",
+      "score": -2,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "国际政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "毛泽东",
+      "bazi": "癸巳 甲子 丙寅 戊戌",
+      "ri_gan": "丙",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "火",
+        "木"
+      ],
+      "jishen": [
+        "水",
+        "土",
+        "金"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "孙中山",
+      "bazi": "丙寅 己亥 庚申 己卯",
+      "ri_gan": "庚",
+      "strength": "中和",
+      "score": 0,
+      "yongshen": [
+        "金"
+      ],
+      "jishen": [
+        "火"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "蒋介石",
+      "bazi": "丁亥 庚戌 戊戌 戊午",
+      "ri_gan": "戊",
+      "strength": "身强",
+      "score": 4,
+      "yongshen": [
+        "木",
+        "金",
+        "水"
+      ],
+      "jishen": [
+        "土",
+        "火"
+      ],
+      "category": "中国政界",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "钱学森",
+      "bazi": "辛亥 庚子 乙卯 壬午",
+      "ri_gan": "乙",
+      "strength": "偏强",
+      "score": 1,
+      "yongshen": [
+        "金",
+        "火",
+        "土"
+      ],
+      "jishen": [
+        "木",
+        "水"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "袁隆平",
+      "bazi": "庚午 甲申 庚申 辛巳",
+      "ri_gan": "庚",
+      "strength": "身强",
+      "score": 6,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "中国科技",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "马云",
+      "bazi": "甲辰 癸酉 壬戌 丁未",
+      "ri_gan": "壬",
+      "strength": "偏强",
+      "score": 1.5,
+      "yongshen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "jishen": [
+        "水",
+        "金"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "任正非",
+      "bazi": "甲申 甲戌 壬戌 甲辰",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "曹德旺",
+      "bazi": "丙戌 癸巳 壬午 癸卯",
+      "ri_gan": "壬",
+      "strength": "身弱",
+      "score": -3,
+      "yongshen": [
+        "水",
+        "金"
+      ],
+      "jishen": [
+        "土",
+        "木",
+        "火"
+      ],
+      "category": "中国企业家",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "迈克尔·乔丹",
+      "bazi": "癸卯 甲寅 辛卯 乙未",
+      "ri_gan": "辛",
+      "strength": "身弱",
+      "score": -4,
+      "yongshen": [
+        "金",
+        "土"
+      ],
+      "jishen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "尤塞恩·博尔特",
+      "bazi": "丙寅 丙申 丁酉 丁未",
+      "ri_gan": "丁",
+      "strength": "中和",
+      "score": -0.5,
+      "yongshen": [
+        "火"
+      ],
+      "jishen": [
+        "水"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    },
+    {
+      "name": "穆罕默德·阿里",
+      "bazi": "辛巳 辛丑 庚午 乙酉",
+      "ri_gan": "庚",
+      "strength": "身强",
+      "score": 3,
+      "yongshen": [
+        "火",
+        "水",
+        "木"
+      ],
+      "jishen": [
+        "金",
+        "土"
+      ],
+      "category": "国际体育",
+      "issues": [],
+      "warnings": [],
+      "life_error": "'NoneType' object has no attribute 'get'",
+      "pass": false
+    }
+  ]
+}

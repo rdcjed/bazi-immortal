@@ -123,9 +123,15 @@ def analyze_all_shi_shen(bazi: BaZi) -> Dict:
         if item["shi_shen"] in counts:
             counts[item["shi_shen"]] += 1
     for item in zhi_ss:
-        for cg, ss in item["cang_gan_shi_shen"].items():
+        # 差异化藏干权重：本气(第一个藏干)=0.7，余气(其余)=0.3
+        from .constants import DZ_CANG_GAN
+        zhi = item["zhi"]
+        hidden_list = DZ_CANG_GAN.get(zhi, [])
+        hidden_items = list(item["cang_gan_shi_shen"].items())
+        for i, (cg, ss) in enumerate(hidden_items):
             if ss in counts:
-                counts[ss] += 0.5  # 藏干权重减半
+                weight = 0.7 if i == 0 else 0.3  # 本气0.7，余气0.3
+                counts[ss] += weight
 
     # 按类别统计
     category_counts = {}
@@ -142,10 +148,11 @@ def analyze_all_shi_shen(bazi: BaZi) -> Dict:
     if top_ss:
         features.append(f"十神特点：{', '.join(top_ss)}较为突出")
 
-    # 看缺什么
+    # 看缺什么（补充说明：缺十神≠缺贵人）
     missing = [ss for ss, c in counts.items() if c == 0]
-    if missing and len(missing) < 8:  # 不全缺就不用说了
+    if missing and len(missing) < 8:
         features.append(f"缺少：{'、'.join(missing)}")
+    # 说明缺失的十神并不直接等同于对应的人事物——具体需结合八字综合分析
 
     # 类别分析
     for cat, total in category_counts.items():

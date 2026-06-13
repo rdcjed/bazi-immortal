@@ -4,6 +4,7 @@
 """
 
 from typing import Dict, List, Tuple, Optional
+from .plain_terms import STRONG_WEAK_PLAIN
 from .constants import (
     TIAN_GAN, DI_ZHI, TG_WU_XING, DZ_WU_XING, DZ_CANG_GAN,
     WU_XING_SHENG, WU_XING_KE, SI_JI_WANG_XIANG,
@@ -167,7 +168,7 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     moderate_life_states = {"沐浴", "冠带", "衰", "胎", "养"}
 
     # 综合得分规则：
-    # 四季旺衰：旺+3, 相+2, 休+0, 囚-1, 死-2
+    # 四季旺衰：旺+3, 相+2, 休-1, 囚-2, 死-3
     # 十二长生额外调整：临官/帝旺/长生+1, 绝/死-1
     de_ling_score = 0
     de_ling_reasons = []
@@ -179,12 +180,13 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         de_ling_score += 2
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【相】，次旺")
     elif ri_wx_season_status == "休":
-        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【休】，退气")
-    elif ri_wx_season_status == "囚":
         de_ling_score -= 1
+        de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【休】，退气减力")
+    elif ri_wx_season_status == "囚":
+        de_ling_score -= 2
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【囚】，不得令")
     elif ri_wx_season_status == "死":
-        de_ling_score -= 2
+        de_ling_score -= 3
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【死】，失令")
 
     # 十二长生额外调整
@@ -239,11 +241,11 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         reasoning.append(r)
 
     if has_strong_root:
-        score += 2
+        score += 1
         root_str = "、".join(f"{r}({s})" for r, s in roots[:3])
         reasoning.append(f"得地：地支有强根（{root_str}）")
     elif is_de_di:
-        score += 1
+        score += 0.5
         root_str = "、".join(f"{r}" for r, _ in roots[:3])
         reasoning.append(f"得地：地支有根（{root_str}），但力量一般")
     else:
@@ -258,7 +260,7 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         reasoning.append(f"失势：天干克泄耗较多（+{harming_count}），失势无助")
 
     # 最终判断
-    if score >= 4:
+    if score >= 3:
         strong_weak = "身强"
     elif score <= -3:
         strong_weak = "身弱"
@@ -270,10 +272,10 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         strong_weak = "中和"
 
     # 极强/极弱检查
-    helping_all = helping_count + (3 if is_de_ling else 0) + (3 if has_strong_root else 0)
-    if helping_all >= 10 and is_de_shi:
+    helping_raw = helping_count + (3 if has_strong_root else 0)
+    if helping_raw >= 12 and harming_count <= 2 and is_de_shi:
         strong_weak = "从强"
-    if harming_count >= 8 and not is_de_ling and not is_de_di:
+    if harming_count >= 10 and not is_de_ling and not is_de_di:
         strong_weak = "从弱"
 
     # 辅助：找"生我"的五行（印枭）
@@ -340,6 +342,7 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         "roots": roots,
         "helping_count": helping_count,
         "harming_count": harming_count,
+        "plain_strong_weak": STRONG_WEAK_PLAIN.get(strong_weak, ""),
     }
 
 
