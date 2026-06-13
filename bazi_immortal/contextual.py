@@ -17,23 +17,31 @@ from .plain_terms import (
     wrap_ss, wrap_sw, wrap_wx, explain_ss, explain_sw,
 )
 
+def _fmt_val(v):
+    """格式化数值：≥1.0显示一位小数，<1.0显示两位小数"""
+    if v >= 1.0:
+        return f"{v:.1f}"
+    return f"{v:.2f}"
+
+
 def analyze_shi_shen_features(ri_gan, ss_result, wx_result):
     """
     分情况分析十神特征，避免片面结论
-    
+    降低阈值、增加中等和极弱分支、每条分析用通俗语言表述
+
     返回: [(feature_text, confidence), ...]
     """
     features = []
     category = ss_result["category_counts"]
     useful_god = wx_result["useful_god"]
     strong_weak = wx_result["strong_weak"]
-    
+
     guan = category.get("官杀", 0)
     yin = category.get("印枭", 0)
     cai = category.get("财", 0)
     shi = category.get("食伤", 0)
     bi = category.get("比劫", 0)
-    
+
     # 五行关系
     ri_wx = wx_result["ri_wx"]
     from .wuxing import WU_XING_KE, WU_XING_SHENG
@@ -41,98 +49,127 @@ def analyze_shi_shen_features(ri_gan, ss_result, wx_result):
     shi_wx = WU_XING_SHENG.get(ri_wx)
     guan_wx = next((k for k, v in WU_XING_KE.items() if v == ri_wx), None)
     yin_wx = next((k for k, v in WU_XING_SHENG.items() if v == ri_wx), None)
-    
+
     # ════════════════════════════════════
-    # 官杀分析 — 分情况
+    # 官杀分析 — 3分支（旺≥1.0 / 中等0.2~1.0 / 极弱<0.2）
     # ════════════════════════════════════
-    if guan >= 2.0:
+    if guan >= 1.0:
         is_useful = guan_wx and guan_wx in useful_god
         if is_useful:
-            features.append(("✅ 官杀（掌控管束之力：事业地位/权力责任）旺（%.1f）为用神→"
-                             "事业磁场强，能掌权，适合管理/从政（用大白话说就是：你有当领导的潜质，"
-                             "管人管事有一套，气场能镇住场子）" % guan, "high"))
+            features.append((f"✅ 官杀（掌控管束之力：事业地位/权力责任）旺（{_fmt_val(guan)}）为用神→事业磁场强，能掌权，适合管理或从政。你天生有领导潜质，管人管事有一套，气场能镇住场子", "high"))
         else:
-            # 官杀为忌，分三种化解方式
             sub = []
-            if shi >= 2.0:
+            if shi >= 1.0:
                 sub.append("有食伤制杀（以才华化解压力）")
-            if yin >= 1.5:
+            if yin >= 1.0:
                 sub.append("有印星化杀（以学识转化压力）")
-            if cai >= 1.5:
+            if cai >= 0.8:
                 sub.append("有财星生官（财富带动地位）")
             if not sub:
                 sub.append("官杀无制，需主动调节压力")
-            features.append(("⚠ 官杀（掌控管束之力）旺（%.1f）为忌神→压力大但有%s，"
-                             "抗压能力强（大白话：管束你的人和事太多，"
-                             "但有办法化解）" % (guan, "、".join(sub)), "high"))
-    
+            features.append((f"⚠ 官杀（掌控管束之力）旺（{_fmt_val(guan)}）为忌神→生活中管束你的人或事不少，压力是有的。不过你同时有{sub[0]}，不是硬扛的那种，抗压能力其实不错", "high"))
+    elif guan >= 0.2:
+        features.append((f"🔸 官杀（掌控管束之力）中等（{_fmt_val(guan)}）→有上进心但不算特别强，能平衡工作和生活。你管得好自己分内的事，日子过得平稳踏实", "medium"))
+    else:
+        features.append((f"💡 官杀（掌控管束之力）极弱（{_fmt_val(guan)}）→官杀几乎不显，你受不了被人管着，喜欢自己做主，适合自由职业或创业当老板", "medium"))
+
     # ════════════════════════════════════
-    # 印枭分析 — 分情况（关键修复!）
+    # 印枭分析 — 3分支（旺≥1.0 / 中等0.2~1.0 / 极弱<0.2）
     # ════════════════════════════════════
-    if yin >= 1.5:
+    if yin >= 1.0:
         is_useful = yin_wx and yin_wx in useful_god
         if is_useful:
-            features.append((
-                "✅ 印星（庇护学习之力：贵人/学历/长辈）旺（%.1f）为用神→学习力强，"
-                "学术/长辈贵人运好（大白话：你读书厉害，总有长辈愿意帮你提携你）" % yin,
-                "high"
-            ))
+            features.append((f"✅ 印星（庇护学习之力：贵人/学历/长辈）旺（{_fmt_val(yin)}）为用神→学习力强，学术运和长辈贵人运都很好。你读书厉害，总有长辈愿意帮你提携你", "high"))
         else:
-            # 印旺为忌的几种情况
             if strong_weak in ("身强", "偏强", "从强"):
-                features.append((
-                    "⚠ 印星（庇护学习之力）旺（%.1f）但为忌神→依赖心重，需增强独立性"
-                    "（大白话：有人帮你虽然是好事，但太依赖了会阻碍你成长）" % yin,
-                    "high"
-                ))
+                features.append((f"⚠ 印星（庇护学习之力）旺（{_fmt_val(yin)}）但为忌神→依赖心偏重，需要增强独立性。有人帮你是好事，但太依赖了反而会阻碍你成长", "high"))
             else:
-                features.append(("⚠ 印星偏旺但非用神，需具体看组合", "medium"))
-    elif yin <= 0.5:
-        # 缺印枭 — 分情况！不能直接说"缺贵人"
-        has_guan = guan >= 2.0
-        has_shi = shi >= 2.0
+                features.append((f"⚠ 印星偏旺（{_fmt_val(yin)}）但非用神→有长辈缘，但助力不一定能落到实处，得看具体组合。身边有人想帮你，但帮不帮得到点子上要看情况", "medium"))
+    elif yin >= 0.2:
+        has_guan = guan >= 1.0
+        has_shi = shi >= 1.0
         if has_guan:
-            features.append(("🌟 无印星但有官杀旺→虽缺学术型贵人，但职场/事业贵人很强"
-                             "（大白话：读书时没人指点，但工作中总有领导赏识你）", "high"))
+            features.append((f"🔸 印星中等（{_fmt_val(yin)}）但有官杀旺→学术型的贵人虽然不多，但职场上总有领导赏识你、提携你", "high"))
         elif has_shi:
-            features.append(("🌟 无印星但有食伤旺→靠自身才华开路，不依赖贵人提携"
-                             "（大白话：完全靠自己本事吃饭，不需要仰仗别人）", "high"))
+            features.append((f"🔸 印星中等（{_fmt_val(yin)}）但有食伤旺→你完全靠自己本事吃饭，不需要仰仗别人提携，用才华开路就够了", "high"))
         else:
-            features.append(("💡 印星偏弱→师长/学术型助力较少，需更多靠自己钻研"
-                             "（大白话：身边能指点你的人不多，凡事多靠自己悟）", "medium"))
-    else:  # 0.5 < yin < 1.5
-        features.append(("🔸 印星（庇护学习之力）适中，贵人运一般偏稳，不致大起大落", "medium"))
-    
+            features.append((f"🔸 印星（庇护学习之力）中等（{_fmt_val(yin)}）→师长和学术方面的助力不多不少，身边偶尔有人指点，但主要还得靠自己钻研", "medium"))
+    else:
+        has_guan = guan >= 1.0
+        has_shi = shi >= 1.0
+        if has_guan:
+            features.append((f"💡 无印星但有官杀旺→学术和长辈缘几乎为零，读书时基本没人指点，全靠工作中遇到贵人", "medium"))
+        elif has_shi:
+            features.append((f"💡 无印星但有食伤旺→从小到大就靠自己，从不指望别人，全靠自己的才华打天下", "medium"))
+        else:
+            features.append((f"💡 印星极弱（{_fmt_val(yin)}）→师长辈的助力非常少，身边几乎没有能帮你的人，什么事都得自己扛", "medium"))
+
     # ════════════════════════════════════
-    # 比劫分析 — 分情况
+    # 比劫分析 — 3分支（旺≥1.5 / 中等0.2~1.5 / 极弱<0.2）
     # ════════════════════════════════════
-    if bi >= 2.5:
+    if bi >= 1.5:
         is_useful = ri_wx in useful_god
         if is_useful:
-            features.append(("✅ 比劫（同辈互动之力：社交/合作/朋友）旺（%.1f）为用神→朋友多助力，团队合作运强（大白话：你人缘好，身边愿意帮你的人多）" % bi, "high"))
+            features.append((f"✅ 比劫（同辈互动之力：社交/合作/朋友）旺（{_fmt_val(bi)}）为用神→你人缘好，身边愿意帮你的人多，团队合作运强", "high"))
         else:
-            features.append(("⚠ 比劫（同辈互动之力）旺（%.1f）为忌神→朋友多但易有财务纠纷，合伙需谨慎（大白话：朋友多但不一定都是好事，涉及钱的事要格外小心）" % bi, "high"))
-    
+            features.append((f"⚠ 比劫（同辈互动之力）旺（{_fmt_val(bi)}）为忌神→朋友虽然多但不一定都是好事，容易有财务纠纷，合伙一定要谨慎，涉及钱的事要格外小心", "high"))
+    elif bi >= 0.2:
+        features.append((f"🔸 比劫（同辈互动之力）中等（{_fmt_val(bi)}）→朋友关系适中，不靠朋友吃饭也不缺朋友，有几个知心朋友就够了，不需要一大帮人围着", "medium"))
+    else:
+        features.append((f"💡 比劫（同辈互动之力）极弱（{_fmt_val(bi)}）→不太依赖朋友，性格偏独立独行。你是个独行侠，一个人反而效率更高", "medium"))
+
     # ════════════════════════════════════
-    # 食伤分析 — 分情况
+    # 食伤分析 — 3分支（旺≥1.0 / 中等0.2~1.0 / 极弱<0.2）
     # ════════════════════════════════════
-    if shi >= 2.0:
+    if shi >= 1.0:
         is_useful = shi_wx and shi_wx in useful_god
         if is_useful:
-            features.append(("✅ 食伤（才华输出之力：创意/技能/表达）旺（%.1f）为用神→才华出众，靠技术/创意吃饭，适合自由职业（大白话：你有一技之长，靠本事就能赚钱）" % shi, "high"))
+            features.append((f"✅ 食伤（才华输出之力：创意/技能/表达）旺（{_fmt_val(shi)}）为用神→你有一技之长，靠本事就能赚钱，适合创意、技术或自由职业", "high"))
         else:
-            features.append(("⚠ 食伤（才华输出之力）旺（%.1f）为忌神→想法多但执行难，需印星收敛（大白话：主意太多但落地难，需要有人帮你聚焦和落地）" % shi, "high"))
-    
+            features.append((f"⚠ 食伤（才华输出之力）旺（{_fmt_val(shi)}）为忌神→想法特别多但执行起来有难度，主意太多落地难，需要有人帮你聚焦", "high"))
+    elif shi >= 0.2:
+        features.append((f"🔸 食伤（才华输出之力）中等（{_fmt_val(shi)}）→有点小才华，关键时刻能露一手，但不是靠它吃饭的，更多是锦上添花", "medium"))
+    else:
+        features.append((f"💡 食伤（才华输出之力）极弱（{_fmt_val(shi)}）→务实型人格，不喜张扬。你是个实干家，不喜欢花里胡哨的东西，稳扎稳打是你的风格", "medium"))
+
     # ════════════════════════════════════
-    # 财星分析 — 分情况
+    # 财星分析 — 3分支（旺≥0.8 / 中等0.2~0.8 / 极弱<0.2）
     # ════════════════════════════════════
-    if cai >= 1.5:
+    if cai >= 0.8:
         is_useful = cai_wx and cai_wx in useful_god
         if is_useful:
-            features.append(("✅ 财星（物质财富之力：收入/理财/资源）旺（%.1f）为用神→财运佳，善于理财，适合经商（大白话：你有赚钱的手气，会管钱会理财）" % cai, "high"))
+            features.append((f"✅ 财星（物质财富之力：收入/理财/资源）旺（{_fmt_val(cai)}）为用神→你有赚钱的手气，会管钱会理财，适合经商", "high"))
         else:
-            features.append(("⚠ 财星（物质财富之力）旺（%.1f）为忌神→财来财去，需比劫护财（大白话：赚得多花得也多，钱像流水一样抓不住）" % cai, "high"))
-    
+            features.append((f"⚠ 财星（物质财富之力）旺（{_fmt_val(cai)}）为忌神→赚得多花得也多，钱像流水一样抓不住，需要有比劫来护住钱财", "high"))
+    elif cai >= 0.2:
+        features.append((f"🔸 财星（物质财富之力）中等（{_fmt_val(cai)}）→你的财运说不上多好但也够花，赚钱欲望适中，收入稳定，日子过得去", "medium"))
+    else:
+        features.append((f"💡 财星（物质财富之力）极弱（{_fmt_val(cai)}）→对钱不太敏感，不追求物质生活。你对钱没有太大概念，够用就行，更在乎开不开心", "medium"))
+
+    # ════════════════════════════════════
+    # 综合五行总结 — 日主五行强弱感受
+    # ════════════════════════════════════
+    wx_dist = wx_result.get("distribution", {})
+    ri_wx_score = wx_dist.get(ri_wx, 0)
+    wx_sorted = sorted(wx_dist.items(), key=lambda x: -x[1])
+
+    if ri_wx_score >= 3.0:
+        wx_feeling = f"日主五行【{ri_wx}】在全盘中力量很强（{_fmt_val(ri_wx_score)}），你天生精力旺盛，有主见，不容易被外界影响"
+    elif ri_wx_score >= 1.5:
+        wx_feeling = f"日主五行【{ri_wx}】在全盘中力量中等偏上（{_fmt_val(ri_wx_score)}），你内在能量还不错，有自己的想法但也会听别人意见"
+    elif ri_wx_score >= 0.5:
+        wx_feeling = f"日主五行【{ri_wx}】在全盘中力量中等（{_fmt_val(ri_wx_score)}），能量均衡，没有什么特别强的气场，但胜在随和、适应力强"
+    else:
+        wx_feeling = f"日主五行【{ri_wx}】在全盘中力量偏弱（{_fmt_val(ri_wx_score)}），可能比较容易受别人影响，需要多给自己打气，增强自信心"
+
+    features.append((f"📊 {wx_feeling}", "medium"))
+
+    if len(wx_sorted) >= 2:
+        most_wx = wx_sorted[0]
+        least_wx = wx_sorted[-1]
+        if most_wx[1] >= 4.0 and least_wx[1] <= 1.0:
+            features.append((f"⚠ 五行中【{most_wx[0]}】最旺（{_fmt_val(most_wx[1])}）、【{least_wx[0]}】最弱（{_fmt_val(least_wx[1])}），命局五行偏枯较明显，需要刻意补短板。某个能量特别强、某个特别弱，容易在某些方面很强、在某些方面很吃亏", "high"))
+
     return features
 
 
@@ -273,12 +310,12 @@ def analyze_pillars(bazi, strength_analysis, ss_data, yongshen_info):
             if zhi in bazi.zhi_list:
                 same_zhi_count = bazi.zhi_list.count(zhi)
                 if same_zhi_count > 1:
-                    bad_points.append(f"日支【{zhi}】与其他柱地支相同（伏吟：反复之象），婚姻宫容易反复不安定（大白话：感情上容易有重复的问题出现，同一个坑掉两次）")
+                    bad_points.append(f"日支【{zhi}】与其他柱地支相同（伏吟：反复之象），婚姻宫容易反复不安定，感情上容易有重复的问题出现，同一个坑掉两次")
 
         # 时柱特殊判断
         if label == "时柱":
             if zhi in ["子", "午", "卯", "酉"]:
-                bad_points.append(f"时柱【{zhi}】为桃花位——晚年可能还桃花运不衰，情感波动（大白话：年纪不小了还是有情感纠葛）")
+                bad_points.append(f"时柱【{zhi}】为桃花位——晚年可能还桃花运不衰，年纪不小了仍有情感纠葛")
 
         # 4. 综合评分
         score = len(good_points) - len(bad_points)
@@ -357,28 +394,28 @@ def analyze_life_fortune(bazi, ss_data, strength_analysis, dayun_data):
     pattern_parts.append(f"月令状态「{monthly_state}」")
 
     # 格局判断
-    wu_xing = {k: round(v, 1) for k, v in strength_analysis.get("distribution", {}).items()}
+    wu_xing = {k: round(v, 2) for k, v in strength_analysis.get("distribution", {}).items()}
     wx_sorted = sorted(wu_xing.items(), key=lambda x: -x[1])
 
     if guan >= 3 and strong_weak in ("身强", "偏强"):
-        pattern_parts.append("官杀为用神→格局贵气，适合管人管事（大白话：天生有当领导的命格）")
+        pattern_parts.append("官杀为用神→格局贵气，适合管人管事，天生有当领导的命格")
     elif yin >= 3 and strong_weak in ("身强", "偏强"):
-        pattern_parts.append("印星为用神→格局清气，有学问有修养（大白话：书卷气重，适合靠知识和口碑吃饭）")
+        pattern_parts.append("印星为用神→格局清气，有学问有修养，书卷气重，适合靠知识和口碑吃饭")
     elif cai >= 2 and strong_weak in ("身强", "偏强"):
-        pattern_parts.append("财星为用神→格局富气，财运不错（大白话：命中有财，赚钱不会太难）")
+        pattern_parts.append("财星为用神→格局富气，财运不错，命中有财，赚钱不会太难")
     elif shi >= 3:
-        pattern_parts.append("食伤吐秀→格局灵性，才思敏捷（大白话：脑子好使，有创造力）")
+        pattern_parts.append("食伤吐秀→格局灵性，才思敏捷，脑子好使，有创造力")
     elif bi >= 3 and strong_weak in ("身弱", "偏弱"):
-        pattern_parts.append("比劫帮身→格局独立性强，靠自己（大白话：不靠别人，自己打天下）")
+        pattern_parts.append("比劫帮身→格局独立性强，不靠别人，自己打天下")
 
     if counts.get("伤官", 0) >= 2 and counts.get("正官", 0) >= 1:
-        pattern_parts.append("⚠ 伤官见官（才华和规则冲突）→感情事业易有波折，需学会收敛锋芒（大白话：个性太强容易得罪人，尤其在感情里要控制脾气）")
+        pattern_parts.append("⚠ 伤官见官（才华和规则冲突）→感情事业易有波折，需学会收敛锋芒。个性太强容易得罪人，尤其在感情里要控制脾气")
     if bi >= 3 and cai >= 2:
-        pattern_parts.append("⚠ 比劫夺财（朋友和钱财难两全）→注意财务纠纷，合伙要签协议（大白话：和朋友涉及钱的事一定要说清楚）")
+        pattern_parts.append("⚠ 比劫夺财（朋友和钱财难两全）→注意财务纠纷，合伙要签协议，和朋友涉及钱的事一定要说清楚")
     if yin >= 3 and shi >= 2:
-        pattern_parts.append("✅ 印星化食伤（聪明又有内涵）→有学术/艺术天赋（大白话：既有才华又有修养，不是花架子）")
+        pattern_parts.append("✅ 印星化食伤（聪明又有内涵）→有学术/艺术天赋，既有才华又有修养，不是花架子")
     if guan >= 2 and yin >= 2:
-        pattern_parts.append("✅ 官印相生（事业靠谱有后盾）→适合体制内/大企业发展，事业稳中有升（大白话：上有领导器重，下有知识支撑，事业路走得很稳）")
+        pattern_parts.append("✅ 官印相生（事业靠谱有后盾）→适合体制内/大企业发展，事业稳中有升。上有领导器重，下有知识支撑，事业路走得很稳")
 
     summary = "；".join(pattern_parts)
     result["summary"] = summary
@@ -387,22 +424,22 @@ def analyze_life_fortune(bazi, ss_data, strength_analysis, dayun_data):
     career_parts = []
     if counts.get("正官", 0) >= 2 or counts.get("七杀", 0) >= 2:
         if strong_weak in ("身强", "偏强"):
-            career_parts.append(f"官杀（掌控管束之力）旺（{guan}）为用神→天生管理才能，适合体制内、企业管理、军警法律（大白话：你有领导气场，适合管人管事）")
+            career_parts.append(f"官杀（掌控管束之力）旺（{_fmt_val(guan)}）为用神→天生管理才能，适合体制内、企业管理、军警法律。你有领导气场，适合管人管事")
         else:
-            career_parts.append(f"官杀（掌控管束之力）旺（{guan}）为忌神→事业压力大，需印星化杀或食伤制杀方能化解（大白话：管束你的人或事太多，但你有办法化解压力）")
+            career_parts.append(f"官杀（掌控管束之力）旺（{_fmt_val(guan)}）为忌神→事业压力大，需印星化杀或食伤制杀方能化解。管束你的人或事太多，但你有办法化解压力")
     else:
-        career_parts.append(f"官杀运中平（{guan}），事业以稳为主（大白话：事业不算大起大落，稳扎稳打就好）")
+        career_parts.append(f"官杀运中平（{_fmt_val(guan)}），事业以稳为主。事业不算大起大落，稳扎稳打就好")
 
     if counts.get("偏财", 0) >= 2:
-        career_parts.append("偏财旺，有经商头脑，适合创业/投资类工作（大白话：有商业嗅觉，投资眼光不错）")
+        career_parts.append("偏财旺，有经商头脑，适合创业/投资类工作。有商业嗅觉，投资眼光不错")
     elif counts.get("正财", 0) >= 2:
-        career_parts.append("正财旺，适合稳定职业，收入稳健（大白话：财运稳定，拿死工资也能过得好）")
+        career_parts.append("正财旺，适合稳定职业，收入稳健。财运稳定，拿死工资也能过得好")
 
     if shi >= 2:
-        career_parts.append("食伤（才华输出之力）旺，适合创意、技术、自由职业（大白话：靠技术或创意吃饭，不坐班也能赚钱）")
+        career_parts.append("食伤（才华输出之力）旺，适合创意、技术、自由职业。靠技术或创意吃饭，不坐班也能赚钱")
 
     if yin >= 2 and strong_weak in ("身弱", "偏弱"):
-        career_parts.append("印星（庇护学习之力）生身，适合学术、教育、研究等稳定性工作（大白话：适合靠知识和技术吃饭的稳定工作）")
+        career_parts.append("印星（庇护学习之力）生身，适合学术、教育、研究等稳定性工作。适合靠知识和技术吃饭的稳定工作")
 
     # 黄金期
     career_golden = []
@@ -432,23 +469,23 @@ def analyze_life_fortune(bazi, ss_data, strength_analysis, dayun_data):
     if gender == "女":
         gf = counts.get("正官", 0)
         qs = counts.get("七杀", 0)
-        love_parts.append(f"官星共{gf+qs}位（正官{gf}、七杀{qs}）")
+        love_parts.append(f"官星共{_fmt_val(gf+qs)}位（正官{_fmt_val(gf)}、七杀{_fmt_val(qs)}）")
         if gf + qs >= 2:
-            love_parts.append("官杀混杂→感情经历丰富，需注意选择（大白话：追求者多，但要擦亮眼睛，别被花言巧语骗了）")
+            love_parts.append("官杀混杂→感情经历丰富，需注意选择。追求者多，但要擦亮眼睛，别被花言巧语骗了")
         elif gf + qs == 0:
-            love_parts.append("官星不显→缘分较晚或需主动争取（大白话：感情上别等着找上门，自己主动点）")
+            love_parts.append("官星不显→缘分较晚或需主动争取。感情上别等着找上门，自己主动点")
             if yin >= 2:
-                love_parts.append("但印星旺→可通过长辈/熟人介绍（大白话：让亲戚朋友帮忙介绍，成功率更高）")
+                love_parts.append("但印星旺→可通过长辈/熟人介绍。让亲戚朋友帮忙介绍，成功率更高")
         elif gf == 1 and qs == 0:
-            love_parts.append("正官独显→感情专一，婚姻稳定（大白话：认定一个人就不容易变心，适合结婚过日子）")
+            love_parts.append("正官独显→感情专一，婚姻稳定。认定一个人就不容易变心，适合结婚过日子")
     else:
         zc = counts.get("正财", 0)
         pc = counts.get("偏财", 0)
-        love_parts.append(f"财星共{zc+pc}位（正财{zc}、偏财{pc}）")
+        love_parts.append(f"财星共{_fmt_val(zc+pc)}位（正财{_fmt_val(zc)}、偏财{_fmt_val(pc)}）")
         if zc + pc >= 2:
-            love_parts.append("财星旺→异性缘不错，需注意桃花（大白话：异性缘好但别花心，专一才是王道）")
+            love_parts.append("财星旺→异性缘不错，需注意桃花。异性缘好但别花心，专一才是王道")
         elif zc + pc == 0:
-            love_parts.append("财星不显→缘分来得晚一些（大白话：感情上别着急，好饭不怕晚）")
+            love_parts.append("财星不显→缘分来得晚一些。感情上别着急，好饭不怕晚")
 
     # 感情波动期
     love_waves = []
@@ -466,14 +503,14 @@ def analyze_life_fortune(bazi, ss_data, strength_analysis, dayun_data):
     family_parts = []
     if yin >= 2:
         if strong_weak in ("身弱", "偏弱"):
-            family_parts.append("印星（庇护学习之力）为用→家庭是你的坚强后盾，长辈助力大（大白话：家里人对你很支持，有事找家里人准没错）")
+            family_parts.append("印星（庇护学习之力）为用→家庭是你的坚强后盾，长辈助力大。家里人对你很支持，有事找家里人准没错")
         else:
-            family_parts.append("印星（庇护学习之力）为忌→注意与家人的边界感，需培养独立性（大白话：家人太照顾你反而不是好事，要学会自己拿主意）")
+            family_parts.append("印星（庇护学习之力）为忌→注意与家人的边界感，需培养独立性。家人太照顾你反而不是好事，要学会自己拿主意")
     else:
-        family_parts.append("印星不旺→成年后与原生家庭联系不那么紧密（大白话：长大了更靠自己，和家里联系不多）")
+        family_parts.append("印星不旺→成年后与原生家庭联系不那么紧密。长大了更靠自己，和家里联系不多")
 
     if bi >= 2:
-        family_parts.append("比劫（同辈互动之力）旺→兄弟姐妹/朋友多，注意人际关系的取舍（大白话：身边人多是非也多，要学会分辨谁是真朋友）")
+        family_parts.append("比劫（同辈互动之力）旺→兄弟姐妹/朋友多，注意人际关系的取舍。身边人多是非也多，要学会分辨谁是真朋友")
 
     # 简化为家庭分析
     family_parts.append(f"月柱为父母宫（{bazi.month_pillar.gan_zhi}），十神{ss_data['counts']}综合分析")
@@ -486,7 +523,7 @@ def analyze_life_fortune(bazi, ss_data, strength_analysis, dayun_data):
     if wx_items[0][1] <= 1 and wx_items[-1][1] >= 6:
         health_parts.append(f"五行严重偏枯→{wx_items[0][0]}极弱需注意（知识库《00_五行详解》：五行过弱对应的器官需重点保养）")
     elif wx_items[0][1] <= 2:
-        health_parts.append(f"五行{wx_items[0][0]}偏弱→日常需有意识补充（大白话：多吃这个五行对应颜色的食物，注意相关器官保养）")
+        health_parts.append(f"五行{wx_items[0][0]}偏弱→日常需有意识补充。多吃这个五行对应颜色的食物，注意相关器官保养")
 
     # 五行对应器官
     wx_organ = {"木": "肝胆/神经系统", "火": "心脏/血液循环/小肠",
@@ -494,7 +531,7 @@ def analyze_life_fortune(bazi, ss_data, strength_analysis, dayun_data):
                 "水": "肾脏/泌尿系统/内分泌"}
     for wx, val in wx_items:
         if val <= 1.5 and wx in wx_organ:
-            health_parts.append(f"{wx}弱（{val}），注意{wx_organ[wx]}保养")
+            health_parts.append(f"{wx}弱（{_fmt_val(val)}），注意{wx_organ[wx]}保养")
     result["health"] = "；".join(health_parts)
 
     # ═══════════ 6. 人生阶段分析 ═══════════

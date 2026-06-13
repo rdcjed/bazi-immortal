@@ -10,6 +10,7 @@ from .constants import (
     WU_XING_SHENG, WU_XING_KE, SI_JI_WANG_XIANG,
     DZ_MONTH_INFO, SHI_ER_CHANG_SHENG, SHI_ER_CHANG_SHENG_INDEX,
     SHI_ER_CHANG_SHENG_ORDER, DZ_INDEX,
+    SAN_HE_BY_WU_XING, SAN_HUI_BY_WU_XING,
 )
 from .calculator import BaZi
 
@@ -40,18 +41,49 @@ WU_XING_SEASONS = {
 }
 
 
-def analyze_wuxing_distribution(bazi: BaZi) -> Dict[str, int]:
+def _detect_san_he_hui(zhi_list: List[str]) -> Dict[str, float]:
+    """
+    检测地支三合/三会局，返回增强的五行及分值
+
+    三合：申子辰→水，亥卯未→木，寅午戌→火，巳酉丑→金 → 对应五行+2
+    三会：亥子丑→水，寅卯辰→木，巳午未→火，申酉戌→金 → 对应五行+2
+    """
+    zhi_set = set(zhi_list)
+    bonuses: Dict[str, float] = {}
+
+    # 检测三合
+    for wx, trio in SAN_HE_BY_WU_XING.items():
+        if set(trio).issubset(zhi_set):
+            bonuses[wx] = bonuses.get(wx, 0) + 2.0
+
+    # 检测三会
+    for wx, trio in SAN_HUI_BY_WU_XING.items():
+        if set(trio).issubset(zhi_set):
+            bonuses[wx] = bonuses.get(wx, 0) + 2.0
+
+    return bonuses
+
+
+def analyze_wuxing_distribution(bazi: BaZi) -> Dict[str, float]:
     """
     五行分布统计
 
     统计四柱中：
-    - 天干（明现，权重高）
-    - 地支本气
+    - 天干（明现）
+    - 地支本气（力量最大）
     - 地支藏干（余气）
+    - 三合/三会局加成
+    
+    权重规则：
+    - 天干：+2
+    - 地支本气：+3（传统命理中地支力量大于天干）
+    - 主藏干：+1
+    - 余气：+0.3
+    - 三合/三会局：+2（对应五行）
     
     返回 { "木": N, "火": N, "土": N, "金": N, "水": N }
     """
-    counts = {wx: 0 for wx in WU_XING_LIST}
+    counts = {wx: 0.0 for wx in WU_XING_LIST}
 
     # 统计天干
     for gan in bazi.gan_list:
@@ -60,9 +92,9 @@ def analyze_wuxing_distribution(bazi: BaZi) -> Dict[str, int]:
 
     # 统计地支本气 + 藏干
     for zhi in bazi.zhi_list:
-        # 地支本气（主气）
+        # 地支本气（主气）— 力量最大
         main_wx = DZ_WU_XING[zhi]
-        counts[main_wx] += 1.5  # 本气权重1.5
+        counts[main_wx] += 3  # 本气权重3（传统命理中地支力量大于天干）
 
         # 藏干余气
         hidden_gans = DZ_CANG_GAN.get(zhi, [])
@@ -71,9 +103,14 @@ def analyze_wuxing_distribution(bazi: BaZi) -> Dict[str, int]:
             if i == 0:
                 counts[hg_wx] += 1.0  # 主藏干
             else:
-                counts[hg_wx] += 0.5  # 余气
+                counts[hg_wx] += 0.3  # 余气（轻权）
 
-    return {k: round(v, 1) for k, v in sorted(counts.items(), key=lambda x: -x[1])}
+    # 三合/三会局检测
+    san_bonuses = _detect_san_he_hui(bazi.zhi_list)
+    for wx, bonus in san_bonuses.items():
+        counts[wx] += bonus
+
+    return {k: round(v, 2) for k, v in sorted(counts.items(), key=lambda x: -x[1])}
 
 
 def get_season(bazi: BaZi) -> str:
@@ -218,11 +255,11 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
             continue
         ss = get_shi_shen_for_gan(ri_gan, gan)
         if ss in ("正印", "偏印", "比肩", "劫财"):
-            helping_count += 2
+            helping_count += 1  # 天干印比各+1（降低极端化）
         elif ss in ("正官", "七杀", "正财", "偏财", "食神", "伤官"):
-            harming_count += 2
+            harming_count += 1  # 天干克泄耗各+1（降低极端化）
 
-    # 也看地支藏干中的扶助
+    # 也看地支藏干中的扶助（藏干力量轻）
     for zhi in zhi_list:
         hidden = DZ_CANG_GAN.get(zhi, [])
         for hg in hidden:
@@ -241,11 +278,11 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         reasoning.append(r)
 
     if has_strong_root:
-        score += 1
+        score += 2  # 强根+2
         root_str = "、".join(f"{r}({s})" for r, s in roots[:3])
         reasoning.append(f"得地：地支有强根（{root_str}）")
     elif is_de_di:
-        score += 0.5
+        score += 1  # 弱根+1
         root_str = "、".join(f"{r}" for r, _ in roots[:3])
         reasoning.append(f"得地：地支有根（{root_str}），但力量一般")
     else:
@@ -254,10 +291,10 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
 
     if is_de_shi:
         score += 1
-        reasoning.append(f"得势：天干印比助力较多（+{helping_count}），得势有力")
+        reasoning.append(f"得势：天干印比助力较多（+{_fmt_val(helping_count)}），得势有力")
     else:
         score -= 1
-        reasoning.append(f"失势：天干克泄耗较多（+{harming_count}），失势无助")
+        reasoning.append(f"失势：天干克泄耗较多（+{_fmt_val(harming_count)}），失势无助")
 
     # 最终判断
     if score >= 3:
@@ -273,9 +310,9 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
 
     # 极强/极弱检查
     helping_raw = helping_count + (3 if has_strong_root else 0)
-    if helping_raw >= 12 and harming_count <= 2 and is_de_shi:
+    if helping_raw >= 8 and harming_count <= 2 and is_de_shi:
         strong_weak = "从强"
-    if harming_count >= 10 and not is_de_ling and not is_de_di:
+    if harming_count >= 8 and not is_de_ling and not is_de_di:
         strong_weak = "从弱"
 
     # 辅助：找"生我"的五行（印枭）
@@ -346,6 +383,13 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     }
 
 
+def _fmt_val(v):
+    """格式化数值：≥1.0显示一位小数，<1.0显示两位小数"""
+    if v >= 1.0:
+        return f"{v:.1f}"
+    return f"{v:.2f}"
+
+
 def format_wuxing_analysis(result: Dict) -> str:
     """五行分析结果 → 可读文本"""
     parts = []
@@ -353,7 +397,7 @@ def format_wuxing_analysis(result: Dict) -> str:
     
     # 五行分布
     dist = result["distribution"]
-    dist_str = "、".join(f"{wx}{dist.get(wx, 0)}" for wx in WU_XING_LIST)
+    dist_str = "、".join(f"{wx}{_fmt_val(dist.get(wx, 0))}" for wx in WU_XING_LIST)
     parts.append(f"五行分布：{dist_str}")
     
     # 日主

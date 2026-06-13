@@ -91,6 +91,13 @@ def get_shi_shen_for_zhi(ri_gan: str, zhi: str) -> Dict[str, str]:
     return result
 
 
+def _fmt_val(v):
+    """格式化数值：≥1.0显示一位小数，<1.0显示两位小数"""
+    if v >= 1.0:
+        return f"{v:.1f}"
+    return f"{v:.2f}"
+
+
 def analyze_all_shi_shen(bazi: BaZi) -> Dict:
     """
     完整的十神分析
@@ -137,7 +144,7 @@ def analyze_all_shi_shen(bazi: BaZi) -> Dict:
     category_counts = {}
     for cat, members in SHI_SHEN_CATEGORIES.items():
         total = sum(counts.get(m, 0) for m in members)
-        category_counts[cat] = round(total, 1)
+        category_counts[cat] = round(total, 2)
 
     # 特征总结
     features = []
@@ -157,7 +164,7 @@ def analyze_all_shi_shen(bazi: BaZi) -> Dict:
     # 类别分析
     for cat, total in category_counts.items():
         if total >= 3:
-            features.append(f"{cat}旺：{total}个，影响较大")
+            features.append(f"{cat}旺：{_fmt_val(total)}个，影响较大")
         elif total == 0:
             features.append(f"无{cat}：四柱不见{cat}")
 
