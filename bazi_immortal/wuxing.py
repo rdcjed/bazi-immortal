@@ -76,9 +76,9 @@ def analyze_wuxing_distribution(bazi: BaZi) -> Dict[str, float]:
     
     权重规则：
     - 天干：+2
-    - 地支本气：+3（传统命理中地支力量大于天干）
-    - 主藏干：+1
-    - 余气：+0.3
+    - 地支本气：+1.5（传统算法地支权重稍大于天干即可）
+    - 主藏干：+0.5
+    - 余气：+0.2
     - 三合/三会局：+2（对应五行）
     
     返回 { "木": N, "火": N, "土": N, "金": N, "水": N }
@@ -94,16 +94,16 @@ def analyze_wuxing_distribution(bazi: BaZi) -> Dict[str, float]:
     for zhi in bazi.zhi_list:
         # 地支本气（主气）— 力量最大
         main_wx = DZ_WU_XING[zhi]
-        counts[main_wx] += 3  # 本气权重3（传统命理中地支力量大于天干）
+        counts[main_wx] += 1.5  # 本气权重1.5
 
         # 藏干余气
         hidden_gans = DZ_CANG_GAN.get(zhi, [])
         for i, hg in enumerate(hidden_gans):
             hg_wx = TG_WU_XING[hg]
             if i == 0:
-                counts[hg_wx] += 1.0  # 主藏干
+                counts[hg_wx] += 0.5  # 主藏干
             else:
-                counts[hg_wx] += 0.3  # 余气（轻权）
+                counts[hg_wx] += 0.2  # 余气（轻权）
 
     # 三合/三会局检测
     san_bonuses = _detect_san_he_hui(bazi.zhi_list)
@@ -205,25 +205,25 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     moderate_life_states = {"沐浴", "冠带", "衰", "胎", "养"}
 
     # 综合得分规则：
-    # 四季旺衰：旺+3, 相+2, 休-1, 囚-2, 死-3
+    # 四季旺衰：旺+2, 相+1, 休0, 囚-1, 死-2
     # 十二长生额外调整：临官/帝旺/长生+1, 绝/死-1
     de_ling_score = 0
     de_ling_reasons = []
 
     if ri_wx_season_status == "旺":
-        de_ling_score += 3
+        de_ling_score += 2
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【旺】，当令")
     elif ri_wx_season_status == "相":
-        de_ling_score += 2
+        de_ling_score += 1
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【相】，次旺")
     elif ri_wx_season_status == "休":
-        de_ling_score -= 1
+        de_ling_score += 0
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【休】，退气减力")
     elif ri_wx_season_status == "囚":
-        de_ling_score -= 2
+        de_ling_score -= 1
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【囚】，不得令")
     elif ri_wx_season_status == "死":
-        de_ling_score -= 3
+        de_ling_score -= 2
         de_ling_reasons.append(f"四季旺衰：{ri_wx}在{season}季为【死】，失令")
 
     # 十二长生额外调整
@@ -278,11 +278,11 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         reasoning.append(r)
 
     if has_strong_root:
-        score += 2  # 强根+2
+        score += 1  # 强根+1
         root_str = "、".join(f"{r}({s})" for r, s in roots[:3])
         reasoning.append(f"得地：地支有强根（{root_str}）")
     elif is_de_di:
-        score += 1  # 弱根+1
+        score += 0.5  # 弱根+0.5
         root_str = "、".join(f"{r}" for r, _ in roots[:3])
         reasoning.append(f"得地：地支有根（{root_str}），但力量一般")
     else:
