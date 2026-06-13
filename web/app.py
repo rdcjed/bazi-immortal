@@ -186,6 +186,7 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
             "season": strength.get("season", ""),
             "monthly_state": strength.get("monthly_state", ""),
             "score": strength.get("score", 0),
+            "reasoning": strength.get("reasoning", []),
             "useful_god": strength.get("useful_god", []),
             "avoid_god": strength.get("avoid_god", []),
         },
@@ -240,8 +241,8 @@ def index():
     result = None
     error = None
     form_values = {
-        "year": "1986", "month": "3", "day": "2",
-        "hour": "10", "minute": "30", "gender": "男",
+        "year": "1990", "month": "1", "day": "1",
+        "hour": "12", "minute": "0", "gender": "男",
         "target_year": "2026", "province": "", "city": "",
         "calendar_type": "solar",
     }
@@ -249,11 +250,11 @@ def index():
     ten_year_data = None
 
     if request.method == "POST":
-        form_values["year"] = request.form.get("year", "1986")
-        form_values["month"] = request.form.get("month", "3")
-        form_values["day"] = request.form.get("day", "2")
-        form_values["hour"] = request.form.get("hour", "10")
-        form_values["minute"] = request.form.get("minute", "30")
+        form_values["year"] = request.form.get("year", "1990")
+        form_values["month"] = request.form.get("month", "1")
+        form_values["day"] = request.form.get("day", "1")
+        form_values["hour"] = request.form.get("hour", "12")
+        form_values["minute"] = request.form.get("minute", "0")
         form_values["gender"] = request.form.get("gender", "男")
         form_values["target_year"] = request.form.get("target_year", "2026")
         form_values["enable_ten_year"] = request.form.get("enable_ten_year", "")

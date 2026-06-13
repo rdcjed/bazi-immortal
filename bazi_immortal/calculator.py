@@ -213,7 +213,7 @@ class BaZiCalculator:
 
         算法：
         1. 计算该日期的儒略日数（JDN）
-        2. 日干支索引 = (JDN + 39) % 60（39为修正偏移，使甲子日正确对应）
+        2. 日干支索引 = (JDN + 49) % 60（49为修正偏移，使甲子日正确对应）
         """
         # 儒略日计算（格里历）
         a = (14 - month) // 12
@@ -221,9 +221,9 @@ class BaZiCalculator:
         m = month + 12 * a - 3
         jdn = day + (153 * m + 2) // 5 + 365 * y + y // 4 - y // 100 + y // 400 - 32045
 
-        # 日干支索引 = (JDN + 39) % 60
-        # 其中39是修正偏移，使得JDN(1900-01-01)=2415021的日干支为甲子(index 0)
-        target_index = (jdn + 39) % 60
+        # 日干支索引 = (JDN + 49) % 60
+        # 其中49是修正偏移，使得JDN(1900-01-01)=2415021的日干支为甲子(index 0)
+        target_index = (jdn + 49) % 60
         tg, dz = LIU_SHI_JIA_ZI[target_index]
 
         return Pillar(TIAN_GAN[tg], DI_ZHI[dz], "日柱")

@@ -363,18 +363,59 @@ body{
       <span><span class="icon">🔥</span>五行分析</span><span class="arrow">▼</span>
     </div>
     <div class="section-body">
-      <div class="stat-row"><span class="label">身强/身弱</span><span class="value">{{ result.wuxing.strength }}</span></div>
-      <div class="stat-row"><span class="label">四季状态</span><span class="value">{{ result.wuxing.season }}</span></div>
-      <div class="stat-row"><span class="label">月令状态</span><span class="value">{{ result.wuxing.monthly_state }}</span></div>
-      <div class="stat-row"><span class="label">综合评分</span><span class="value">{{ result.wuxing.score }}</span></div>
-      <div class="stat-row"><span class="label">喜用神</span><span class="value">{% for g in result.wuxing.useful_god %}<span class="tag gold">{{ g }}</span>{% endfor %}</span></div>
-      <div class="stat-row"><span class="label">忌神</span><span class="value">{% for g in result.wuxing.avoid_god %}<span class="tag red">{{ g }}</span>{% endfor %}</span></div>
-      <div style="margin-top:12px;">
-        <div class="stat-row"><span class="label">五行分布</span><span class="value"></span></div>
+      <!-- 概览卡片 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+        <div style="background:var(--card2);border-radius:8px;padding:10px;text-align:center;">
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;">身强/弱</span>
+          <span style="font-size:18px;font-weight:700;color:{% if '身强' in result.wuxing.strength %}var(--green){% elif '身弱' in result.wuxing.strength %}var(--red-light){% else %}var(--gold){% endif %};">{{ result.wuxing.strength }}</span>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px;text-align:center;">
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;">季节</span>
+          <span style="font-size:18px;font-weight:700;color:var(--text-bright);">{{ result.wuxing.season }}季</span>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px;text-align:center;">
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;">月令</span>
+          <span style="font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;">{{ result.wuxing.monthly_state }}</span>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px;text-align:center;">
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;">评分</span>
+          <span style="font-size:18px;font-weight:700;color:{% if result.wuxing.score >= 3 %}var(--green){% elif result.wuxing.score <= -3 %}var(--red-light){% else %}var(--text-bright){% endif %};">{{ result.wuxing.score }}</span>
+        </div>
+      </div>
+      <!-- 用神忌神 -->
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <div style="flex:1;background:var(--card2);border-radius:8px;padding:10px;">
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">✅ 喜用神（补这些就顺）</span>
+          <div>{% for g in result.wuxing.useful_god %}<span class="tag gold" style="font-size:13px;padding:5px 14px;">{{ g }}</span>{% else %}—{% endfor %}</div>
+        </div>
+        <div style="flex:1;background:var(--card2);border-radius:8px;padding:10px;">
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">❌ 忌神（避开这些就稳）</span>
+          <div>{% for g in result.wuxing.avoid_god %}<span class="tag red" style="font-size:13px;padding:5px 14px;">{{ g }}</span>{% else %}—{% endfor %}</div>
+        </div>
+      </div>
+      <!-- 评分推理 -->
+      {% if result.wuxing.reasoning %}
+      <div style="background:var(--card2);border-radius:8px;padding:10px;margin-bottom:10px;">
+        <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">🧮 评分依据</span>
+        <div style="font-size:12px;color:var(--text);line-height:1.7;">
+          <div>综合评分 <strong style="color:var(--gold);">{{ result.wuxing.score }}</strong>，判定为 <strong style="color:{% if '身强' in result.wuxing.strength %}var(--green){% elif '身弱' in result.wuxing.strength %}var(--red-light){% else %}var(--gold){% endif %};">{{ result.wuxing.strength }}</strong></div>
+          {% for r in result.wuxing.reasoning %}
+          <div style="padding-left:12px;border-left:2px solid var(--border);margin:3px 0;">{{ r }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      <!-- 五行分布 -->
+      <div style="background:var(--card2);border-radius:8px;padding:10px;">
+        <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:8px;">📊 五行分布</span>
+        {% set max_val = result.wuxing.distribution.values()|max %}
         {% for wx, count in result.wuxing.distribution.items() %}
-        <div class="stat-row" style="padding-left:20px;">
-          <span class="label">{{ wx }}</span>
-          <span class="value">{{ "%.1f"|format(count) if count >= 1 else "%.2f"|format(count) }}</span>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="width:24px;font-size:13px;font-weight:600;color:var(--text-bright);">{{ wx }}</span>
+          <div style="flex:1;height:14px;background:var(--card);border-radius:7px;overflow:hidden;">
+            <div style="height:100%;width:{{ (count / max_val * 100)|round }}%;background:{% if wx == '木' %}linear-gradient(90deg,#27ae60,#2ecc71){% elif wx == '火' %}linear-gradient(90deg,#e67e22,#e74c3c){% elif wx == '土' %}linear-gradient(90deg,#f39c12,#d4a853){% elif wx == '金' %}linear-gradient(90deg,#bdc3c7,#ecf0f1){% elif wx == '水' %}linear-gradient(90deg,#2980b9,#3498db){% endif %};border-radius:7px;"></div>
+          </div>
+          <span style="width:50px;text-align:right;font-size:12px;color:var(--text-dim);font-variant-numeric:tabular-nums;">{{ "%.1f"|format(count) if count >= 1 else "%.2f"|format(count) }}</span>
         </div>
         {% endfor %}
       </div>
