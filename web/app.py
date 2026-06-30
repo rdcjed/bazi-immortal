@@ -2,7 +2,7 @@
 八字命理推算 - Web 交互页面
 基于 bazi_immortal 引擎的 Flask Web 应用
 """
-import sys, os, json
+import sys, os, json, requests
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, request, render_template
@@ -18,6 +18,13 @@ from bazi_immortal.location import analyze_location_compatibility
 from bazi_immortal.constants import TG_WU_XING
 
 app = Flask(__name__)
+
+# LLM 质检配置
+LLM_ENABLED = os.environ.get("LLM_QUALITY_CHECK", "").lower() in ("1", "true", "yes")
+LLM_API_KEY = os.environ.get("SENSENOVA_API_KEY", "")
+LLM_BASE_URL = "https://token.sensenova.cn/v1"
+LLM_MODEL = "deepseek-v4-flash"
+
 
 TEN_YEAR_PASSWORD = "111111"
 
@@ -71,6 +78,49 @@ def lunar_to_solar(lunar_year, lunar_month, lunar_day):
         return solar.year, solar.month, solar.day
     except Exception:
         return None
+
+
+def llm_polish(bazi_data: dict, original_text: str) -> str:
+    """用 LLM 润色命理分析文本"""
+    if not LLM_ENABLED or not LLM_API_KEY:
+        return original_text
+
+    prompt = f"""你是一位经验丰富的八字命理师。以下是AI系统对一个命盘的分析结果，请将其改写为更自然、更个性化的命理点评，保持专业但通俗易懂。
+
+命盘信息：
+- 日主：{bazi_data.get('ri_gan', '')}
+- 格局：{bazi_data.get('ge_ju', {}).get('name', '')}
+- 身强弱：{bazi_data.get('strong_weak', '')}
+- 用神：{', '.join(bazi_data.get('useful_god', []))}
+- 忌神：{', '.join(bazi_data.get('avoid_god', []))}
+
+原始分析：
+{original_text[:1000]}
+
+请用中文给出流畅、个性化的命理点评（200字以内），不要提及"根据AI系统"等。"""
+
+    try:
+        resp = requests.post(
+            f"{LLM_BASE_URL}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {LLM_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": LLM_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 500,
+                "temperature": 0.7,
+            },
+            timeout=10
+        )
+        if resp.status_code == 200:
+            result = resp.json()
+            return result["choices"][0]["message"]["content"].strip()
+        else:
+            return original_text
+    except Exception:
+        return original_text
 
 
 def generate_report(year, month, day, hour, minute, gender, target_year=None,
@@ -176,6 +226,30 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     ri_gan = bazi.ri_gan
     ri_wx = TG_WU_XING[ri_gan]
 
+    # ── LLM 质检（可选）──
+    if LLM_ENABLED:
+        bazi_data_for_llm = {
+            "ri_gan": bazi.ri_gan,
+            "ge_ju": ge_ju,
+            "strong_weak": strength.get("strong_weak", ""),
+            "useful_god": strength.get("useful_god", []),
+            "avoid_god": strength.get("avoid_god", []),
+        }
+        original_text = (
+            f"命主为{ri_gan}日主，{strength.get('strong_weak', '')}，"
+            f"格局{ge_ju.get('name', '')}（{ge_ju.get('category', '')}）。"
+            f"用神为{', '.join(strength.get('useful_god', []))}，"
+            f"忌神为{', '.join(strength.get('avoid_god', []))}。"
+            f"年柱{gan_zhi_list[0]}，月柱{gan_zhi_list[1]}，"
+            f"日柱{gan_zhi_list[2]}，时柱{gan_zhi_list[3]}。"
+            f"当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}。"
+            f"流年运势：{year_overview.get('summary', '')}"
+        )
+        polished = llm_polish(bazi_data_for_llm, original_text)
+        result_llm = {"polished_text": polished, "llm_enabled": True}
+    else:
+        result_llm = {"llm_enabled": False}
+
     # 格局详情（print行已去掉）
     return {
         "basic": {
@@ -224,6 +298,7 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
         "pillars": pillar_analysis,
         "life_fortune": life_fortune,
         "location": location_result,
+        "llm": result_llm,
     }
 
 
