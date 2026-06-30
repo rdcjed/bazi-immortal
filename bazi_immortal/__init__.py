@@ -8,7 +8,7 @@ __author__ = "云中子"
 
 from .calculator import BaZi, BaZiCalculator, calculate_bazi, bazi_to_string
 from .wuxing import (
-    analyze_wuxing_distribution, analyze_ri_zuo_strong_weak,
+    analyze_wuxing_distribution, analyze_ri_zuo_strong_weak, analyze_ge_ju,
     get_season, format_wuxing_analysis
 )
 from .shisheng import (

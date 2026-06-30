@@ -415,3 +415,184 @@ def format_wuxing_analysis(result: Dict) -> str:
     parts.append(f"忌神：{ag}")
     
     return "\n".join(parts)
+
+
+def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
+    """
+    分析八字格局
+
+    检测顺序：
+    1. 从格（印比≥75%从强，官杀≥45%从官，财≥45%从财，食伤≥45%从儿）
+    2. 化气格（日主与年/月/时干合化）
+    3. 普通格（月令藏干透干定格局）
+
+    Args:
+        bazi: BaZi 排盘对象
+        strength: analyze_ri_zuo_strong_weak() 的输出
+        ss_data: 十神分析数据（analyze_all_shi_shen 的输出）
+
+    Returns:
+        Dict with name, category, description, confidence
+    """
+    from .shisheng import get_shi_shen_for_gan
+
+    ri_gan = bazi.ri_gan
+    ri_wx = TG_WU_XING[ri_gan]
+    month_zhi = bazi.month_pillar.di_zhi
+    month_gan = bazi.month_pillar.tian_gan
+    gan_list = bazi.gan_list  # [年干, 月干, 日干, 时干]
+    zhi_list = bazi.zhi_list
+
+    category_counts = ss_data.get("category_counts", {})
+    total_count = sum(category_counts.values()) or 1.0
+
+    yin_bi = category_counts.get("印枭", 0) + category_counts.get("比劫", 0)
+    guan_sha = category_counts.get("官杀", 0)
+    cai = category_counts.get("财", 0)
+    shi_shang = category_counts.get("食伤", 0)
+
+    yin_bi_pct = yin_bi / total_count * 100
+    guan_sha_pct = guan_sha / total_count * 100
+    cai_pct = cai / total_count * 100
+    shi_shang_pct = shi_shang / total_count * 100
+
+    # ═══════════════════════════════════════════════════
+    # 1. 从格检测
+    # ═══════════════════════════════════════════════════
+    # 从强格 / 假从强格：印比 ≥ 75%
+    if yin_bi_pct >= 75:
+        is_real = yin_bi_pct >= 85 and strength.get("strong_weak") in ("从强", "身强")
+        confidence = "high" if is_real else "mid"
+        name = "从强格" if is_real else "假从强格"
+        return {
+            "name": name,
+            "category": "从格",
+            "description": f"全局印比占比{yin_bi_pct:.0f}%，日主极强，顺其旺势。{name}。",
+            "confidence": confidence,
+        }
+
+    # 从官格：官杀 ≥ 45%
+    if guan_sha_pct >= 45:
+        confidence = "high" if guan_sha_pct >= 60 else "mid"
+        return {
+            "name": "从官格",
+            "category": "从格",
+            "description": f"全局官杀占比{guan_sha_pct:.0f}%，日主极弱从官杀之势。",
+            "confidence": confidence,
+        }
+
+    # 从财格：财 ≥ 45%
+    if cai_pct >= 45:
+        confidence = "high" if cai_pct >= 60 else "mid"
+        return {
+            "name": "从财格",
+            "category": "从格",
+            "description": f"全局财星占比{cai_pct:.0f}%，日主极弱从财之势。",
+            "confidence": confidence,
+        }
+
+    # 从儿格：食伤 ≥ 45%
+    if shi_shang_pct >= 45:
+        confidence = "high" if shi_shang_pct >= 60 else "mid"
+        return {
+            "name": "从儿格",
+            "category": "从格",
+            "description": f"全局食伤占比{shi_shang_pct:.0f}%，日主极弱从儿之势。",
+            "confidence": confidence,
+        }
+
+    # ═══════════════════════════════════════════════════
+    # 2. 化气格检测（日主与年/月/时干合化）
+    # ═══════════════════════════════════════════════════
+    # 合化组合：甲己→土, 乙庚→金, 丙辛→水, 丁壬→木, 戊癸→火
+    # 需要月令辅助（合化后五行当令）
+    hua_qi_pairs = {
+        ("甲", "己"): ("土", ["辰", "戌", "丑", "未"]),
+        ("己", "甲"): ("土", ["辰", "戌", "丑", "未"]),
+        ("乙", "庚"): ("金", ["申", "酉"]),
+        ("庚", "乙"): ("金", ["申", "酉"]),
+        ("丙", "辛"): ("水", ["亥", "子"]),
+        ("辛", "丙"): ("水", ["亥", "子"]),
+        ("丁", "壬"): ("木", ["寅", "卯"]),
+        ("壬", "丁"): ("木", ["寅", "卯"]),
+        ("戊", "癸"): ("火", ["巳", "午"]),
+        ("癸", "戊"): ("火", ["巳", "午"]),
+    }
+
+    # 检查所有配对组合
+    # 日主 + 年干 / 月干 / 时干
+    # 月干 + 时干 / 年干 + 日干
+    check_pairs = [
+        (ri_gan, bazi.year_pillar.tian_gan),
+        (ri_gan, month_gan),
+        (ri_gan, bazi.hour_pillar.tian_gan),
+        (month_gan, bazi.hour_pillar.tian_gan),
+        (bazi.year_pillar.tian_gan, ri_gan),
+    ]
+
+    for g1, g2 in check_pairs:
+        key = (g1, g2)
+        if key in hua_qi_pairs:
+            hua_wx, need_zhi = hua_qi_pairs[key]
+            if month_zhi in need_zhi:
+                return {
+                    "name": f"{g1}{g2}化气格（{hua_wx}）",
+                    "category": "化气格",
+                    "description": f"日主{ri_gan}与{g2}合化成功，化气为{hua_wx}，月令{month_zhi}助化。",
+                    "confidence": "mid",
+                }
+
+    # ═══════════════════════════════════════════════════
+    # 3. 普通格（月令藏干透干定格局）
+    # ═══════════════════════════════════════════════════
+    # 优先级：官杀 > 财 > 食伤 > 印 > 比劫
+    priority_ss = ["正官", "七杀", "正财", "偏财", "食神", "伤官", "正印", "偏印"]
+    # 比劫（建禄/月刃）最后处理
+
+    month_cang_gan = DZ_CANG_GAN.get(month_zhi, [])
+
+    # 检查月令藏干中有哪些透出在天干上
+    found_ss = None
+    found_gan = None
+
+    for cg in month_cang_gan:
+        if cg in gan_list:
+            ss = get_shi_shen_for_gan(ri_gan, cg)
+            if ss in priority_ss:
+                if found_ss is None or priority_ss.index(ss) < priority_ss.index(found_ss):
+                    found_ss = ss
+                    found_gan = cg
+
+    if found_ss:
+        name = found_ss + "格"
+        return {
+            "name": name,
+            "category": "普通格",
+            "description": f"月令{month_zhi}中{found_gan}透出天干，定为{name}。",
+            "confidence": "high",
+        }
+
+    # 如果月令藏干没有透出任何官杀财印食伤，检查比劫（建禄格/月刃格）
+    monthly_state = get_monthly_state(ri_gan, month_zhi)
+    if monthly_state == "临官":
+        return {
+            "name": "建禄格",
+            "category": "普通格",
+            "description": f"日主{ri_gan}在月令{month_zhi}为临官（建禄），月令得禄。",
+            "confidence": "high",
+        }
+    if monthly_state == "帝旺":
+        return {
+            "name": "月刃格",
+            "category": "普通格",
+            "description": f"日主{ri_gan}在月令{month_zhi}为帝旺（月刃），月令刃旺。",
+            "confidence": "high",
+        }
+
+    # 兜底
+    return {
+        "name": "正格（无特殊格局）",
+        "category": "普通格",
+        "description": f"日主{ri_gan}无特殊从格或化气，月令{month_zhi}藏干未透，归入正格。",
+        "confidence": "low",
+    }

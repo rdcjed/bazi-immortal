@@ -9,7 +9,7 @@ from flask import Flask, request, render_template
 from zhdate import ZhDate
 
 from bazi_immortal import calculate_bazi, find_shen_sha
-from bazi_immortal.wuxing import analyze_ri_zuo_strong_weak, analyze_wuxing_distribution
+from bazi_immortal.wuxing import analyze_ri_zuo_strong_weak, analyze_wuxing_distribution, analyze_ge_ju
 from bazi_immortal.shisheng import analyze_all_shi_shen
 from bazi_immortal.dayun import calculate_da_yun, get_liu_nian, analyze_liu_nian
 from bazi_immortal.contextual import analyze_shi_shen_features, get_guiren_analysis, analyze_pillars, analyze_life_fortune
@@ -98,6 +98,10 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     ss_counts = {k: v for k, v in sorted(ss_data["counts"].items(), key=lambda x: -x[1]) if v > 0}
     top_ss = ss_data.get("top_shi_shen", [])
 
+    # ── 格局分析 ──
+    ge_ju = analyze_ge_ju(bazi, strength, ss_data)
+    print(f"[格局] {ge_ju['name']} ({ge_ju['category']})")
+
     # ── 神煞 ──
     shensha_result = find_shen_sha(bazi)
 
@@ -172,6 +176,7 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     ri_gan = bazi.ri_gan
     ri_wx = TG_WU_XING[ri_gan]
 
+    # 格局详情（print行已去掉）
     return {
         "basic": {
             "gan_zhi": gan_zhi_list,
@@ -212,6 +217,7 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
             "tai_sui": liunian_analysis.get("tai_sui_relations", []),
         },
         "features": features,
+        "ge_ju": ge_ju,
         "guiren": guiren,
         "monthly": months,
         "year_overview": year_overview,

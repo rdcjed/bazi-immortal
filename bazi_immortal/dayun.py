@@ -141,7 +141,7 @@ def _calculate_start_age(
     else:  # 逆排
         t_year, t_month, t_day, t_name = _get_prev_term_date(
             birth_year, birth_month, birth_day, TERM_TO_ZHI)
-        term_dt = datetime(t_year, t_month, t_day, 23, 59, 59)  # 节气的最后一刻
+        term_dt = datetime(t_year, t_month, t_day, 0, 0, 0)  # 节气开始时刻
         delta = birth_dt - term_dt
         direction_desc = f"从上一个节气「{t_name}」({t_year}年{t_month}月{t_day}日)到{birth_year}年{birth_month}月{birth_day}日"
     

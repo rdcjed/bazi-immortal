@@ -115,7 +115,7 @@ body{
 
 /* 八字排盘 */
 .bazi-display{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}
-.bazi-cell{text-align:center;background:var(--card2);border-radius:10px;padding:14px 8px}
+.bazi-cell{text-align:center;background:var(--card2);border-radius:10px;padding:14px 8px;white-space:nowrap}
 .bazi-cell .label{font-size:11px;color:var(--text-dim);margin-bottom:6px}
 .bazi-cell .gz{font-size:22px;color:var(--gold);font-weight:700;letter-spacing:4px}
 
@@ -153,6 +153,26 @@ body{
 
 .shensha-tag{display:inline-block;padding:3px 10px;background:var(--card2);border-radius:6px;font-size:12px;margin:2px 4px 2px 0;color:var(--text)}
 .shensha-tag .name{color:var(--gold);font-weight:600}
+
+/* ════════════ 名词解释弹窗 ════════════ */
+.glossary-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:13px;cursor:pointer;transition:background .15s}
+.glossary-btn:hover{background:var(--border)}
+.glossary-overlay{position:fixed;z-index:9998;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+.glossary-overlay.show{opacity:1;visibility:visible}
+.glossary-modal{position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:720px;max-height:80vh;background:var(--card);border:1px solid var(--gold-dim);border-radius:12px;padding:24px;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+.glossary-modal.show{opacity:1;visibility:visible}
+.glossary-modal .gm-title{font-size:18px;color:var(--gold);font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.glossary-modal .gm-close{font-size:20px;color:var(--text-dim);cursor:pointer;line-height:1}
+.glossary-modal .gm-close:hover{color:var(--text-bright)}
+.glossary-modal .gm-cat{margin-bottom:14px}
+.glossary-modal .gm-cat-title{font-size:14px;color:var(--gold);font-weight:600;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.glossary-modal .gm-term{display:flex;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.glossary-modal .gm-term:last-child{border:none}
+.glossary-modal .gm-term-name{width:100px;flex-shrink:0;font-size:13px;color:var(--text-bright);font-weight:600}
+.glossary-modal .gm-term-desc{font-size:12px;color:var(--text);line-height:1.5}
+@media(max-width:640px){.glossary-modal{width:96%;padding:16px;max-height:90vh;top:5%;transform:translate(-50%,0)}
+.glossary-modal .gm-term{flex-direction:column;padding:8px 0}
+.glossary-modal .gm-term-name{width:auto;margin-bottom:2px}}
 
 .liunian-box{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0}
 .liunian-item{background:var(--card2);border-radius:10px;padding:14px 18px;flex:1;min-width:150px}
@@ -333,6 +353,7 @@ body{
   <!-- 返回栏 -->
   <div class="back-bar">
     <a href="/" class="back-btn">← 返回修改</a>
+    <button class="glossary-btn" onclick="openGlossary()">📖 名词解释</button>
     <div class="subtitle">命主 · <span>{{ result.basic.birth_str }} {{ result.basic.gender }}</span></div>
   </div>
 
@@ -366,7 +387,7 @@ body{
       <!-- 概览卡片 -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
         <div style="background:var(--card2);border-radius:8px;padding:10px;text-align:center;">
-          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;">身强/弱</span>
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;">{% if '身强' in result.wuxing.strength or 'strong' in result.wuxing.strength|lower %}身强{% elif '身弱' in result.wuxing.strength or '弱' in result.wuxing.strength %}身弱{% else %}中和{% endif %}</span>
           <span style="font-size:18px;font-weight:700;color:{% if '身强' in result.wuxing.strength %}var(--green){% elif '身弱' in result.wuxing.strength %}var(--red-light){% else %}var(--gold){% endif %};">{{ result.wuxing.strength }}</span>
         </div>
         <div style="background:var(--card2);border-radius:8px;padding:10px;text-align:center;">
@@ -385,11 +406,11 @@ body{
       <!-- 用神忌神 -->
       <div style="display:flex;gap:10px;margin-bottom:10px;">
         <div style="flex:1;background:var(--card2);border-radius:8px;padding:10px;">
-          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">✅ 喜用神（补这些就顺）</span>
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">✅ 喜用神</span>
           <div>{% for g in result.wuxing.useful_god %}<span class="tag gold" style="font-size:13px;padding:5px 14px;">{{ g }}</span>{% else %}—{% endfor %}</div>
         </div>
         <div style="flex:1;background:var(--card2);border-radius:8px;padding:10px;">
-          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">❌ 忌神（避开这些就稳）</span>
+          <span style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;">❌ 忌神</span>
           <div>{% for g in result.wuxing.avoid_god %}<span class="tag red" style="font-size:13px;padding:5px 14px;">{{ g }}</span>{% else %}—{% endfor %}</div>
         </div>
       </div>
@@ -421,6 +442,29 @@ body{
       </div>
     </div>
   </div>
+
+  <!-- ── 格局判定 ── -->
+  {% if result.ge_ju %}
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <span><span class="icon">🏛️</span>格局判定 · {{ result.ge_ju.name }}</span><span class="arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <span class="tag gold" style="font-size:13px;">{{ result.ge_ju.category }}</span>
+        <span class="tag blue" style="font-size:13px;">{{ result.ge_ju.sub_name }}</span>
+        <span class="tag purple" style="font-size:13px;">{{ result.ge_ju.detect_method }}</span>
+      </div>
+      <div style="background:var(--card2);border-radius:10px;padding:14px;margin:8px 0;border-left:3px solid var(--gold);font-size:13px;line-height:1.7;">
+        {{ result.ge_ju.detail }}
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text-dim);">
+        <span>📖 什么是「格」？</span>
+        <button class="glossary-btn" onclick="openGlossary()" style="padding:4px 10px;font-size:11px;margin-left:6px;">查看名词解释</button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- ── 十神 ── -->
   <div class="section">
@@ -779,7 +823,112 @@ function updateCities() {
 document.addEventListener('DOMContentLoaded', function() {
   updateCities();
 });
+
+function openGlossary() {
+  document.getElementById('glossaryOverlay').classList.add('show');
+  document.getElementById('glossaryModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeGlossary() {
+  document.getElementById('glossaryOverlay').classList.remove('show');
+  document.getElementById('glossaryModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+// ESC键关闭
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeGlossary();
+});
 </script>
+
+<!-- 名词解释弹窗 -->
+<div class="glossary-overlay" id="glossaryOverlay" onclick="closeGlossary()"></div>
+<div class="glossary-modal" id="glossaryModal">
+  <div class="gm-title">
+    📖 名词解释
+    <span class="gm-close" onclick="closeGlossary()">✕</span>
+  </div>
+  <div class="gm-cat">
+    <div class="gm-cat-title">📌 四柱（年柱·月柱·日柱·时柱）</div>
+    <div class="gm-term"><span class="gm-term-name">年柱</span><span class="gm-term-desc">年柱代表你的出生年份，用天干地支表示（比如甲子、乙丑）。为什么叫"柱"？古人把人的一生比作房子，年柱就是房子的地基——代表你天生的家庭背景、祖上根基。</span></div>
+    <div class="gm-term"><span class="gm-term-name">月柱</span><span class="gm-term-desc">月柱代表你的出生月份，注意是按节气划分的（不是农历1月到12月）。月柱是房子的梁柱——影响你的性格底色和内在气质。</span></div>
+    <div class="gm-term"><span class="gm-term-name">日柱</span><span class="gm-term-desc">日柱代表你的出生那一天，是整个八字最关键的一柱。日柱的天干就是你自己（日主），好比房子的主人。所有十神都是从日干出发推算的。</span></div>
+    <div class="gm-term"><span class="gm-term-name">时柱</span><span class="gm-term-desc">时柱代表你的出生时辰，对应人生的终点，暗示晚年运势和人生归宿。时柱是房子的屋顶——遮风挡雨，影响你的晚年和子孙运。</span></div>
+    <div class="gm-term"><span class="gm-term-name">日主</span><span class="gm-term-desc">日主就是你自己的五行属性。八字四柱中，日柱的天干叫做"日主"或"日元"，代表你自己这个人。比如日主是甲木，你就是甲木命人，天生带有木的特质（正直、向上生长）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">天干</span><span class="gm-term-desc">天干有10个：甲乙丙丁戊己庚辛壬癸。它们像天空中的10种能量，代表比较宏观、外在的影响。甲=阳木(大树)、乙=阴木(花草)、丙=阳火(太阳)、丁=阴火(灯烛)、戊=阳土(高山)、己=阴土(田园)、庚=阳金(刀剑)、辛=阴金(珠宝)、壬=阳水(江河)、癸=阴水(雨露)。</span></div>
+    <div class="gm-term"><span class="gm-term-name">地支</span><span class="gm-term-desc">地支有12个：子丑寅卯辰巳午未申酉戌亥。它们像大地承载万物，代表内在、隐藏的力量。地支决定了一个人的根基稳不稳，里面的藏干（隐藏的天干）也会悄悄影响命运。</span></div>
+    <div class="gm-term"><span class="gm-term-name">藏干</span><span class="gm-term-desc">地支不光代表一个五行，里面还藏着其他天干。好比一个盒子里不只有盒子的颜色（地支本身），还装着其他东西（藏干）。藏干代表了潜在的影响力和隐藏的性格特质。</span></div>
+    <div class="gm-term"><span class="gm-term-name">节气</span><span class="gm-term-desc">节气是农历划分月份的真实依据。八字里的月份不是按初一十五算的，而是按节气——每个月以节为界（立春、惊蛰、清明…）。比如立春之前出生的，即使在正月也是上一年的八字。</span></div>
+  </div>
+  <div class="gm-cat">
+    <div class="gm-cat-title">🔥 五行分析</div>
+    <div class="gm-term"><span class="gm-term-name">五行</span><span class="gm-term-desc">五行是构成万物的五种基本能量：木火土金水。它们相生（木生火→火生土→土生金→金生水→水生木）又相克（木克土→土克水→水克火→火克金→金克木）。每个人的八字就是这五种能量的不同配比，缺什么补什么、多什么泄什么。</span></div>
+    <div class="gm-term"><span class="gm-term-name">月令</span><span class="gm-term-desc">月令就是出生月份对应的那个地支。它是一年四季中能量最强的那个，好比当令的节气。月令决定了一个人50%以上的五行强弱——冬天出生先天偏冷（水旺），夏天出生先天偏热（火旺）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">十二长生</span><span class="gm-term-desc">十二长生是五行在一年12个月里的12种状态，好比一棵树从种子到枯萎的过程：长生(发芽)→沐浴(生长)→冠带(成长)→临官(壮年)→帝旺(巅峰)→衰(衰退)→病(衰弱)→死(枯死)→墓(埋葬)→绝(消失)→胎(再次孕育)→养(培养)。月令的十二长生状态决定日主的先天能量强弱。</span></div>
+    <div class="gm-term"><span class="gm-term-name">身强/身弱</span><span class="gm-term-desc">身强就是你的日主（自己的五行）力量充足，好比身体底子好。身强的人精力旺盛、抗压能力强，但容易固执己见，需要用神（官杀食伤）来平衡。身弱就是日主力量不足，好比天生体质偏弱。身弱的人敏感细腻、善于借助外力，需要印星（长辈支持）和比劫（朋友帮助）来增强自己。身弱不代表命不好，很多成功人士都是身弱格。</span></div>
+    <div class="gm-term"><span class="gm-term-name">中和</span><span class="gm-term-desc">中和就是日主力量不多不少、恰到好处。这种人通常性格平衡，适应能力强，但也可能缺乏鲜明的个性特点。</span></div>
+    <div class="gm-term"><span class="gm-term-name">得令</span><span class="gm-term-desc">得令就是你的日主五行正好处在当令的季节。比如甲木生在春天（寅卯月），木当令就是得令——相当于老板在自家地盘上，说话有力气。</span></div>
+    <div class="gm-term"><span class="gm-term-name">得地</span><span class="gm-term-desc">得地就是日主在地支中有根基——比如地支中有日主的同类五行。相当于你在外地但有自己的房子，不至于流落街头。</span></div>
+    <div class="gm-term"><span class="gm-term-name">得势</span><span class="gm-term-desc">得势就是你的同类（印和比劫）在八字中出现的次数多、力量强。好比开会投票，你的支持者多，声势就大。</span></div>
+    <div class="gm-term"><span class="gm-term-name">喜用神</span><span class="gm-term-desc">用神就是你命里最需要的五行，好比一个人天冷时需要棉袄。八字缺什么、弱什么，用神就是补那个的东西。选职业、发展方向、居住地，选五行属用神的方向最有利。</span></div>
+    <div class="gm-term"><span class="gm-term-name">忌神</span><span class="gm-term-desc">忌神就是你命里过多的五行，好比一个人太胖了还继续吃甜食。八字什么太多了，那个五行就是忌神，要尽量避开。比如忌金的人不要去西方发展、少做金融金属行业。</span></div>
+    <div class="gm-term"><span class="gm-term-name">地级市五行</span><span class="gm-term-desc">每个城市根据地理位置、地形地貌有它的五行属性。比如山城（重庆、贵阳）=土性重，沿海城市（上海、深圳）=水性重。选择五行属性与你用神相合的城市发展，能事半功倍。</span></div>
+  </div>
+  <div class="gm-cat">
+    <div class="gm-cat-title">⚡ 十神</div>
+    <div class="gm-term"><span class="gm-term-name">十神</span><span class="gm-term-desc">十神是八字命理的核心概念，用10种社会关系来类比你与各种能量的互动。它从日主出发，看你和其他天干的关系——是朋友（比劫）？是上司（官杀）？是下属（食伤）？还是恩人（印星）？每种关系对应人生不同领域。</span></div>
+    <div class="gm-term"><span class="gm-term-name">比肩</span><span class="gm-term-desc">比肩就像你的兄弟姐妹、同学、同事——五行和阴阳都和你一样，是和你最相似的人。比肩旺的人独立自主，但也容易固执、竞争心强。</span></div>
+    <div class="gm-term"><span class="gm-term-name">劫财</span><span class="gm-term-desc">劫财就像朋友中的竞争者——五行和你相同但阴阳相反。劫财旺的人讲义气、有社交能力，但也容易花钱如流水、被人拖累。比劫都旺的人往往会遇到激烈竞争。</span></div>
+    <div class="gm-term"><span class="gm-term-name">食神</span><span class="gm-term-desc">食神代表你的才华、口福、享受——就像你能坐下来好好吃顿饭、享受生活。食神旺的人有艺术天赋、温和好相处，也容易发福。</span></div>
+    <div class="gm-term"><span class="gm-term-name">伤官</span><span class="gm-term-desc">伤官代表你的才华表现力、叛逆心——比食神更张扬、更有攻击性。伤官旺的人聪明有才华，但也容易骄傲、说话直得罪人。</span></div>
+    <div class="gm-term"><span class="gm-term-name">正财</span><span class="gm-term-desc">正财代表稳定的收入、工资、合法财富，也代表你的妻子/丈夫。正财旺的人踏实赚钱、理财稳健，适合做稳定的工作。</span></div>
+    <div class="gm-term"><span class="gm-term-name">偏财</span><span class="gm-term-desc">偏财代表意外之财、投资收入、大笔横财，也代表父亲、情人或生意上的合作伙伴。偏财旺的人敢冒险、社交广，适合做生意或投资。</span></div>
+    <div class="gm-term"><span class="gm-term-name">正官</span><span class="gm-term-desc">正官代表上司、领导、官方、名誉——管着你的人或规矩。正官旺的人守规矩、有责任心、适合当公务员或在大型企业工作。</span></div>
+    <div class="gm-term"><span class="gm-term-name">七杀</span><span class="gm-term-desc">七杀代表压力、挑战、竞争、权威——强有力的管束或困境。七杀旺的人有魄力、敢闯敢拼，但也容易压力大、招惹是非。七杀也代表军警、外科医生等职业。</span></div>
+    <div class="gm-term"><span class="gm-term-name">正印</span><span class="gm-term-desc">正印代表你的母亲、长辈贵人、学历、靠山——默默支持你的人。正印旺的人学习能力强、善良有福气，容易得到长辈提携。</span></div>
+    <div class="gm-term"><span class="gm-term-name">偏印</span><span class="gm-term-desc">偏印也代表长辈和学识，但更偏冷门、玄学、特殊技能——不像正印那么温和。偏印旺的人有独特天赋、喜欢哲学玄学，但有时会显得孤僻。</span></div>
+  </div>
+  <div class="gm-cat">
+    <div class="gm-cat-title">✨ 神煞</div>
+    <div class="gm-term"><span class="gm-term-name">神煞</span><span class="gm-term-desc">神煞是八字中的特殊标记，好比人生路上的路标——有些指向好运（天乙贵人、文昌），有些提醒注意（灾煞、勾神）。它们不像十神那么核心，但能提供很多细节信息。</span></div>
+    <div class="gm-term"><span class="gm-term-name">天乙贵人</span><span class="gm-term-desc">命里最强的贵人星！遇到困难时总能遇到贵人相助，关键时刻有人拉一把。相当于人生开了"贵人外挂"。</span></div>
+    <div class="gm-term"><span class="gm-term-name">文昌贵人</span><span class="gm-term-desc">代表学习能力和文采。有文昌的人读书聪明、文笔好，适合做文化、教育、传媒相关的工作。</span></div>
+    <div class="gm-term"><span class="gm-term-name">桃花/咸池</span><span class="gm-term-desc">代表异性缘和魅力。桃花旺的人异性吸引力强，但也容易感情纠葛多。一个桃花叫正桃花（好的感情），两个以上就叫烂桃花多。</span></div>
+    <div class="gm-term"><span class="gm-term-name">驿马</span><span class="gm-term-desc">代表奔波、变动、旅行。有驿马的人适合经常出差、在外地发展，安稳坐办公室反而不好。驿马也代表行动力强。</span></div>
+    <div class="gm-term"><span class="gm-term-name">华盖</span><span class="gm-term-desc">代表孤独感和特殊才华——艺术家、作家、僧道多带华盖。有华盖的人有独特视角、喜欢独处，但也容易感到孤独。</span></div>
+    <div class="gm-term"><span class="gm-term-name">天德/月德</span><span class="gm-term-desc">天德是上天赐予的福气，一生逢凶化吉。月德是来自同辈的福荫，代表人缘好、受朋友同事喜爱帮助。</span></div>
+    <div class="gm-term"><span class="gm-term-name">将星</span><span class="gm-term-desc">代表领导才能和权威。有将星的人适合当领导、做管理，在团队中容易成为核心人物。</span></div>
+    <div class="gm-term"><span class="gm-term-name">灾煞</span><span class="gm-term-desc">提醒要注意的煞星，代表容易遇到意外、口舌是非。有灾煞的年份要特别小心。</span></div>
+    <div class="gm-term"><span class="gm-term-name">红鸾/天喜</span><span class="gm-term-desc">红鸾是婚姻喜事的星星，红鸾发动之年容易结婚、订婚或遇到重要缘分。天喜也是喜庆之星，代表喜事临门。</span></div>
+  </div>
+  <div class="gm-cat">
+    <div class="gm-cat-title">📈 大运流年</div>
+    <div class="gm-term"><span class="gm-term-name">大运</span><span class="gm-term-desc">大运是人生10年一个阶段的大趋势。好比坐车走高速公路，10年换一段路——有上坡（好运）、有下坡（差运）、有平路（平运）。大运是八字推算中最重要的预测工具之一。</span></div>
+    <div class="gm-term"><span class="gm-term-name">起运</span><span class="gm-term-desc">你的大运从几岁开始算。根据出生时间和性别计算，最快1岁起运，最晚10岁。起运越早，人生受大运影响越早显现。</span></div>
+    <div class="gm-term"><span class="gm-term-name">大运顺排</span><span class="gm-term-desc">阳年出生男性、阴年出生女性走大运是顺排——从月柱按干支顺序往下推。好比上楼梯，一步一步往上走。</span></div>
+    <div class="gm-term"><span class="gm-term-name">大运逆排</span><span class="gm-term-desc">阴年出生男性、阳年出生女性走大运是逆排——从月柱按干支顺序往上推。好比下楼梯。</span></div>
+    <div class="gm-term"><span class="gm-term-name">流年</span><span class="gm-term-desc">流年就是每一年的运气，今年的干支就叫今年的流年。流年是逐年变化的，是看短期运势最重要的依据。好比大运是高速路，流年是路况和天气。</span></div>
+    <div class="gm-term"><span class="gm-term-name">太岁</span><span class="gm-term-desc">太岁就是当年的天干地支。民间说的"犯太岁"就是你的八字和当年干支有冲、刑、害的关系。太岁好比皇帝出巡——你冲撞了（冲太岁）或得罪了（刑太岁）皇帝，自然容易有事。</span></div>
+    <div class="gm-term"><span class="gm-term-name">刑冲害合</span><span class="gm-term-desc">地支之间互相有四种关系——合（合作友好）、冲（冲突对立）、刑（摩擦不和）、害（暗中伤害）。这些关系在流年分析中非常重要，比如你八字有午，流年是子，子午冲，这一年就容易动荡变动。</span></div>
+  </div>
+  <div class="gm-cat">
+    <div class="gm-cat-title">🏛️ 格局（命格分类）</div>
+    <div class="gm-term"><span class="gm-term-name">格局</span><span class="gm-term-desc">格局是八字命理对命盘的分类体系，好比给每个人贴一个"类型标签"。格局决定了一个人命运的基本走向和行事风格。分为普通格局（90%的人）和特殊格局（10%的人）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">普通格局</span><span class="gm-term-desc">最常见的格局，占90%以上。按月令（月支的天干）取格，包括正官格、七杀格、正财格、偏财格、正印格、偏印格、食神格、伤官格等"正八格"，以及建禄格、月刃格。核心是日主有强有弱，通过扶弱抑强来平衡。</span></div>
+    <div class="gm-term"><span class="gm-term-name">正八格</span><span class="gm-term-desc">按月令本气取的八种标准格局：正官格（月令为管理你的力量）、七杀格（月令为压力你的力量）、正财格（月令为你赚的稳定钱）、偏财格（月令为你赚的大钱）、正印格（月令为照顾你的长辈）、偏印格（月令为特殊技能）、食神格（月令为你的才华享受）、伤官格（月令为你的表现力）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">建禄格/月刃格</span><span class="gm-term-desc">建禄格：月令是日主的"临官"位，日主得禄，力量很强。月刃格：月令是日主的"帝旺"位，日主极旺，月刃格也叫羊刃格。这两种月令自身力量太强，需要官杀食伤来制衡。</span></div>
+    <div class="gm-term"><span class="gm-term-name">特殊格局</span><span class="gm-term-desc">日主极强或极弱，不搞平衡，而是"顺从"大势。包括：从格（从强/从旺/从财/从官/从儿）、专旺格（曲直/炎上/稼穑/从革/润下）、化气格、两气成象格等。占人群约5-10%。</span></div>
+    <div class="gm-term"><span class="gm-term-name">从强格</span><span class="gm-term-desc">日主极强，全局印星（生你的）+比劫（同你的）占绝对主导（70%+），官杀极少（15%以下）。喜印比（越帮越好），忌官杀财星。好比一个人能量爆棚，不要打压，要顺势而为。</span></div>
+    <div class="gm-term"><span class="gm-term-name">从旺格</span><span class="gm-term-desc">比从强更纯粹——比劫独旺，几乎没有印星。全局都是"同党"，没有贵人帮也没有人管。喜比劫、食伤来释放能量，忌官杀来克制。</span></div>
+    <div class="gm-term"><span class="gm-term-name">从财格</span><span class="gm-term-desc">财星极旺，日主极弱无根。全局财势太大，日主只能顺从财。适合做生意、投资理财，但容易为钱所累。喜财官，忌印比。</span></div>
+    <div class="gm-term"><span class="gm-term-name">从官格</span><span class="gm-term-desc">官杀极旺（含从杀），日主极弱。全局被管理力量压制，只能顺从。适合在大型机构发展，不宜创业当老板。喜官杀财星，忌印比（反抗就被收拾）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">从儿格</span><span class="gm-term-desc">食伤极旺，日主极弱。日主生的东西（才华/子女/作品）过于强大，反客为主。适合自由职业、艺术创作。喜食伤财星，忌印星（克制才华）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">从势格</span><span class="gm-term-desc">多种克泄耗力量混合，没有哪种独大，但日主极弱。喜：顺最强的势，忌：生扶日主。需要具体分析哪种力量最强。</span></div>
+    <div class="gm-term"><span class="gm-term-name">假从格</span><span class="gm-term-desc">接近从格但不够纯粹——从强格中有一点点官杀，或从弱格中有一点点印比。行运遇到这些"反对力量"旺的年份容易破格，运势反复。假从格的用神和喜忌需要结合大运动态调整。</span></div>
+    <div class="gm-term"><span class="gm-term-name">专旺格</span><span class="gm-term-desc">比从强格更严格的格局——八字基本只有一种五行。曲直格（全木）、炎上格（全火）、稼穑格（全土）、从革格（全金）、润下格（全水）。专旺格必须有印星生助，比从强格更纯粹。典型：甲寅乙卯甲寅乙卯（曲直格）。</span></div>
+    <div class="gm-term"><span class="gm-term-name">化气格</span><span class="gm-term-desc">日主与月干或时干合化，变成另一种五行。比如甲己合化土、乙庚合化金、丙辛合化水、丁壬合化木、戊癸合化火。条件极其苛刻：月令必须是化出五行的旺季。极度罕见。</span></div>
+    <div class="gm-term"><span class="gm-term-name">两气成象格</span><span class="gm-term-desc">八字中只有两种五行势均力敌，各占40%以上。木火通明（木火）、金白水清（金水）、土金毓秀（土金）、水火既济（水火、要求特殊）。两气顺生为吉，相克则需特殊条件。</span></div>
+  </div>
+</div>
 
 </body>
 </html>

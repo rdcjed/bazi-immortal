@@ -125,7 +125,17 @@ class BaZiCalculator:
         return Pillar(TIAN_GAN[tg], DI_ZHI[dz], "年柱")
 
     def _get_lichun(self, year: int) -> Tuple[int, int]:
-        """获取某年立春的月、日"""
+        """获取某年立春的月、日
+
+        优先使用天文算法精确计算（支持1900-2100年），
+        失败则回退到预设缓存（2020-2030年），
+        最后兜底返回 (2, 4)
+        """
+        try:
+            from .jieqi import get_term_date
+            return get_term_date(year, '立春')
+        except Exception:
+            pass
         return self._lichun_cache.get(year, (2, 4))
 
     # ─── 月柱计算 ───

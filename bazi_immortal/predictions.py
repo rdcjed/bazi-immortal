@@ -9,10 +9,11 @@ from .constants import (
     TIAN_GAN, DI_ZHI, TG_INDEX, DZ_INDEX,
     TG_WU_XING, DZ_WU_XING, DZ_CANG_GAN,
     WU_HU_DUN, WU_SHU_DUN, WU_XING_SHENG, WU_XING_KE,
-    DZ_LIU_HE, DZ_LIU_CHONG, DZ_SAN_XING, DZ_LIU_HAI,
+    DZ_LIU_HE, DZ_LIU_CHONG, DZ_SAN_XING, DZ_LIU_HAI, DZ_LIU_PO,
 )
 from .shisheng import get_shi_shen_for_gan
 from .wuxing import analyze_ri_zuo_strong_weak
+from .knowledge_loader import get_shi_shen_description
 
 # ─── 月干表（五虎遁） ───
 MONTH_GAN_START = WU_HU_DUN
@@ -86,6 +87,9 @@ def get_zhi_relations(month_zhi: str, all_zhi: List[str]) -> List[str]:
         # 六害
         if zhi in DZ_LIU_HAI and DZ_LIU_HAI[zhi] == month_zhi:
             relations.append(f"害{p_name}柱（{zhi}↔{month_zhi}）")
+        # 六破
+        if zhi in DZ_LIU_PO and DZ_LIU_PO[zhi] == month_zhi:
+            relations.append(f"破{p_name}柱（{zhi}↔{month_zhi}）")
         # 三刑
         if {zhi, month_zhi} in [{"寅", "巳"}, {"巳", "申"}, {"寅", "申"}]:
             relations.append(f"刑{p_name}柱（{zhi}↔{month_zhi}）")
@@ -107,120 +111,127 @@ def _calc_enhanced_score(
     useful_god: List[str],
 ) -> Tuple[int, str]:
     """
-    多维评分系统 (v3.0)
-    
-    影响因素:
-    1. 十神喜忌 × 强度系数 (正偏区分)
-    2. 月干五行生克关系
-    3. 藏干中的喜忌十神
-    4. 刑冲害合
-    5. 季节当令强度
-    6. 用神匹配度
-    
+    多维评分系统 (v3.0) — 明确分段版
+
+    评分结构：
+    1. 基础分(0-4)：日主旺衰
+    2. 用神分(0-3)：月干用神匹配度（含五行生克和藏干影响）
+    3. 季节分(0-2)：调候季节当令强度
+    4. 冲刑扣分(0-2)：刑冲害合
+
     Returns:
         (score: 1-10, reasoning: 推理说明)
     """
     reasons = []
-    base = 5  # 中位数起步
+    base = 0
 
-    # ─── 1. 十神喜忌评分 ───
+    # ─── 1. 基础分(0-4)：日主旺衰 ───
+    base_by_strength = {
+        "从强": 4, "从弱": 4,
+        "身强": 3, "身弱": 3,
+        "偏强": 2, "偏弱": 2,
+        "中和": 1,
+    }
+    sw_base = base_by_strength.get(strong_weak, 2)
+    base += sw_base
+    reasons.append(f"基础分：{strong_weak}（+{sw_base}/4）")
+
+    # ─── 2. 用神分(0-3)：月干用神匹配度（含五行生克+藏干） ───
     ri_wx = TG_WU_XING[ri_gan]
     month_gan_wx = TG_WU_XING[month_gan]
-    
+
     # 判断月干是否为用神
     is_useful = month_gan_wx in useful_god
     is_avoid = month_gan_wx not in useful_god if useful_god else False
-    
+
     # 正偏区分：正=稳定，偏=波动
     intensity = SS_INTENSITY.get(ss, 1.0)
-    
+    us_score = 0
+
     if is_useful:
-        # 喜用神：基础+2，正偏区分
-        ss_bonus = int(2 * intensity)
-        base += ss_bonus
-        reasons.append(f"月干{ss}({month_gan_wx}五行)为用神(+{ss_bonus})")
+        # 喜用神：匹配度高，用神分 2-3
+        us_score = min(3, 2 + int(intensity))
+        reasons.append(f"月干{ss}({month_gan_wx})为用神（+{us_score}/3）")
     elif is_avoid:
-        ss_penalty = int(1.5 * intensity)
-        base -= ss_penalty
-        reasons.append(f"月干{ss}({month_gan_wx}五行)为忌神(-{ss_penalty})")
+        # 忌神：用神分为 0
+        us_score = 0
+        reasons.append(f"月干{ss}({month_gan_wx})为忌神（+0/3）")
     else:
-        reasons.append(f"月干{month_gan_wx}五行不在用/忌列表，取中")
+        # 中性：用神分 1
+        us_score = 1
+        reasons.append(f"月干{month_gan_wx}为中性（+1/3）")
 
-    # ─── 2. 月干五行生克日主 ───
-    # 生日主 = 印，日主生 = 食伤，同日主 = 比劫，克日主 = 官杀，日主克 = 财
+    # 月干五行生克微调（在用神分基础上微调±1）
     if WU_XING_SHENG.get(month_gan_wx) == ri_wx:
-        base += 1
-        reasons.append(f"月干{month_gan_wx}生日主{ri_wx}(+1)")
-    elif WU_XING_SHENG.get(ri_wx) == month_gan_wx:
-        base -= 1
-        reasons.append(f"月干{month_gan_wx}被日主{ri_wx}所泄(-1)")
+        us_score = min(3, max(0, us_score + 1))
+        reasons.append(f"  月干{month_gan_wx}生日主{ri_wx}(微调+1)")
     elif WU_XING_KE.get(month_gan_wx) == ri_wx:
-        base -= 1
-        reasons.append(f"月干{month_gan_wx}克日主{ri_wx}(-1)")
-    elif WU_XING_KE.get(ri_wx) == month_gan_wx:
-        base -= 1
-        reasons.append(f"日主{ri_wx}克月干{month_gan_wx}(耗力-1)")
-    # 同五行 = 比劫，不额外扣分（已包含在十神评分中）
+        us_score = min(3, max(0, us_score - 1))
+        reasons.append(f"  月干{month_gan_wx}克日主{ri_wx}(微调-1)")
 
-    # ─── 3. 藏干影响 ───
+    # 藏干微调
     cang_gan_list = DZ_CANG_GAN.get(month_zhi, [])
-    hidden_bonus = 0
-    hidden_penalty = 0
+    hidden_adjust = 0
     for cg in cang_gan_list:
         cg_wx = TG_WU_XING[cg]
         if useful_god and cg_wx in useful_god:
-            hidden_bonus += 0.5
+            hidden_adjust += 1
         elif useful_god and cg_wx not in useful_god and cg_wx != month_gan_wx:
-            hidden_penalty += 0.3
-    
-    if hidden_bonus > 0:
-        add = int(hidden_bonus)
-        base += add
-        reasons.append(f"藏干中有用神五行(+{add})")
-    if hidden_penalty > 0:
-        sub = int(hidden_penalty)
-        base -= sub
-        reasons.append(f"藏干中有忌神五行(-{sub})")
+            hidden_adjust -= 1
+    if hidden_adjust > 0:
+        us_score = min(3, max(0, us_score + 1))
+        reasons.append(f"  藏干中有用神(微调+1)")
+    elif hidden_adjust < 0:
+        us_score = min(3, max(0, us_score - 1))
+        reasons.append(f"  藏干中有忌神(微调-1)")
 
-    # ─── 4. 刑冲害合 ───
-    has_conflict = False
-    has_he = False
+    base += us_score
+
+    # ─── 3. 季节分(0-2)：调候季节当令强度 ───
+    seasonal = SEASON_STRENGTH.get(month_zhi, {})
+    season_score = 0
+    for wx, strength in seasonal.items():
+        if wx == ri_wx:
+            season_score = 2
+            reasons.append(f"季节分：{month_zhi}月{ri_wx}当令（+2/2）")
+            break
+        elif wx in useful_god if useful_god else False:
+            season_score = 1
+            reasons.append(f"季节分：{month_zhi}月用神{wx}当令（+1/2）")
+            break
+
+    base += season_score
+
+    # ─── 4. 冲刑扣分(0-2)：刑冲害合 ───
+    conflict_deduction = 0
     relations = get_zhi_relations(month_zhi, all_zhi)
     for r in relations:
         if r.startswith("冲"):
-            base -= 2
-            has_conflict = True
-            reasons.append(f"{r}(-2)")
+            conflict_deduction += 2
+            reasons.append(f"冲刑扣分：{r}（-2）")
         elif r.startswith("害"):
-            base -= 1
-            has_conflict = True
-            reasons.append(f"{r}(-1)")
+            conflict_deduction += 1
+            reasons.append(f"冲刑扣分：{r}（-1）")
         elif r.startswith("刑"):
-            base -= 1
-            has_conflict = True
-            reasons.append(f"{r}(-1)")
+            conflict_deduction += 1
+            reasons.append(f"冲刑扣分：{r}（-1）")
         elif "合" in r:
-            base += 1
-            has_he = True
-            reasons.append(f"{r}(+1)")
+            conflict_deduction -= 1  # 合为吉，减少扣分
+            reasons.append(f"冲刑扣分：{r}（+1）")
 
-    # ─── 5. 季节/当令强度 ───
-    seasonal = SEASON_STRENGTH.get(month_zhi, {})
-    for wx, strength in seasonal.items():
-        if wx == ri_wx:
-            bonus = strength
-            base += bonus
-            reasons.append(f"{month_zhi}月{ri_wx}五行当令(+{bonus})")
-            break
-        elif wx in useful_god if useful_god else False:
-            bonus = strength
-            base += bonus
-            reasons.append(f"{month_zhi}月用神{wx}当令(+{bonus})")
-            break
+    conflict_deduction = max(0, min(2, conflict_deduction))
+    base -= conflict_deduction
 
-    # 最终调整：保证 1-10 范围
+    # 总结各段得分
+    segment_summary = (
+        f"基础{sw_base}/4 + 用神{us_score}/3"
+        f" + 季节{season_score}/2 - 冲刑{conflict_deduction}/2"
+    )
+
+    # 最终范围 1-10
     score = max(1, min(10, base))
-    reasoning = "；".join(reasons) if reasons else "基准分5分"
+    reasoning = "；".join(reasons) if reasons else "各段评分汇总"
+    reasoning += f" → 最终得分{score}/10"
 
     return score, reasoning
 
@@ -645,37 +656,13 @@ def _gen_month_categories_v3(
 
 
 def _positive_career_detail(ss: str, mw: str, rw: str, ug: List[str]) -> str:
-    """喜用神事业描述"""
-    desc = {
-        "正官": "官星（管理掌控之力）值月为喜→事业上有明确方向和贵人指引。上级赏识，升职或加薪机会显现。这个月工作上有人赏识你，适合申请升职加薪",
-        "七杀": "七杀（攻坚挑战之力）为喜→压力转化动力！适合接手挑战性任务，能在高压下取得突破性成果。这个月越有压力越出成绩，别怕难",
-        "正印": "印星（庇护学习之力）护身→事业平稳上升。适合学习充电、考取证书、夯实专业基础。这个月适合读书学习，提升自己比啥都强",
-        "偏印": "偏印（偏门智慧之力）为喜→思路独特创意涌现。策划、研发、创意类工作如有神助。这个月灵感爆棚，适合搞创意和策划",
-        "正财": "财星（稳定收入之力）为喜→正职收入稳定。工作表现受认可，付出有对等回报。这个月干活值钱，努力就有回报",
-        "偏财": "偏财（意外进账之力）为喜→主业之外有额外收入机会。多劳多得，适合拓展副业。这个月适合搞搞副业，有机会赚外快",
-        "比肩": "比肩（平辈帮衬之力）帮身→同事朋友大力相助。团队协作效果极佳，借力使力。这个月团队给力，有朋友同事帮忙，事情好办",
-        "劫财": "劫财（竞争破财力）为喜→竞争转化为动力。良性竞争促使共同进步，但注意利益分配。有竞争是好事但钱的事要分清楚",
-        "食神": "食神（才华输出之力）泄秀→才华充分展现。表达和创意能力突出，适合内容输出。这个月表达能力在线，做内容/演讲/写作都很顺",
-        "伤官": "伤官（创新突破之力）为喜→创新能力强。适合开拓新项目和打破常规。保持谦逊，避免锋芒太露。这个月脑子好使但别太嘚瑟，低调做事最稳妥",
-    }
-    return desc.get(ss, f"事业运势平稳。{ss}为喜用神，顺势而为。")
+    """喜用神事业描述（数据驱动：从 knowledge_loader 加载）"""
+    return get_shi_shen_description(ss, "positive", "career")
 
 
 def _negative_career_detail(ss: str, mw: str, rw: str) -> str:
-    """忌神事业描述"""
-    desc = {
-        "正官": "官星（管理掌控之力）为忌→职场压力增大。上级要求严格、规则约束多。注意工作细节，避免失误被放大。这个月领导盯得紧，做事细心点别出错",
-        "七杀": "七杀（攻坚挑战之力）为忌！事业阻力大增。可能有岗位调整、职责加重或小人作祟。不宜硬扛，学会借力。这个月压力特别大，别硬撑，找人帮忙分担",
-        "正印": "印星（庇护学习之力）为忌→依赖心增强。做事拖沓效率低，需主动推进工作，不要被动等待。这个月容易犯懒，别等着别人催，自己动起来",
-        "偏印": "偏印（偏门智慧之力）为忌→想法怪异不被理解。职场人际关系紧张，建议收敛锋芒，多听少说。这个月少发表奇思妙想，低调做人",
-        "正财": "财星（稳定收入之力）为忌→为赚钱而劳累。工作强度增大但收入增长有限，注意性价比。这个月钱不好赚，别拿健康换钱",
-        "偏财": "偏财（意外进账之力）为忌→主业外投入精力过多反而得不偿失。专注本职工作。这个月别搞副业了，专心做好主业",
-        "比肩": "比肩（平辈帮衬之力）为忌→同事间暗涌竞争。合作中注意明确分工和权益保护。这个月同事关系微妙，做好自己的事就行",
-        "劫财": "劫财（竞争破财力）为忌！职场竞争激烈且小人潜伏。做好分内事不参与是非，留好工作记录。这个月防小人！什么事都留个证据",
-        "食神": "食神（才华输出之力）为忌→过度放松影响工作状态。需收心专注，按计划推进。这个月别太安逸，收收心干活",
-        "伤官": "伤官（创新突破之力）为忌！易出口舌是非，与上级关系紧张。谨言慎行，避免正面冲突。这个月管住嘴，别和领导抬杠",
-    }
-    return desc.get(ss, f"事业运势偏弱。{ss}为忌神，宜守不宜攻。")
+    """忌神事业描述（数据驱动：从 knowledge_loader 加载）"""
+    return get_shi_shen_description(ss, "negative", "career")
 
 
 # ════════════════════════════════════════════════
