@@ -4,7 +4,8 @@
 """
 
 import sys
-sys.path.insert(0, "/root/bazi-immortal")
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bazi_immortal import (
     calculate_bazi, bazi_to_string,
