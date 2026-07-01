@@ -378,6 +378,20 @@ body{
     </div>
   </div>
 
+  <!-- ── AI 命理分析（LLM 模式）── -->
+  {% if result and result.llm and result.llm.llm_enabled and result.llm.llm_analysis %}
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <span><span class="icon">🔮</span>AI 命理分析</span><span class="arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div style="background:var(--card2);border-radius:8px;padding:15px;line-height:1.8;white-space:pre-wrap;font-size:14px;color:var(--text);">
+        {{ result.llm.llm_analysis }}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- ── 五行分析 ── -->
   <div class="section">
     <div class="section-header" onclick="toggle(this)">
@@ -512,6 +526,7 @@ body{
   </div>
 
   <!-- ── 贵人评估 ── -->
+  {% if result.guiren %}
   <div class="section">
     <div class="section-header" onclick="toggle(this)">
       <span><span class="icon">🤝</span>贵人运势</span><span class="arrow">▼</span>
@@ -527,6 +542,7 @@ body{
       {% endfor %}
     </div>
   </div>
+  {% endif %}
 
   <!-- ── 四柱逐柱分析 ── -->
   <div class="section">
@@ -604,6 +620,7 @@ body{
   </div>
 
   <!-- ── 一生运势综合 ── -->
+  {% if result.life_fortune %}
   <div class="section">
     <div class="section-header" onclick="toggle(this)">
       <span><span class="icon">🔮</span>一生运势综合</span><span class="arrow">▼</span>
@@ -634,8 +651,10 @@ body{
       {% endif %}
     </div>
   </div>
+  {% endif %}
 
   <!-- ── 当年整体运势总评 ── -->
+  {% if result.year_overview %}
   <div class="section">
     <div class="section-header" onclick="toggle(this)">
       <span><span class="icon">📋</span>{{ result.liunian.gan_zhi }}年整体运势</span><span class="arrow">▼</span>
@@ -669,8 +688,10 @@ body{
       {% endfor %}
     </div>
   </div>
+  {% endif %}
 
   <!-- ── 月度运势 ── -->
+  {% if result.monthly %}
   <div class="section">
     <div class="section-header" onclick="toggle(this)">
       <span><span class="icon">📅</span>{{ result.liunian.gan_zhi }}年月度运势详批</span><span class="arrow">▼</span>
@@ -705,6 +726,7 @@ body{
       </div>
     </div>
   </div>
+  {% endif %}
 
   <!-- ── 地点分析 ── -->
   {% if result.location %}

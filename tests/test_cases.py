@@ -43,7 +43,9 @@ def test_case(name, year, month, day, hour, minute, gender, assertions):
     all_pass = True
     for key, expected in assertions.items():
         actual = None
-        if key == "strong_weak":
+        if key == "has_error":
+            actual = False  # 能执行到这里就没报错
+        elif key == "strong_weak":
             actual = wx["strong_weak"]
         elif key == "useful_god":
             actual = wx["useful_god"]
@@ -101,7 +103,7 @@ def run_tests():
     }))
 
     # 2. 申月乙木，绝地
-    tests.append(("申月乙木", 2003, 8, 20, 6, 0, "男", {}))
+    tests.append(("申月乙木", 2003, 8, 20, 6, 0, "男", {"has_error": False}))
 
     # 3. 丑月土旺（v2.0算法改进后判为中和，用神土）
     tests.append(("丑月偏强格", 2000, 1, 1, 8, 0, "女", {
@@ -116,37 +118,37 @@ def run_tests():
     }))
 
     # 5. 1986年5月
-    tests.append(("巳月生人", 1986, 5, 20, 12, 0, "男", {}))
+    tests.append(("巳月生人", 1986, 5, 20, 12, 0, "男", {"has_error": False}))
 
     # 6. 1995年12月子时
-    tests.append(("冬月子时", 1995, 12, 15, 23, 30, "女", {}))
+    tests.append(("冬月子时", 1995, 12, 15, 23, 30, "女", {"has_error": False}))
 
     # 7. 子月丙火
-    tests.append(("子月丙火", 1990, 12, 1, 12, 0, "男", {}))
+    tests.append(("子月丙火", 1990, 12, 1, 12, 0, "男", {"has_error": False}))
 
     # 8. 辰月戊土
-    tests.append(("辰月生人", 1988, 4, 10, 15, 0, "男", {}))
+    tests.append(("辰月生人", 1988, 4, 10, 15, 0, "男", {"has_error": False}))
 
     # 9. 闰年测试：2000-02-29
-    tests.append(("闰年出生", 2000, 2, 29, 6, 0, "女", {}))
+    tests.append(("闰年出生", 2000, 2, 29, 6, 0, "女", {"has_error": False}))
 
     # 10. 亥月壬水（临官位）
-    tests.append(("亥月壬水", 1970, 11, 8, 3, 0, "男", {}))
+    tests.append(("亥月壬水", 1970, 11, 8, 3, 0, "男", {"has_error": False}))
 
     # 11. 午月丁火
-    tests.append(("午月丁火", 1992, 6, 15, 14, 0, "女", {}))
+    tests.append(("午月丁火", 1992, 6, 15, 14, 0, "女", {"has_error": False}))
 
     # 12. 未月己土
-    tests.append(("未月己土", 1998, 7, 20, 9, 0, "男", {}))
+    tests.append(("未月己土", 1998, 7, 20, 9, 0, "男", {"has_error": False}))
 
     # 13. 酉月辛金
-    tests.append(("酉月辛金", 2005, 9, 10, 17, 0, "女", {}))
+    tests.append(("酉月辛金", 2005, 9, 10, 17, 0, "女", {"has_error": False}))
 
     # 14. 卯月卯时
-    tests.append(("卯月卯时", 1996, 3, 15, 5, 0, "男", {}))
+    tests.append(("卯月卯时", 1996, 3, 15, 5, 0, "男", {"has_error": False}))
 
     # 15. 子时出生（跨天）
-    tests.append(("子时出生", 2001, 8, 8, 23, 30, "女", {}))
+    tests.append(("子时出生", 2001, 8, 8, 23, 30, "女", {"has_error": False}))
 
     # ─── 运行测试 ───
     for name, *args in tests:

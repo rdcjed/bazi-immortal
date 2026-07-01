@@ -16,6 +16,7 @@ from bazi_immortal.contextual import analyze_shi_shen_features, get_guiren_analy
 from bazi_immortal.predictions import predict_monthly, predict_ten_years, generate_year_overview
 from bazi_immortal.location import analyze_location_compatibility
 from bazi_immortal.constants import TG_WU_XING
+from bazi_immortal.knowledge_loader import load_all_knowledge
 
 app = Flask(__name__)
 
@@ -80,25 +81,10 @@ def lunar_to_solar(lunar_year, lunar_month, lunar_day):
         return None
 
 
-def llm_polish(bazi_data: dict, original_text: str) -> str:
-    """用 LLM 润色命理分析文本"""
-    if not LLM_ENABLED or not LLM_API_KEY:
-        return original_text
-
-    prompt = f"""你是一位经验丰富的八字命理师。以下是AI系统对一个命盘的分析结果，请将其改写为更自然、更个性化的命理点评，保持专业但通俗易懂。
-
-命盘信息：
-- 日主：{bazi_data.get('ri_gan', '')}
-- 格局：{bazi_data.get('ge_ju', {}).get('name', '')}
-- 身强弱：{bazi_data.get('strong_weak', '')}
-- 用神：{', '.join(bazi_data.get('useful_god', []))}
-- 忌神：{', '.join(bazi_data.get('avoid_god', []))}
-
-原始分析：
-{original_text[:1000]}
-
-请用中文给出流畅、个性化的命理点评（200字以内），不要提及"根据AI系统"等。"""
-
+def call_llm(prompt: str, max_tokens: int = 1500, temperature: float = 0.5) -> str:
+    """调用 LLM API 获取分析结果，失败返回 None"""
+    if not LLM_API_KEY:
+        return None
     try:
         resp = requests.post(
             f"{LLM_BASE_URL}/chat/completions",
@@ -109,18 +95,16 @@ def llm_polish(bazi_data: dict, original_text: str) -> str:
             json={
                 "model": LLM_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 500,
-                "temperature": 0.7,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
             },
-            timeout=10
+            timeout=30
         )
         if resp.status_code == 200:
-            result = resp.json()
-            return result["choices"][0]["message"]["content"].strip()
-        else:
-            return original_text
+            return resp.json()["choices"][0]["message"]["content"].strip()
+        return None
     except Exception:
-        return original_text
+        return None
 
 
 def generate_report(year, month, day, hour, minute, gender, target_year=None,
@@ -133,13 +117,13 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     if target_year is None:
         target_year = 2026
 
-    # ── 基础信息 ──
+    # ── 基础信息（排盘数据）──
     gan_zhi_list = [
         bazi.year_pillar.gan_zhi, bazi.month_pillar.gan_zhi,
         bazi.day_pillar.gan_zhi, bazi.hour_pillar.gan_zhi,
     ]
 
-    # ── 五行分析 ──
+    # ── 五行分析（只取基本数据）──
     strength = analyze_ri_zuo_strong_weak(bazi)
     wx_dist = analyze_wuxing_distribution(bazi)
 
@@ -170,7 +154,134 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     liunian_analysis = analyze_liu_nian(bazi, target_year)
     ln_shi_shen = liunian_analysis.get("shi_shen", "")
 
-    # ── 命格特质分析(分情况) ──
+    ri_gan = bazi.ri_gan
+    ri_wx = TG_WU_XING[ri_gan]
+
+    # ── 四柱基本数据（用于排盘显示，LLM 和规则引擎都需要）──
+    yongshen_info = {
+        "strong_weak": strength["strong_weak"],
+        "useful_god": strength.get("useful_god", []),
+        "avoid_god": strength.get("avoid_god", []),
+    }
+    pillar_analysis = analyze_pillars(bazi, strength, ss_data, yongshen_info)
+
+    # ════════════════════════════════════════════
+    #  LLM 模式：排盘 + LLM 命理分析
+    # ════════════════════════════════════════════
+    if LLM_ENABLED and LLM_API_KEY:
+        # ── 加载知识库作为 LLM 参考 ──
+        kb_context = ""
+        try:
+            knowledge = load_all_knowledge()
+            # 根据日主五行选择相关章节
+            ri_wx_map = {"木": ["00_五行详解", "05_十二长生与旺衰"],
+                         "火": ["00_五行详解", "05_十二长生与旺衰"],
+                         "土": ["00_五行详解", "05_十二长生与旺衰"],
+                         "金": ["00_五行详解", "05_十二长生与旺衰"],
+                         "水": ["00_五行详解", "05_十二长生与旺衰"]}
+            keys = ["00_五行详解", "02_八字排盘十神大运", "11_格局体系", "04_神煞大全"]
+            for key in keys:
+                if key in knowledge:
+                    kb_context += f"\n### {key}\n{knowledge[key][:400]}\n"
+        except Exception:
+            kb_context = ""
+
+        # ── 构造 LLM prompt ──
+        prompt = f"""你是一位精通子平八字的资深命理师。请根据以下命盘信息，给出详细的命理分析。
+
+## 命盘信息
+- 出生时间：{year}年{month}月{day}日 {hour}:{minute}
+- 性别：{gender}
+- 年柱：{gan_zhi_list[0]}
+- 月柱：{gan_zhi_list[1]}
+- 日柱：{gan_zhi_list[2]}（{ri_gan}日主）
+- 时柱：{gan_zhi_list[3]}
+- 日主五行：{ri_wx}
+- 身强弱：{strength['strong_weak']}
+- 用神：{', '.join(strength.get('useful_god', []))}
+- 忌神：{', '.join(strength.get('avoid_god', []))}
+- 大运：{dayun_data['direction']}运，起运{dayun_data['start_age']}岁
+- 当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}
+- 神煞：{', '.join(list(shensha_result.keys())[:8])}
+
+## 知识库参考
+{kb_context}
+
+请分析以下内容（用中文，通俗但不失专业）：
+1. 整体格局判断（什么格）
+2. 五行旺衰分析
+3. 性格特质
+4. 事业财运
+5. 感情婚姻
+6. 当前大运流年运势
+7. 开运建议
+
+控制在 500 字以内。"""
+
+        # ── 调用 LLM 获取分析结果 ──
+        llm_analysis = call_llm(prompt, max_tokens=1500, temperature=0.5)
+
+        if llm_analysis:
+            result_llm = {
+                "llm_enabled": True,
+                "llm_analysis": llm_analysis,
+                "bazi_data": {
+                    "gan_zhi": gan_zhi_list,
+                    "day_gan": ri_gan,
+                    "strong_weak": strength['strong_weak'],
+                    "useful_god": strength.get('useful_god', []),
+                    "ge_ju": ge_ju,
+                }
+            }
+            return {
+                "basic": {
+                    "gan_zhi": gan_zhi_list,
+                    "day_gan": ri_gan,
+                    "day_wx": ri_wx,
+                    "gender": gender,
+                    "birth_str": f"{year}年{month}月{day}日 {hour}:{minute:02d}",
+                },
+                "wuxing": {
+                    "distribution": {k: v for k, v in sorted(wx_dist.items(), key=lambda x: -x[1])},
+                    "strength": strength["strong_weak"],
+                    "season": strength.get("season", ""),
+                    "monthly_state": strength.get("monthly_state", ""),
+                    "score": strength.get("score", 0),
+                    "reasoning": strength.get("reasoning", []),
+                    "useful_god": strength.get("useful_god", []),
+                    "avoid_god": strength.get("avoid_god", []),
+                },
+                "shishen": {
+                    "counts": ss_counts,
+                    "top_shi_shen": top_ss,
+                },
+                "shensha": {
+                    "list": [{"name": k, **v} for k, v in shensha_result.items()],
+                },
+                "dayun": {
+                    "direction": dayun_data["direction"],
+                    "start_age": dayun_data["start_age"],
+                    "list": dayun_data["da_yun_list"],
+                    "current": current_dayun,
+                    "current_age": current_age,
+                },
+                "liunian": {
+                    "gan_zhi": liunian_info["gan_zhi"],
+                    "tian_gan": liunian_info["tian_gan"],
+                    "di_zhi": liunian_info["di_zhi"],
+                    "shi_shen": ln_shi_shen,
+                    "tai_sui": liunian_analysis.get("tai_sui_relations", []),
+                },
+                "pillars": pillar_analysis,
+                "ge_ju": ge_ju,
+                "llm": result_llm,
+            }
+        # LLM 失败，回退到规则引擎
+
+    # ════════════════════════════════════════════
+    #  规则引擎模式（LLM 关闭 或 LLM 失败回退）
+    # ════════════════════════════════════════════
+    # ── 命格特质分析 ──
     features = analyze_shi_shen_features(bazi.ri_gan, ss_data, strength)
 
     # ── 贵人评估 ──
@@ -199,14 +310,6 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
         liunian_info["gan_zhi"], TG_WU_XING[bazi.ri_gan],
     )
 
-    # ── 四柱逐柱分析 ──
-    yongshen_info = {
-        "strong_weak": strength["strong_weak"],
-        "useful_god": strength.get("useful_god", []),
-        "avoid_god": strength.get("avoid_god", []),
-    }
-    pillar_analysis = analyze_pillars(bazi, strength, ss_data, yongshen_info)
-
     # ── 一生运势综合 ──
     life_fortune = analyze_life_fortune(bazi, ss_data, strength, dayun_data)
 
@@ -223,34 +326,40 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
             gender,
         )
 
-    ri_gan = bazi.ri_gan
-    ri_wx = TG_WU_XING[ri_gan]
-
-    # ── LLM 质检（可选）──
+    # ── LLM 质检润色（可选）──
     if LLM_ENABLED:
-        bazi_data_for_llm = {
-            "ri_gan": bazi.ri_gan,
-            "ge_ju": ge_ju,
-            "strong_weak": strength.get("strong_weak", ""),
-            "useful_god": strength.get("useful_god", []),
-            "avoid_god": strength.get("avoid_god", []),
-        }
-        original_text = (
-            f"命主为{ri_gan}日主，{strength.get('strong_weak', '')}，"
-            f"格局{ge_ju.get('name', '')}（{ge_ju.get('category', '')}）。"
-            f"用神为{', '.join(strength.get('useful_god', []))}，"
-            f"忌神为{', '.join(strength.get('avoid_god', []))}。"
-            f"年柱{gan_zhi_list[0]}，月柱{gan_zhi_list[1]}，"
-            f"日柱{gan_zhi_list[2]}，时柱{gan_zhi_list[3]}。"
-            f"当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}。"
-            f"流年运势：{year_overview.get('summary', '')}"
-        )
-        polished = llm_polish(bazi_data_for_llm, original_text)
-        result_llm = {"polished_text": polished, "llm_enabled": True}
+        result_llm = {"llm_enabled": True}
+        try:
+            original_text = (
+                f"命主为{ri_gan}日主，{strength.get('strong_weak', '')}，"
+                f"格局{ge_ju.get('name', '')}（{ge_ju.get('category', '')}）。"
+                f"用神为{', '.join(strength.get('useful_god', []))}，"
+                f"忌神为{', '.join(strength.get('avoid_god', []))}。"
+                f"年柱{gan_zhi_list[0]}，月柱{gan_zhi_list[1]}，"
+                f"日柱{gan_zhi_list[2]}，时柱{gan_zhi_list[3]}。"
+                f"当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}。"
+                f"流年运势：{year_overview.get('summary', '')}"
+            )
+            polished = call_llm(
+                f"你是一位经验丰富的八字命理师。以下是AI系统对一个命盘的分析结果，请将其改写为更自然、更个性化的命理点评，保持专业但通俗易懂。\n\n"
+                f"命盘信息：\n"
+                f"- 日主：{ri_gan}\n"
+                f"- 格局：{ge_ju.get('name', '')}\n"
+                f"- 身强弱：{strength.get('strong_weak', '')}\n"
+                f"- 用神：{', '.join(strength.get('useful_god', []))}\n"
+                f"- 忌神：{', '.join(strength.get('avoid_god', []))}\n\n"
+                f"原始分析：\n{original_text[:1000]}\n\n"
+                f"请用中文给出流畅、个性化的命理点评（200字以内），不要提及\"根据AI系统\"等。",
+                max_tokens=500, temperature=0.7
+            )
+            if polished:
+                result_llm["polished_text"] = polished
+        except Exception:
+            pass
     else:
         result_llm = {"llm_enabled": False}
 
-    # 格局详情（print行已去掉）
+    # 格局详情
     return {
         "basic": {
             "gan_zhi": gan_zhi_list,
