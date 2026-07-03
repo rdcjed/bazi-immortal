@@ -8,7 +8,7 @@ from typing import Dict, List
 
 
 def _get_knowledge_dir() -> str:
-    """获取知识库目录路径"""
+    """获取八字命理知识库目录路径（兼容旧接口）"""
     import bazi_immortal
     return os.path.join(
         os.path.dirname(os.path.dirname(bazi_immortal.__file__)),
@@ -16,34 +16,46 @@ def _get_knowledge_dir() -> str:
     )
 
 
+def _get_knowledge_dirs() -> list:
+    """获取所有知识库目录路径列表"""
+    import bazi_immortal
+    base = os.path.dirname(os.path.dirname(bazi_immortal.__file__))
+    return [
+        os.path.join(base, 'knowledge_base', '八字命理知识库'),
+        os.path.join(base, 'knowledge_base', '周易知识库'),
+    ]
+
+
 def load_all_knowledge() -> Dict[str, str]:
     """
-    加载所有知识库文件
+    加载所有知识库文件（八字命理 + 周易知识库）
 
     Returns:
         Dict[str, str]: key 为文件名（不含 .md），value 为全文
         加载失败时返回空字典
     """
     result = {}
-    knowledge_dir = _get_knowledge_dir()
-
-    try:
-        if not os.path.isdir(knowledge_dir):
-            return result
-
-        for fname in os.listdir(knowledge_dir):
-            if not fname.endswith('.md'):
+    for knowledge_dir in _get_knowledge_dirs():
+        try:
+            if not os.path.isdir(knowledge_dir):
                 continue
-            key = fname[:-3]  # 去掉 .md 后缀
-            fpath = os.path.join(knowledge_dir, fname)
-            try:
-                with open(fpath, 'r', encoding='utf-8') as f:
-                    result[key] = f.read()
-            except Exception:
-                # 单个文件失败不影响其他文件
-                continue
-    except Exception:
-        pass
+
+            for fname in os.listdir(knowledge_dir):
+                if not fname.endswith('.md'):
+                    continue
+                key = fname[:-3]  # 去掉 .md 后缀
+                # 避免同名文件覆盖（同名时优先加载到的胜出）
+                if key in result:
+                    continue
+                fpath = os.path.join(knowledge_dir, fname)
+                try:
+                    with open(fpath, 'r', encoding='utf-8') as f:
+                        result[key] = f.read()
+                except Exception:
+                    # 单个文件失败不影响其他文件
+                    continue
+        except Exception:
+            pass
 
     return result
 

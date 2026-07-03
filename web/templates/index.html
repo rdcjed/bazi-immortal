@@ -9,6 +9,7 @@
 :root{
   --bg:#0d0d12;--card:#16161e;--card2:#1c1c28;
   --border:#2a2a3a;--gold:#d4a853;--gold-dim:#a8853a;
+  --bg-gold:rgba(212,168,83,.08);
   --red:#c0392b;--red-light:#e74c3c;
   --text:#e0dcd6;--text-dim:#88869a;--text-bright:#f5f0e8;
   --green:#27ae60;--blue:#2980b9;--purple:#8e44ad;
@@ -226,6 +227,17 @@ body{
 .year-detail .yd-cat{margin:6px 0;font-size:13px}
 .year-detail .yd-label{color:var(--gold);font-weight:600}
 .year-detail .yd-text{color:var(--text)}
+
+/* 10年运势摘要卡片 */
+.ten-summary{
+  background:linear-gradient(135deg,var(--card2),rgba(212,168,83,.06));
+  border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;
+  margin-bottom:14px;
+  font-size:14px;line-height:1.8;
+  color:var(--text-bright);
+  border-left:3px solid var(--gold);
+}
 
 @media(max-width:640px){
   .input-grid{grid-template-columns:repeat(3,1fr)}
@@ -752,7 +764,7 @@ body{
       {% endif %}
       <div class="stat-row"><span class="label">综合评分</span><span class="value">{{ result.location.overall_score }}/10</span></div>
       <div class="stat-row"><span class="label">总评价</span><span class="value">{{ result.location.overall_verdict }}</span></div>
-      {% if result.location.is_recommended %}{% else %}<div class="stat-row"><span class="label">是否推荐</span><span class="value">❌ 不推荐</span></div>{% endif %}
+      {% if result.location.is_recommended %}<div class="stat-row"><span class="label">是否推荐</span><span class="value">✅ 推荐</span></div>{% else %}<div class="stat-row"><span class="label">是否推荐</span><span class="value">❌ 不推荐</span></div>{% endif %}
       <div style="margin-top:12px;">
         {% for k in ['career', 'wealth', 'love', 'health', 'family'] %}
         {% if result.location[k] %}

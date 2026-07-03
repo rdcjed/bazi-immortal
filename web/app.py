@@ -180,9 +180,14 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
                          "金": ["00_五行详解", "05_十二长生与旺衰"],
                          "水": ["00_五行详解", "05_十二长生与旺衰"]}
             keys = ["00_五行详解", "02_八字排盘十神大运", "11_格局体系", "04_神煞大全"]
+            zhouyi_keys = ["01_六十四卦详解", "02_起卦体用断卦", "04_八卦详解与风水基础"]
             for key in keys:
                 if key in knowledge:
                     kb_context += f"\n### {key}\n{knowledge[key][:400]}\n"
+            kb_zhouyi = ""
+            for key in zhouyi_keys:
+                if key in knowledge:
+                    kb_zhouyi += f"\n### {key}\n{knowledge[key][:300]}\n"
         except Exception:
             kb_context = ""
 
@@ -204,17 +209,21 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
 - 当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}
 - 神煞：{', '.join(list(shensha_result.keys())[:8])}
 
-## 知识库参考
-{kb_context}
-
-请分析以下内容（用中文，通俗但不失专业）：
-1. 整体格局判断（什么格）
-2. 五行旺衰分析
-3. 性格特质
-4. 事业财运
-5. 感情婚姻
-6. 当前大运流年运势
-7. 开运建议
+|## 周易参考（梅花易数 / 风水 / 吉祥方位）
+|{kb_zhouyi}
+|
+|## 知识库参考
+|{kb_context}
+|
+|请分析以下内容（用中文，通俗但不失专业）：
+|1. 整体格局判断（什么格）
+|2. 五行旺衰分析
+|3. 性格特质
+|4. 事业财运
+|5. 感情婚姻
+|6. 当前大运流年运势
+|7. 开运建议
+|8. 如需，可结合周易卦象和风水原则辅助判断
 
 控制在 500 字以内。"""
 
@@ -497,8 +506,8 @@ def index():
                     elif password != "":
                         ten_year_error = "密码错误，请重新输入"
 
-        except (ValueError, TypeError):
-            error = "请填写有效的数字格式"
+        except (ValueError, TypeError, KeyError, AttributeError):
+            error = "提交数据格式异常，请检查输入"
 
     return render_template(
         "index.html", result=result, error=error, form=form_values,
