@@ -24,6 +24,7 @@ jobs:
       - name: 安装依赖
         run: |
           pip install --upgrade pip
+          pip install -r requirements.txt
           pip install -e .
 
       - name: 运行 pytest 测试
