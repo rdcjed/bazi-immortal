@@ -5,6 +5,7 @@
 
 import sys
 import os
+import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bazi_immortal import (
@@ -13,7 +14,37 @@ from bazi_immortal import (
     find_shen_sha,
 )
 
+TEST_CASES = [
+    ("毛泽东", 1893, 12, 26, 7, 0, "男", {
+        "has_shensha": ["天乙贵人"],
+    }),
+    ("申月乙木", 2003, 8, 20, 6, 0, "男", {"has_error": False}),
+    ("丑月偏强格", 2000, 1, 1, 8, 0, "女", {
+        "strong_weak": "中和",
+        "useful_god": ["土"],
+        "avoid_god": ["木"],
+    }),
+    ("寅月甲木", 1964, 2, 15, 10, 0, "男", {
+        "strong_weak": "身强",
+    }),
+    ("巳月生人", 1986, 5, 20, 12, 0, "男", {"has_error": False}),
+    ("冬月子时", 1995, 12, 15, 23, 30, "女", {"has_error": False}),
+    ("子月丙火", 1990, 12, 1, 12, 0, "男", {"has_error": False}),
+    ("辰月生人", 1988, 4, 10, 15, 0, "男", {"has_error": False}),
+    ("闰年出生", 2000, 2, 29, 6, 0, "女", {"has_error": False}),
+    ("亥月壬水", 1970, 11, 8, 3, 0, "男", {"has_error": False}),
+    ("午月丁火", 1992, 6, 15, 14, 0, "女", {"has_error": False}),
+    ("未月己土", 1998, 7, 20, 9, 0, "男", {"has_error": False}),
+    ("酉月辛金", 2005, 9, 10, 17, 0, "女", {"has_error": False}),
+    ("卯月卯时", 1996, 3, 15, 5, 0, "男", {"has_error": False}),
+    ("子时出生", 2001, 8, 8, 23, 30, "女", {"has_error": False}),
+]
 
+
+@pytest.mark.parametrize(
+    "name,year,month,day,hour,minute,gender,assertions",
+    TEST_CASES,
+)
 def test_case(name, year, month, day, hour, minute, gender, assertions):
     """单个测试用例"""
     bazi = calculate_bazi(year, month, day, hour, minute, gender)
@@ -85,7 +116,7 @@ def test_case(name, year, month, day, hour, minute, gender, assertions):
 
     if all_pass:
         print(f"  ✅ 全部通过")
-    return all_pass
+    assert all_pass, f"测试用例 {name} 未通过"
 
 
 def run_tests():
@@ -153,11 +184,8 @@ def run_tests():
     # ─── 运行测试 ───
     for name, *args in tests:
         try:
-            ok = test_case(name, *args)
-            if ok:
-                passed += 1
-            else:
-                failed += 1
+            test_case(name, *args)
+            passed += 1
         except Exception as e:
             print(f"\n  ❌ {name} 抛出异常：{e}")
             import traceback
@@ -172,7 +200,7 @@ def run_tests():
     print(f"  总共：{len(tests)}")
     print(f"{'='*60}")
     
-    return failed == 0
+    assert failed == 0, f"{failed} case(s) failed"
 
 
 if __name__ == "__main__":
