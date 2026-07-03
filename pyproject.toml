@@ -16,6 +16,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Religion :: Taoism",
 ]
+dependencies = [
+    "flask>=3.0",
+    "zhdate>=0.1",
+    "requests>=2.28",
+]
 
 [project.scripts]
 bazi = "bazi_immortal.cli:main"

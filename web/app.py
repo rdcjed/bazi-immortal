@@ -27,7 +27,10 @@ LLM_BASE_URL = "https://token.sensenova.cn/v1"
 LLM_MODEL = "deepseek-v4-flash"
 
 
-TEN_YEAR_PASSWORD = "111111"
+# 十年运势密码 — 从环境变量读取，不设置时该功能自动禁用
+TEN_YEAR_PASSWORD = os.environ.get("TEN_YEAR_PASSWORD", "")
+if not TEN_YEAR_PASSWORD:
+    print("[警告] 环境变量 TEN_YEAR_PASSWORD 未设置，十年运势预测功能已禁用")
 
 
 # ════════════════════════════════════════════
@@ -492,7 +495,7 @@ def index():
                 enable_ten = request.form.get("enable_ten_year", "")
                 if enable_ten == "on":
                     password = request.form.get("ten_year_password", "")
-                    if password == TEN_YEAR_PASSWORD:
+                    if TEN_YEAR_PASSWORD and password == TEN_YEAR_PASSWORD:
                         bazi = calculate_bazi(year, month, day, hour, minute, gender)
                         if bazi:
                             strength = analyze_ri_zuo_strong_weak(bazi)
