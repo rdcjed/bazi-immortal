@@ -32,6 +32,34 @@ cd bazi-immortal
 pip install -e .
 ```
 
+### LLM 模式
+
+如果要启用 LLM 增强分析，请按照以下步骤配置：
+
+```bash
+copy .env.example .env
+# 编辑 .env 中的 API Key
+```
+
+`.env` 文件内容示例：
+
+```ini
+SENSENOVA_API_KEY=your_api_key_here
+LLM_QUALITY_CHECK=true
+```
+
+然后运行：
+
+```bash
+python web/app.py
+```
+
+或使用 `start_llm.bat` 启动（会自动读取 `.env`）：
+
+```bash
+start_llm.bat
+```
+
 ### 使用
 
 ```bash
