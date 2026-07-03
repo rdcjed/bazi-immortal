@@ -411,21 +411,6 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     }
 
 
-def generate_ten_year_report(bazi, year, gender, birth_year):
-    """生成10年运势预测"""
-    strength = analyze_ri_zuo_strong_weak(bazi)
-    dayun_data = calculate_da_yun(bazi, birth_time=(
-        birth_year,
-        int(gender == "女"),
-        1, 0, 0
-    ))
-    return predict_ten_years(
-        bazi, bazi.ri_gan, bazi.year_pillar.tian_gan,
-        bazi.zhi_list, strength["strong_weak"], strength.get("useful_god", []),
-        None, birth_year, gender, year
-    )
-
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     result = None

@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 复制项目文件
 COPY bazi_immortal/ bazi_immortal/
 COPY web/ web/
+COPY knowledge_base/ knowledge_base/
 COPY pyproject.toml .
 
 # 安装本包

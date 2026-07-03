@@ -3,6 +3,7 @@
 """
 
 import os
+import warnings
 from typing import Dict, List
 
 
@@ -48,15 +49,8 @@ def load_all_knowledge() -> Dict[str, str]:
 
 
 def load_knowledge_by_topic(topic_keywords: List[str]) -> Dict[str, str]:
-    """
-    按主题关键词加载匹配的知识条目
-
-    Args:
-        topic_keywords: 关键词列表，匹配文件名（与关键词至少有一个匹配）
-
-    Returns:
-        Dict[str, str]: 匹配的知识条目
-    """
+    """[deprecated] 按主题关键词加载知识库条目"""
+    warnings.warn("load_knowledge_by_topic is deprecated, use load_all_knowledge() instead", DeprecationWarning, stacklevel=2)
     try:
         all_knowledge = load_all_knowledge()
         if not all_knowledge:

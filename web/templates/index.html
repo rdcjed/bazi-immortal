@@ -379,15 +379,26 @@ body{
   </div>
 
   <!-- ── AI 命理分析（LLM 模式）── -->
-  {% if result and result.llm and result.llm.llm_enabled and result.llm.llm_analysis %}
+  {% if result and result.llm and result.llm.llm_enabled %}
   <div class="section">
-    <div class="section-header" onclick="toggle(this)">
-      <span><span class="icon">🔮</span>AI 命理分析</span><span class="arrow">▼</span>
+    <div class="section-header" onclick="toggleSection(this)">
+      <span>🔮 AI 命理分析</span>
+      <span class="toggle-icon">▼</span>
     </div>
-    <div class="section-body">
-      <div style="background:var(--card2);border-radius:8px;padding:15px;line-height:1.8;white-space:pre-wrap;font-size:14px;color:var(--text);">
-        {{ result.llm.llm_analysis }}
+    <div class="section-content">
+      {% if result.llm.polished_text %}
+      <div style="background:var(--bg-gold);padding:15px;border-radius:8px;line-height:1.8;white-space:pre-wrap;border:2px solid #d4a574;">
+        {{ result.llm.polished_text }}
       </div>
+      {% endif %}
+      {% if result.llm.llm_analysis %}
+      <details style="margin-top:10px;">
+        <summary style="cursor:pointer;color:var(--gold);">查看完整分析</summary>
+        <div style="background:var(--bg-gold);padding:15px;border-radius:8px;line-height:1.8;white-space:pre-wrap;margin-top:8px;">
+          {{ result.llm.llm_analysis }}
+        </div>
+      </details>
+      {% endif %}
     </div>
   </div>
   {% endif %}

@@ -225,6 +225,10 @@ def _get_month_zhi_fallback(year: int, month: int, day: int) -> str:
     简化节气边界（精确到日，不考虑年份波动）
     作为天文算法的兜底方案
     """
+    # 1月特殊处理：小寒(1/6)前为子月，后为丑月
+    if month == 1:
+        return "子" if day < 6 else "丑"
+
     boundaries = [
         (2, 4, "寅"),   # 立春
         (3, 6, "卯"),   # 惊蛰
