@@ -91,8 +91,13 @@ def get_zhi_relations(month_zhi: str, all_zhi: List[str]) -> List[str]:
         if zhi in DZ_LIU_PO and DZ_LIU_PO[zhi] == month_zhi:
             relations.append(f"破{p_name}柱（{zhi}↔{month_zhi}）")
         # 三刑
-        if {zhi, month_zhi} in [{"寅", "巳"}, {"巳", "申"}, {"寅", "申"}]:
-            relations.append(f"刑{p_name}柱（{zhi}↔{month_zhi}）")
+        for k, v in DZ_SAN_XING.items():
+            if {zhi, month_zhi} == {k, v}:
+                relations.append(f"刑{p_name}柱（{zhi}↔{month_zhi}）")
+                break
+        # 自刑
+        if zhi == month_zhi and month_zhi in ("辰", "午", "酉", "亥"):
+            relations.append(f"刑{p_name}柱（{zhi}↔{month_zhi}自刑）")
 
     return relations
 
@@ -692,7 +697,11 @@ def analyze_single_month(
     relations = get_zhi_relations(month_zhi, all_zhi)
 
     # 简单喜忌判断（用于兜底）
-    if strong_weak == "身强":
+    if strong_weak == "从强":
+        ss_positive = ss in ("正印", "偏印", "比肩", "劫财")
+    elif strong_weak == "从弱":
+        ss_positive = ss in ("正官", "七杀", "正财", "偏财", "食神", "伤官")
+    elif strong_weak == "身强":
         ss_positive = ss in ("正官", "七杀", "正财", "偏财", "食神", "伤官")
     else:
         ss_positive = ss in ("正印", "偏印", "比肩", "劫财")

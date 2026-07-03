@@ -72,7 +72,7 @@ def get_shi_shen_for_gan(ri_gan: str, other_gan: str) -> str:
         return "正官" if not same_yy else "七杀"
     # 我克者为财
     if WU_XING_KE.get(ri_wx) == other_wx:
-        return "正财" if same_yy else "偏财"
+        return "正财" if not same_yy else "偏财"
 
     return "比肩"
 

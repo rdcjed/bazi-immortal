@@ -263,7 +263,7 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     for zhi in zhi_list:
         hidden = DZ_CANG_GAN.get(zhi, [])
         for hg in hidden:
-            if TG_WU_XING[hg] == ri_wx or WU_XING_SHENG.get(hg) == ri_wx:
+            if TG_WU_XING[hg] == ri_wx or WU_XING_SHENG.get(TG_WU_XING[hg]) == ri_wx:
                 helping_count += 0.5
     
     is_de_shi = helping_count > harming_count
@@ -308,12 +308,8 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
     else:
         strong_weak = "中和"
 
-    # 极强/极弱检查
-    helping_raw = helping_count + (3 if has_strong_root else 0)
-    if helping_raw >= 8 and harming_count <= 2 and is_de_shi:
-        strong_weak = "从强"
-    if harming_count >= 8 and not is_de_ling and not is_de_di:
-        strong_weak = "从弱"
+    # 从格判断统一交给 analyze_ge_ju 处理
+        # （此处只输出身强/身弱/偏强/偏弱/中和）
 
     # 辅助：找"生我"的五行（印枭）
     def find_sheng_wo(wx):
@@ -534,7 +530,15 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
         key = (g1, g2)
         if key in hua_qi_pairs:
             hua_wx, need_zhi = hua_qi_pairs[key]
-            if month_zhi in need_zhi:
+            # 月令验证放宽：主条件 + 辅助条件
+            # 辅助1：月令是化气五行的生五行（如甲己化土，巳午月火生土也参与）
+            # 辅助2：化气五行在天干透出
+            hua_wx_sheng = {"土": ["巳","午"], "金": ["辰","戌","丑","未"], "水": ["申","酉"], "木": ["亥","子"], "火": ["寅","卯"]}
+            month_match = month_zhi in need_zhi
+            sheng_match = month_zhi in hua_wx_sheng.get(hua_wx, [])
+            # 检查化气五行是否在天干透出
+            tou_chu = hua_wx in [TG_WU_XING.get(g) for g in gan_list]
+            if month_match or sheng_match or tou_chu:
                 return {
                     "name": f"{g1}{g2}化气格（{hua_wx}）",
                     "category": "化气格",

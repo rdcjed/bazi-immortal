@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple, Optional
 from .constants import (
     TIAN_GAN, DI_ZHI, DZ_INDEX, TG_INDEX,
     DZ_CANG_GAN, TG_WU_XING, DZ_WU_XING,
+    JIA_ZI_NAME_TO_INDEX, LIU_SHI_JIA_ZI_NAMES,
 )
 from .calculator import BaZi
 
@@ -278,7 +279,12 @@ SHEN_SHA_DB = {
     },
     "六甲空亡": {
         "method": "日柱+旬",
-        "rule": {},
+        "rule": {
+            # 甲子旬: 戌亥空, 甲戌旬: 申酉空, 甲申旬: 午未空,
+            # 甲午旬: 辰巳空, 甲辰旬: 寅卯空, 甲寅旬: 子丑空
+            "甲子": ["戌", "亥"], "甲戌": ["申", "酉"], "甲申": ["午", "未"],
+            "甲午": ["辰", "巳"], "甲辰": ["寅", "卯"], "甲寅": ["子", "丑"],
+        },
         "meaning": "落空之象。空亡所在的地支代表该方面的努力容易落空，需看具体位置。",
     },
     "日德": {
@@ -348,6 +354,17 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
     all_gan = bazi.gan_list
     day_gan_zhi = bazi.day_pillar.gan_zhi
 
+    def _ensure_shen(shen_name, zhi, new_positions, meaning):
+        """确保神煞在result中，合并位置"""
+        if shen_name not in result:
+            result[shen_name] = {
+                "zhi": zhi, "positions": [],
+                "meaning": meaning,
+            }
+        for p in new_positions:
+            if p not in result[shen_name]["positions"]:
+                result[shen_name]["positions"].append(p)
+
     for shen_name, info in SHEN_SHA_DB.items():
         method = info["method"]
         rule = info["rule"]
@@ -360,11 +377,7 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
                     for zhi in target_zhi:
                         if zhi in all_zhi:
                             positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
-                            if shen_name not in result:
-                                result[shen_name] = {
-                                    "zhi": zhi, "positions": positions,
-                                    "meaning": info["meaning"],
-                                }
+                            _ensure_shen(shen_name, zhi, positions, info["meaning"])
             continue
 
         # 按年支查找
@@ -374,11 +387,7 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
                 for zhi in target_zhi:
                     if zhi in all_zhi:
                         positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
-                        if shen_name not in result:
-                            result[shen_name] = {
-                                "zhi": zhi, "positions": positions,
-                                "meaning": info["meaning"],
-                            }
+                        _ensure_shen(shen_name, zhi, positions, info["meaning"])
             continue
 
         # 按月支查找（直接）
@@ -388,11 +397,7 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
                 for gan in target_gan:
                     if gan in all_gan:
                         positions = [p.label for p in bazi.si_zhu if p.tian_gan == gan]
-                        if shen_name not in result:
-                            result[shen_name] = {
-                                "zhi": "", "positions": positions,
-                                "meaning": info["meaning"],
-                            }
+                        _ensure_shen(shen_name, "", positions, info["meaning"])
             continue
 
         # 按月支三合查找（月德）
@@ -402,21 +407,30 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
                 for gan in target_gan:
                     if gan in all_gan:
                         positions = [p.label for p in bazi.si_zhu if p.tian_gan == gan]
-                        if shen_name not in result:
-                            result[shen_name] = {
-                                "zhi": "", "positions": positions,
-                                "meaning": info["meaning"],
-                            }
+                        _ensure_shen(shen_name, "", positions, info["meaning"])
             continue
 
         # 按日柱查找
         if method == "日柱":
             if day_gan_zhi in rule:
-                if shen_name not in result:
-                    result[shen_name] = {
-                        "zhi": "", "positions": ["日柱"],
-                        "meaning": info["meaning"],
-                    }
+                _ensure_shen(shen_name, "", ["日柱"], info["meaning"])
+            continue
+
+        # 日柱+旬（空亡）
+        if method == "日柱+旬":
+            day_idx = JIA_ZI_NAME_TO_INDEX.get(day_gan_zhi, -1)
+            if day_idx >= 0:
+                xun_names = ["甲子", "甲戌", "甲申", "甲午", "甲辰", "甲寅"]
+                xun_name = xun_names[day_idx // 10]
+                if xun_name in rule:
+                    kong_zhi_list = rule[xun_name]
+                    found_positions = []
+                    for zhi in kong_zhi_list:
+                        if zhi in all_zhi:
+                            positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
+                            found_positions.extend(positions)
+                    if found_positions:
+                        _ensure_shen(shen_name, ",".join(kong_zhi_list), found_positions, info["meaning"])
             continue
 
         # 日柱+季节（四废）
@@ -424,11 +438,7 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
             from .wuxing import get_season
             season = get_season(bazi)
             if season in rule and day_gan_zhi in rule[season]:
-                if shen_name not in result:
-                    result[shen_name] = {
-                        "zhi": "", "positions": ["日柱"],
-                        "meaning": info["meaning"],
-                    }
+                _ensure_shen(shen_name, "", ["日柱"], info["meaning"])
             continue
 
         # 年支/日支
@@ -439,11 +449,7 @@ def find_shen_sha(bazi: BaZi) -> Dict[str, Dict]:
                     for zhi in target_zhi:
                         if zhi in all_zhi:
                             positions = [p.label for p in bazi.si_zhu if p.di_zhi == zhi]
-                            if shen_name not in result:
-                                result[shen_name] = {
-                                    "zhi": zhi, "positions": positions,
-                                    "meaning": info["meaning"],
-                                }
+                            _ensure_shen(shen_name, zhi, positions, info["meaning"])
             continue
 
     return result

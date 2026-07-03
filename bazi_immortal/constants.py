@@ -330,7 +330,7 @@ def get_shi_shen(ri_gan: str, other_gan: str) -> str:
         return "正官" if TG_YIN_YANG[ri_gan] != TG_YIN_YANG[other_gan] else "七杀"
     # 我克者为财
     if WU_XING_KE.get(ri_wx) == other_wx:
-        return "正财" if TG_YIN_YANG[ri_gan] == TG_YIN_YANG[other_gan] else "偏财"
+        return "正财" if TG_YIN_YANG[ri_gan] != TG_YIN_YANG[other_gan] else "偏财"
 
     return "比肩"  # fallback
 
