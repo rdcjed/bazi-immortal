@@ -26,8 +26,9 @@ jobs:
           pip install --upgrade pip
           pip install -e .
 
-      - name: 运行核心单元测试
-        run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: 运行 pytest 测试
+        run: |
+          python -m pytest -q
 
       - name: 运行现有验证脚本
         run: |

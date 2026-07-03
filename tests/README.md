@@ -12,6 +12,14 @@
 python -m unittest discover -s tests -p 'test_*.py'
 ```
 
+## Pytest
+
+新增的标准测试可以使用 `pytest` 运行：
+
+```bash
+python -m pytest -q
+```
+
 ## 现有验证脚本
 
 这些脚本用于验证命理规则、名人案例和大规模数据：
