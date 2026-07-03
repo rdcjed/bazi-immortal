@@ -17,6 +17,9 @@ env/
 .DS_Store
 Thumbs.db
 
+# VS Code 工作区设置
+.vscode/
+
 # 环境变量（含API Key）
 .env
 start_llm.bat
