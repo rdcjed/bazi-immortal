@@ -201,6 +201,7 @@ def run_tests():
     print(f"{'='*60}")
     
     assert failed == 0, f"{failed} case(s) failed"
+    return True
 
 
 if __name__ == "__main__":
