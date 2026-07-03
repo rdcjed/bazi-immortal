@@ -131,6 +131,70 @@ print(f"2026年流年: {ln['gan_zhi']}")
 
 ---
 
+## 🧪 测试与开发
+
+项目支持两类测试：
+
+1. `unittest` 核心单元测试（新引入）：
+
+```bash
+python -m unittest discover -s tests -p 'test_*.py'
+```
+
+2. 现有命例验证脚本，用于回归命理逻辑和名人案例验证：
+
+```bash
+python tests/test_cases.py
+python tests/validate_logic.py
+```
+
+如果需要运行全部验证脚本，也可以直接执行：
+
+```bash
+python tests/validate_massive.py
+```
+
+以上脚本会输出详细报告，并在 `tests/validation_report.json` 中保存结果。
+
+## 🌐 Web 应用与部署
+
+Web 示例位于 `web/app.py`，提供一个交互式界面用于输入出生信息并查看运势分析。
+
+```bash
+pip install flask zhdate requests
+python web/app.py
+```
+
+然后打开：
+
+```bash
+http://localhost:5000
+```
+
+若使用 LLM 增强模式，请先复制并编辑 `.env.example`：
+
+```bash
+copy .env.example .env
+```
+
+在 `.env` 中填入你的 `SENSENOVA_API_KEY`，然后启动：
+
+```bash
+start_llm.bat
+```
+
+## 🐳 Docker 部署
+
+项目已包含 `Dockerfile` 和 `docker-compose.yml`，可以直接构建并启动：
+
+```bash
+docker compose up -d
+```
+
+应用会在 `http://localhost:5000` 提供 Web 服务。
+
+---
+
 ## 📂 项目结构
 
 ```
