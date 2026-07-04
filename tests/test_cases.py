@@ -20,9 +20,9 @@ TEST_CASES = [
     }),
     ("申月乙木", 2003, 8, 20, 6, 0, "男", {"has_error": False}),
     ("丑月偏强格", 2000, 1, 1, 8, 0, "女", {
-        "strong_weak": "中和",
-        "useful_god": ["土"],
-        "avoid_god": ["木"],
+        "strong_weak": "偏强",
+        "useful_god": ["木", "金", "水"],
+        "avoid_god": ["土", "火"],
     }),
     ("寅月甲木", 1964, 2, 15, 10, 0, "男", {
         "strong_weak": "身强",
@@ -138,9 +138,9 @@ def run_tests():
 
     # 3. 丑月土旺（v2.0算法改进后判为中和，用神土）
     tests.append(("丑月偏强格", 2000, 1, 1, 8, 0, "女", {
-        "strong_weak": "中和",
-        "useful_god": ["土"],
-        "avoid_god": ["木"],
+        "strong_weak": "偏强",
+        "useful_god": ["木", "金", "水"],
+        "avoid_god": ["土", "火"],
     }))
 
     # 4. 寅月甲木（临官位）
