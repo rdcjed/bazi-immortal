@@ -26,6 +26,39 @@ LLM_API_KEY = os.environ.get("SENSENOVA_API_KEY", "")
 LLM_BASE_URL = "https://token.sensenova.cn/v1"
 LLM_MODEL = "deepseek-v4-flash"
 
+# System Prompt 路径（prompts/命运道士AI提示词.md）
+SYSTEM_PROMPT_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..", "prompts", "命运道士AI提示词.md"
+)
+
+_SYSTEM_PROMPT_CACHE = None
+
+def load_system_prompt() -> str:
+    """加载完整系统提示词（带模块级缓存）"""
+    global _SYSTEM_PROMPT_CACHE
+    if _SYSTEM_PROMPT_CACHE is not None:
+        return _SYSTEM_PROMPT_CACHE
+    try:
+        with open(SYSTEM_PROMPT_PATH, "r", encoding="utf-8") as f:
+            content = f.read()
+        _SYSTEM_PROMPT_CACHE = content
+        print(f"[SystemPrompt] 已加载 {len(content)} 字符")
+        return content
+    except Exception as e:
+        print(f"[SystemPrompt] 加载失败: {e}")
+        fallback = (
+                    "你是「云中子」——一位精通中国传统命理推算的高级道士。\n\n"
+                    "你的核心能力不是背诵知识，而是基于命理逻辑推理计算。\n"
+                    "每次分析需要逐步推理：排八字 → 五行分析 & 日主强弱 → 定用神忌神 → 十神推理 → "
+                    "特殊格局 → 神煞推算 → 大运流年 → 综合输出。\n\n"
+                    "输出风格：大白话、有条理、有温度。术语必须解释。\n"
+                    "不给出绝对化结论，使用'趋势上''可能性''需要注意'等措辞。\n"
+                    "每条建议都要有可行性。"
+                )
+        _SYSTEM_PROMPT_CACHE = fallback
+        return fallback
+
 
 # 十年运势密码 — 从环境变量读取，不设置时该功能自动禁用
 TEN_YEAR_PASSWORD = os.environ.get("TEN_YEAR_PASSWORD", "")
@@ -84,11 +117,20 @@ def lunar_to_solar(lunar_year, lunar_month, lunar_day):
         return None
 
 
-def call_llm(prompt: str, max_tokens: int = 1500, temperature: float = 0.5) -> str:
-    """调用 LLM API 获取分析结果，失败返回 None"""
+def call_llm(prompt: str, max_tokens: int = 1500, temperature: float = 0.5,
+             system_prompt: str = None) -> str:
+    """调用 LLM API 获取分析结果，失败返回 None
+
+    支持 system_prompt 参数，传入完整系统提示词（如命运道士AI提示词.md）。
+    """
     if not LLM_API_KEY:
         return None
     try:
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+
         resp = requests.post(
             f"{LLM_BASE_URL}/chat/completions",
             headers={
@@ -97,16 +139,18 @@ def call_llm(prompt: str, max_tokens: int = 1500, temperature: float = 0.5) -> s
             },
             json={
                 "model": LLM_MODEL,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages,
                 "max_tokens": max_tokens,
                 "temperature": temperature,
             },
-            timeout=30
+            timeout=60
         )
         if resp.status_code == 200:
             return resp.json()["choices"][0]["message"]["content"].strip()
+        print(f"[LLM] API 返回非 200: {resp.status_code}")
         return None
-    except Exception:
+    except Exception as e:
+        print(f"[LLM] 调用异常: {e}")
         return None
 
 
@@ -169,69 +213,71 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     pillar_analysis = analyze_pillars(bazi, strength, ss_data, yongshen_info)
 
     # ════════════════════════════════════════════
-    #  LLM 模式：排盘 + LLM 命理分析
+    #  LLM 模式：System Prompt（完整提示词） + User Prompt（排盘数据）
     # ════════════════════════════════════════════
     if LLM_ENABLED and LLM_API_KEY:
-        # ── 加载知识库作为 LLM 参考 ──
+        # ── 1. 加载完整 System Prompt ──
+        system_prompt = load_system_prompt()
+        print(f"[LLM] System Prompt 已加载 ({len(system_prompt)} 字符)")
+
+        # ── 2. 加载知识库（增强版：更多文件 + 更大截断）──
         kb_context = ""
+        kb_zhouyi = ""
         try:
             knowledge = load_all_knowledge()
-            # 根据日主五行选择相关章节
-            ri_wx_map = {"木": ["00_五行详解", "05_十二长生与旺衰"],
-                         "火": ["00_五行详解", "05_十二长生与旺衰"],
-                         "土": ["00_五行详解", "05_十二长生与旺衰"],
-                         "金": ["00_五行详解", "05_十二长生与旺衰"],
-                         "水": ["00_五行详解", "05_十二长生与旺衰"]}
-            keys = ["00_五行详解", "02_八字排盘十神大运", "11_格局体系", "04_神煞大全"]
-            zhouyi_keys = ["01_六十四卦详解", "02_起卦体用断卦", "04_八卦详解与风水基础"]
-            for key in keys:
+            core_keys = [
+                "00_五行详解", "02_八字排盘十神大运", "04_神煞大全",
+                "05_十二长生与旺衰", "07_穷通宝鉴精要", "11_格局体系",
+            ]
+            for key in core_keys:
                 if key in knowledge:
-                    kb_context += f"\n### {key}\n{knowledge[key][:400]}\n"
-            kb_zhouyi = ""
+                    kb_context += f"\n## {key}\n{knowledge[key][:1200]}\n"
+            zhouyi_keys = ["01_六十四卦详解", "02_起卦体用断卦", "04_八卦详解与风水基础"]
             for key in zhouyi_keys:
                 if key in knowledge:
-                    kb_zhouyi += f"\n### {key}\n{knowledge[key][:300]}\n"
+                    kb_zhouyi += f"\n## {key}\n{knowledge[key][:800]}\n"
         except Exception:
             kb_context = ""
+            kb_zhouyi = ""
 
-        # ── 构造 LLM prompt ──
-        prompt = f"""你是一位精通子平八字的资深命理师。请根据以下命盘信息，给出详细的命理分析。
+        # ── 3. 构造 User Prompt（结构化数据表，简洁明确）──
+        yong_shen_str = "、".join(strength.get('useful_god', [])) or "无"
+        avoid_god_str = "、".join(strength.get('avoid_god', [])) or "无"
+        shensha_list = list(shensha_result.keys())
+        shensha_sample = "、".join(shensha_list[:8]) if shensha_list else "无"
+        current_dayun_str = f"{current_dayun['gan_zhi']}（{current_dayun['start_age']}-{current_dayun['end_age']}岁）" if current_dayun else "无"
 
-## 命盘信息
-- 出生时间：{year}年{month}月{day}日 {hour}:{minute}
-- 性别：{gender}
-- 年柱：{gan_zhi_list[0]}
-- 月柱：{gan_zhi_list[1]}
-- 日柱：{gan_zhi_list[2]}（{ri_gan}日主）
-- 时柱：{gan_zhi_list[3]}
-- 日主五行：{ri_wx}
-- 身强弱：{strength['strong_weak']}
-- 用神：{', '.join(strength.get('useful_god', []))}
-- 忌神：{', '.join(strength.get('avoid_god', []))}
-- 大运：{dayun_data['direction']}运，起运{dayun_data['start_age']}岁
-- 当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}
-- 神煞：{', '.join(list(shensha_result.keys())[:8])}
+        user_prompt = (
+            "## 📊 排盘数据\n\n"
+            "| 维度 | 值 |\n"
+            "|------|-----|\n"
+            f"| 出生 | {year}年{month}月{day}日 {hour}:{minute:02d} · {gender} |\n"
+            f"| 年柱 | {gan_zhi_list[0]} |\n"
+            f"| 月柱 | {gan_zhi_list[1]} |\n"
+            f"| 日柱 | {gan_zhi_list[2]}（{ri_gan}日主） |\n"
+            f"| 时柱 | {gan_zhi_list[3]} |\n"
+            f"| 日主五行 | {ri_wx} |\n"
+            f"| 身强弱 | {strength['strong_weak']} |\n"
+            f"| 用神 | {yong_shen_str} |\n"
+            f"| 忌神 | {avoid_god_str} |\n"
+            f"| 格局 | {ge_ju['name']}（{ge_ju['category']}） |\n"
+            f"| 大运方向 | {dayun_data['direction']}运，起运 {dayun_data['start_age']} 岁 |\n"
+            f"| 当前大运 | {current_dayun_str} |\n"
+            f"| 流年 | {liunian_info['gan_zhi']}（{target_year}年） |\n"
+            f"| 神煞 | {shensha_sample} |\n\n"
+            "## 📂 知识库参考\n\n"
+            "### 八字命理\n"
+            f"{kb_context or '（无）'}\n\n"
+            "### 周易参考\n"
+            f"{kb_zhouyi or '（无）'}\n\n"
+            "---\n"
+            "请基于以上排盘数据，按照你（云中子）的完整推理流程给出分析报告。\n"
+            "重点：展示每一步的推理过程，而非直接给结论。\n"
+        )
 
-|## 周易参考（梅花易数 / 风水 / 吉祥方位）
-|{kb_zhouyi}
-|
-|## 知识库参考
-|{kb_context}
-|
-|请分析以下内容（用中文，通俗但不失专业）：
-|1. 整体格局判断（什么格）
-|2. 五行旺衰分析
-|3. 性格特质
-|4. 事业财运
-|5. 感情婚姻
-|6. 当前大运流年运势
-|7. 开运建议
-|8. 如需，可结合周易卦象和风水原则辅助判断
-
-控制在 500 字以内。"""
-
-        # ── 调用 LLM 获取分析结果 ──
-        llm_analysis = call_llm(prompt, max_tokens=1500, temperature=0.5)
+        # ── 4. 调用 LLM（system + user 双消息）──
+        llm_analysis = call_llm(user_prompt, max_tokens=2500, temperature=0.5,
+                                system_prompt=system_prompt)
 
         if llm_analysis:
             result_llm = {
@@ -338,31 +384,33 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
             gender,
         )
 
-    # ── LLM 质检润色（可选）──
+    # ── LLM 质检润色（可选）：当主 LLM 调用失败时，用 system prompt 润色规则引擎输出 ──
     if LLM_ENABLED:
         result_llm = {"llm_enabled": True}
         try:
-            original_text = (
+            polish_system = load_system_prompt()
+            summary_text = (
                 f"命主为{ri_gan}日主，{strength.get('strong_weak', '')}，"
                 f"格局{ge_ju.get('name', '')}（{ge_ju.get('category', '')}）。"
-                f"用神为{', '.join(strength.get('useful_god', []))}，"
-                f"忌神为{', '.join(strength.get('avoid_god', []))}。"
-                f"年柱{gan_zhi_list[0]}，月柱{gan_zhi_list[1]}，"
-                f"日柱{gan_zhi_list[2]}，时柱{gan_zhi_list[3]}。"
-                f"当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}。"
-                f"流年运势：{year_overview.get('summary', '')}"
+                f"用神为{'、'.join(strength.get('useful_god', []))}，"
+                f"忌神为{'、'.join(strength.get('avoid_god', []))}。"
             )
             polished = call_llm(
-                f"你是一位经验丰富的八字命理师。以下是AI系统对一个命盘的分析结果，请将其改写为更自然、更个性化的命理点评，保持专业但通俗易懂。\n\n"
-                f"命盘信息：\n"
+                f"请担任命运道士「云中子」，对以下命盘数据进行人性化的命理点评。"
+                f"用大白话、有条理、有温度的风格，给出 200 字左右的个性化分析。\n\n"
+                f"## 命盘数据\n"
                 f"- 日主：{ri_gan}\n"
                 f"- 格局：{ge_ju.get('name', '')}\n"
                 f"- 身强弱：{strength.get('strong_weak', '')}\n"
-                f"- 用神：{', '.join(strength.get('useful_god', []))}\n"
-                f"- 忌神：{', '.join(strength.get('avoid_god', []))}\n\n"
-                f"原始分析：\n{original_text[:1000]}\n\n"
-                f"请用中文给出流畅、个性化的命理点评（200字以内），不要提及\"根据AI系统\"等。",
-                max_tokens=500, temperature=0.7
+                f"- 用神：{'、'.join(strength.get('useful_god', []))}\n"
+                f"- 忌神：{'、'.join(strength.get('avoid_god', []))}\n"
+                f"- 年柱：{gan_zhi_list[0]}　月柱：{gan_zhi_list[1]}\n"
+                f"- 日柱：{gan_zhi_list[2]}　时柱：{gan_zhi_list[3]}\n"
+                f"- 当前大运：{current_dayun['gan_zhi'] if current_dayun else '无'}\n\n"
+                f"## 规则引擎分析摘要\n{summary_text}\n\n"
+                f"请输出自然、有温度的命理点评，不要提及'根据AI系统'等字眼。",
+                max_tokens=500, temperature=0.7,
+                system_prompt=polish_system
             )
             if polished:
                 result_llm["polished_text"] = polished
