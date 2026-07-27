@@ -14,6 +14,7 @@ from bazi_immortal import (
     analyze_ri_zuo_strong_weak,
     analyze_all_shi_shen,
     find_shen_sha,
+    analyze_tiao_hou, merge_tiao_hou_with_strong_weak,
 )
 from bazi_immortal.wuxing import TG_WU_XING, WU_XING_LIST
 from tests.celebrities_data import CELEBRITIES
@@ -28,27 +29,36 @@ def analyze_all():
         name, year, month, day, hour, minute, gender, category, known = entry
         
         try:
-            bazi = calculate_bazi(year, month, day, hour, minute, gender)
-            wx = analyze_ri_zuo_strong_weak(bazi)
-            ss = analyze_all_shi_shen(bazi)
-            shensha = find_shen_sha(bazi)
+                    bazi = calculate_bazi(year, month, day, hour, minute, gender)
+                    wx = analyze_ri_zuo_strong_weak(bazi)
+                    ss = analyze_all_shi_shen(bazi)
+                    shensha = find_shen_sha(bazi)
+                    tiao_hou = analyze_tiao_hou(bazi)
+                    wx_merged = merge_tiao_hou_with_strong_weak(wx, tiao_hou)
             
-            results.append({
-                "name": name,
-                "category": category,
-                "year": year,
-                "bazi": " ".join(p.gan_zhi for p in bazi.si_zhu),
-                "ri_gan": bazi.ri_gan,
-                "ri_wx": wx["ri_wx"],
-                "strong_weak": wx["strong_weak"],
-                "score": wx["score"],
-                "useful_god": wx["useful_god"],
-                "avoid_god": wx["avoid_god"],
-                "ss_counts": ss["counts"],
-                "ss_category": ss["category_counts"],
-                "shensha_count": len(shensha),
-                "gender": gender,
-            })
+                    results.append({
+                        "name": name,
+                        "category": category,
+                        "year": year,
+                        "bazi": " ".join(p.gan_zhi for p in bazi.si_zhu),
+                        "ri_gan": bazi.ri_gan,
+                        "ri_wx": wx["ri_wx"],
+                        "strong_weak": wx["strong_weak"],
+                        "score": wx["score"],
+                        "useful_god": wx_merged["useful_god"],
+                        "avoid_god": wx_merged["avoid_god"],
+                        "ss_counts": ss["counts"],
+                        "ss_category": ss["category_counts"],
+                        "shensha_count": len(shensha),
+                        "gender": gender,
+                        "tiao_hou": {
+                            "primary": tiao_hou["primary"],
+                            "secondary": tiao_hou["secondary"],
+                            "score": tiao_hou["score"],
+                            "present": tiao_hou["present"],
+                            "missing": tiao_hou["missing"],
+                        },
+                    })
         except Exception as e:
             errors.append((name, str(e)))
     
@@ -174,6 +184,25 @@ def print_report(results):
         print(f"  {cat}：偏好{top2[0][0]}({top2[0][1]}人)")
         if len(top2) > 1:
             print(f"      次偏好{top2[1][0]}({top2[1][1]}人)")
+
+    # ─── 调候用神统计 ───
+    print("\n━━━ 调候用神统计（穷通宝鉴法）━━━")
+    tiao_hou_present = sum(1 for r in results if r.get("tiao_hou", {}).get("score", 0) >= 3)
+    tiao_hou_missing = sum(1 for r in results if r.get("tiao_hou", {}).get("score", 0) < 2)
+    avg_tiao_hou_score = sum(r.get("tiao_hou", {}).get("score", 0) for r in results) / total
+    print(f"  调候用神齐全（得分≥3）：{tiao_hou_present}人 ({tiao_hou_present/total*100:.1f}%)")
+    print(f"  调候用神缺失（得分<2）：{tiao_hou_missing}人 ({tiao_hou_missing/total*100:.1f}%)")
+    print(f"  平均调候得分：{avg_tiao_hou_score:.2f}/5")
+    
+    # 调候用神Top5
+    primary_wx_stats = Counter()
+    for r in results:
+        th = r.get("tiao_hou", {})
+        if th.get("primary"):
+            primary_wx_stats[th["primary"]] += 1
+    print("\n  调候第一用神需求分布：")
+    for wx, count in primary_wx_stats.most_common(5):
+        print(f"    {wx}：{count}人 ({count/total*100:.1f}%)")
 
     print(f"\n{'='*70}")
     print(f"  报告完毕 | 总样本 {total}")

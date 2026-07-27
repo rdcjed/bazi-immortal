@@ -11,9 +11,55 @@ from .constants import (
     WU_HU_DUN, WU_SHU_DUN, WU_XING_SHENG, WU_XING_KE,
     DZ_LIU_HE, DZ_LIU_CHONG, DZ_SAN_XING, DZ_LIU_HAI, DZ_LIU_PO,
 )
-from .shisheng import get_shi_shen_for_gan
-from .wuxing import analyze_ri_zuo_strong_weak
-from .knowledge_loader import get_shi_shen_description
+from .shisheng import get_shi_shen_for_gan, analyze_all_shi_shen, format_shi_shen_analysis
+from .wuxing import analyze_ri_zuo_strong_weak, analyze_ge_ju, analyze_tiao_hou, merge_tiao_hou_with_strong_weak, format_wuxing_analysis
+from .shensha import find_shen_sha, format_shen_sha
+from .dayun import calculate_da_yun, format_da_yun
+from .calculator import bazi_to_string
+from .knowledge_loader import load_all_knowledge, get_shi_shen_description
+
+
+def generate_engine_report(bazi) -> Dict:
+    """
+    生成引擎完整报告，包含所有分析结果和知识库引用
+    """
+    # 基础分析
+    wx = analyze_ri_zuo_strong_weak(bazi)
+    ss = analyze_all_shi_shen(bazi)
+    shensha = find_shen_sha(bazi)
+    ge_ju = analyze_ge_ju(bazi, wx, ss)
+    tiao_hou = analyze_tiao_hou(bazi)
+    wx_merged = merge_tiao_hou_with_strong_weak(wx, tiao_hou)
+    
+    # 知识库引用
+    knowledge = load_all_knowledge()
+    kb_refs = {}
+    if knowledge:
+        # 根据日主五行选择相关章节
+        ri_wx = wx["ri_wx"]
+        wx_map = {"木": ["00", "05"], "火": ["00", "05"], "土": ["00", "05"],
+                   "金": ["00", "05"], "水": ["00", "05"]}
+        for prefix in wx_map.get(ri_wx, []):
+            for key in knowledge:
+                if key.startswith(prefix):
+                    kb_refs[key] = knowledge[key][:500]  # 截取前500字
+                    break
+        # 加调候参考
+        for key in knowledge:
+            if "穷通宝鉴" in key or "调候" in key:
+                kb_refs[key] = knowledge[key][:500]
+                break
+    
+    return {
+        "bazi": bazi_to_string(bazi),
+        "wuxing": format_wuxing_analysis(wx_merged),
+        "shishen": format_shi_shen_analysis(ss),
+        "shensha": format_shen_sha(shensha),
+        "geju": ge_ju,
+        "da_yun": format_da_yun(calculate_da_yun(bazi)),
+        "tiao_hou": tiao_hou,
+        "knowledge_refs": list(kb_refs.keys()) if kb_refs else [],
+    }
 
 # ─── 月干表（五虎遁） ───
 MONTH_GAN_START = WU_HU_DUN

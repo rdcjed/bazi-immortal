@@ -11,6 +11,7 @@ from .constants import (
     DZ_MONTH_INFO, SHI_ER_CHANG_SHENG, SHI_ER_CHANG_SHENG_INDEX,
     SHI_ER_CHANG_SHENG_ORDER, DZ_INDEX,
     SAN_HE_BY_WU_XING, SAN_HUI_BY_WU_XING,
+    TIAO_HOU_TABLE, WU_XING_TO_TIAN_GAN_PURE,
 )
 from .calculator import BaZi
 
@@ -309,7 +310,7 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         strong_weak = "中和"
 
     # 从格判断统一交给 analyze_ge_ju 处理
-        # （此处只输出身强/身弱/偏强/偏弱/中和）
+    # （此处只输出身强/身弱/偏强/偏弱/中和）
 
     # 辅助：找"生我"的五行（印枭）
     def find_sheng_wo(wx):
@@ -415,20 +416,7 @@ def format_wuxing_analysis(result: Dict) -> str:
 
 def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
     """
-    分析八字格局
-
-    检测顺序：
-    1. 从格（印比≥75%从强，官杀≥45%从官，财≥45%从财，食伤≥45%从儿）
-    2. 化气格（日主与年/月/时干合化）
-    3. 普通格（月令藏干透干定格局）
-
-    Args:
-        bazi: BaZi 排盘对象
-        strength: analyze_ri_zuo_strong_weak() 的输出
-        ss_data: 十神分析数据（analyze_all_shi_shen 的输出）
-
-    Returns:
-        Dict with name, category, description, confidence
+    ...existing code...
     """
     from .shisheng import get_shi_shen_for_gan
 
@@ -498,10 +486,8 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
         }
 
     # ═══════════════════════════════════════════════════
-    # 2. 化气格检测（日主与年/月/时干合化）
+    # 2. 化气格检测
     # ═══════════════════════════════════════════════════
-    # 合化组合：甲己→土, 乙庚→金, 丙辛→水, 丁壬→木, 戊癸→火
-    # 需要月令辅助（合化后五行当令）
     hua_qi_pairs = {
         ("甲", "己"): ("土", ["辰", "戌", "丑", "未"]),
         ("己", "甲"): ("土", ["辰", "戌", "丑", "未"]),
@@ -515,9 +501,6 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
         ("癸", "戊"): ("火", ["巳", "午"]),
     }
 
-    # 检查所有配对组合
-    # 日主 + 年干 / 月干 / 时干
-    # 月干 + 时干 / 年干 + 日干
     check_pairs = [
         (ri_gan, bazi.year_pillar.tian_gan),
         (ri_gan, month_gan),
@@ -530,13 +513,9 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
         key = (g1, g2)
         if key in hua_qi_pairs:
             hua_wx, need_zhi = hua_qi_pairs[key]
-            # 月令验证放宽：主条件 + 辅助条件
-            # 辅助1：月令是化气五行的生五行（如甲己化土，巳午月火生土也参与）
-            # 辅助2：化气五行在天干透出
             hua_wx_sheng = {"土": ["巳","午"], "金": ["辰","戌","丑","未"], "水": ["申","酉"], "木": ["亥","子"], "火": ["寅","卯"]}
             month_match = month_zhi in need_zhi
             sheng_match = month_zhi in hua_wx_sheng.get(hua_wx, [])
-            # 检查化气五行是否在天干透出
             tou_chu = hua_wx in [TG_WU_XING.get(g) for g in gan_list]
             if month_match or sheng_match or tou_chu:
                 return {
@@ -547,15 +526,12 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
                 }
 
     # ═══════════════════════════════════════════════════
-    # 3. 普通格（月令藏干透干定格局）
+    # 3. 普通格
     # ═══════════════════════════════════════════════════
-    # 优先级：官杀 > 财 > 食伤 > 印 > 比劫
     priority_ss = ["正官", "七杀", "正财", "偏财", "食神", "伤官", "正印", "偏印"]
-    # 比劫（建禄/月刃）最后处理
 
     month_cang_gan = DZ_CANG_GAN.get(month_zhi, [])
 
-    # 检查月令藏干中有哪些透出在天干上
     found_ss = None
     found_gan = None
 
@@ -576,7 +552,6 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
             "confidence": "high",
         }
 
-    # 如果月令藏干没有透出任何官杀财印食伤，检查比劫（建禄格/月刃格）
     monthly_state = get_monthly_state(ri_gan, month_zhi)
     if monthly_state == "临官":
         return {
@@ -593,10 +568,174 @@ def analyze_ge_ju(bazi, strength, ss_data) -> Dict:
             "confidence": "high",
         }
 
-    # 兜底
     return {
         "name": "正格（无特殊格局）",
         "category": "普通格",
         "description": f"日主{ri_gan}无特殊从格或化气，月令{month_zhi}藏干未透，归入正格。",
         "confidence": "low",
     }
+
+
+def analyze_tiao_hou(bazi) -> Dict:
+    """
+    调候用神分析（穷通宝鉴法）
+
+    根据日干和月令，从穷通宝鉴调候表查找所需的调候用神。
+    与强弱用神不同，调候用神关注的是"季节气候需要什么"，
+    而非"日主强弱需要什么"。
+
+    Returns:
+        Dict with:
+        - primary: 第一调候用神（天干名）
+        - secondary: 第二调候用神（天干名）
+        - summary: 推理要旨
+        - reasoning: 推理过程说明
+        - present: 命局中已出现的调候用神列表
+        - missing: 命局中缺失的调候用神列表
+        - score: 调候得分（0-5，越高越符合调候要求）
+    """
+    ri_gan = bazi.ri_gan
+    month_zhi = bazi.month_pillar.di_zhi
+    gan_list = bazi.gan_list
+    zhi_list = bazi.zhi_list
+
+    result = {
+        "primary": "",
+        "secondary": "",
+        "summary": "",
+        "reasoning": [],
+        "present": [],
+        "missing": [],
+        "score": 0,
+    }
+
+    # 查表
+    if ri_gan not in TIAO_HOU_TABLE:
+        return result
+    if month_zhi not in TIAO_HOU_TABLE[ri_gan]:
+        return result
+
+    entry = TIAO_HOU_TABLE[ri_gan][month_zhi]
+    primary = entry["primary"]
+    secondary = entry["secondary"]
+    result["primary"] = primary
+    result["secondary"] = secondary
+    result["summary"] = entry["summary"]
+
+    result["reasoning"].append(
+        f"调候法：{ri_gan}日主生于{month_zhi}月，穷通宝鉴以{primary}为第一用神"
+    )
+    if secondary:
+        result["reasoning"].append(f"以{secondary}为第二用神。{entry['summary']}")
+
+    # 检查调候用神是否出现在命局中
+    # 第一用神检查
+    primary_wx = TG_WU_XING.get(primary, "")
+    primary_gans = WU_XING_TO_TIAN_GAN_PURE.get(primary_wx, [primary])
+    primary_found = [g for g in primary_gans if g in gan_list]
+    if primary_found:
+        for g in primary_found:
+            result["present"].append(f"{g}(天干)")
+        result["reasoning"].append(f"✓ 第一用神{primary}出现在天干：{'、'.join(primary_found)}")
+        result["score"] += 3
+    else:
+        # 检查地支藏干
+        primary_in_zhi = False
+        for zhi in zhi_list:
+            cang = DZ_CANG_GAN.get(zhi, [])
+            for cg in cang:
+                if cg == primary or TG_WU_XING.get(cg) == primary_wx:
+                    primary_in_zhi = True
+                    result["present"].append(f"{cg}({zhi}藏)")
+                    break
+        if primary_in_zhi:
+            result["reasoning"].append(f"~ 第一用神{primary}在地支藏干中有出现，力量稍弱")
+            result["score"] += 1.5
+        else:
+            result["missing"].append(primary)
+            result["reasoning"].append(f"✗ 第一用神{primary}未出现在命局中")
+            result["score"] -= 1
+
+    # 第二用神检查（如果有）
+    if secondary:
+        secondary_wx = TG_WU_XING.get(secondary, "")
+        secondary_gans = WU_XING_TO_TIAN_GAN_PURE.get(secondary_wx, [secondary])
+        secondary_found = [g for g in secondary_gans if g in gan_list]
+        if secondary_found:
+            for g in secondary_found:
+                result["present"].append(f"{g}(天干)")
+            result["reasoning"].append(f"✓ 第二用神{secondary}出现在天干：{'、'.join(secondary_found)}")
+            result["score"] += 2
+        else:
+            secondary_in_zhi = False
+            for zhi in zhi_list:
+                cang = DZ_CANG_GAN.get(zhi, [])
+                for cg in cang:
+                    if cg == secondary or TG_WU_XING.get(cg) == secondary_wx:
+                        secondary_in_zhi = True
+                        result["present"].append(f"{cg}({zhi}藏)")
+                        break
+            if secondary_in_zhi:
+                result["reasoning"].append(f"~ 第二用神{secondary}在地支藏干中有出现")
+                result["score"] += 1
+            else:
+                result["missing"].append(secondary)
+                result["reasoning"].append(f"✗ 第二用神{secondary}未出现在命局中")
+
+    # 调候得分标准化到 0-5 范围
+    result["score"] = max(0, min(5, result["score"]))
+
+    return result
+
+
+def merge_tiao_hou_with_strong_weak(strength_result: Dict, tiao_hou_result: Dict) -> Dict:
+    """
+    合并调候用神与强弱用神
+    规则：调候用神优先于强弱用神（提示词明确要求）
+
+    当调候用神与强弱用神冲突时，以调候用神为准，
+    但保留强弱用神作为参考。
+    """
+    if not tiao_hou_result or not tiao_hou_result.get("primary"):
+        return strength_result
+
+    result = dict(strength_result)
+    result["tiao_hou"] = tiao_hou_result
+
+    # 将调候用神信息加入用神/忌神列表
+    primary = tiao_hou_result["primary"]
+    secondary = tiao_hou_result["secondary"]
+    primary_wx = TG_WU_XING.get(primary, "")
+    secondary_wx = TG_WU_XING.get(secondary, "") if secondary else ""
+
+    # 调候用神（天干名 → 五行）
+    tiao_hou_wuxing = []
+    if primary_wx:
+        tiao_hou_wuxing.append(primary_wx)
+    if secondary_wx and secondary_wx != primary_wx:
+        tiao_hou_wuxing.append(secondary_wx)
+
+    # 在现有用神中标记调候用神
+    result["tiao_hou_primary"] = primary
+    result["tiao_hou_secondary"] = secondary
+    result["tiao_hou_wuxing"] = tiao_hou_wuxing
+    result["tiao_hou_summary"] = tiao_hou_result["summary"]
+    result["tiao_hou_score"] = tiao_hou_result["score"]
+
+    # 将调候用神五行加入用神列表（如果不在其中）
+    for wx in tiao_hou_wuxing:
+        if wx not in result["useful_god"]:
+            result["useful_god"].append(wx)
+        # 如果调候用神在忌神列表中，移除它（调候优先）
+        if wx in result["avoid_god"]:
+            result["avoid_god"].remove(wx)
+
+    # 添加调候推理到 reasoning
+    result["reasoning"].append("=" * 30)
+    result["reasoning"].append("【调候用神（穷通宝鉴法）】")
+    for r in tiao_hou_result["reasoning"]:
+        result["reasoning"].append(f"  {r}")
+    result["reasoning"].append(f"调候得分：{tiao_hou_result['score']}/5")
+    result["reasoning"].append("（调候用神优先于强弱用神）")
+
+    return result

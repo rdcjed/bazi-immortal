@@ -130,14 +130,14 @@ def analyze_all_shi_shen(bazi: BaZi) -> Dict:
         if item["shi_shen"] in counts:
             counts[item["shi_shen"]] += 1
     for item in zhi_ss:
-        # 差异化藏干权重：本气(第一个藏干)=0.7，余气(其余)=0.3
-        from .constants import DZ_CANG_GAN
-        zhi = item["zhi"]
-        hidden_list = DZ_CANG_GAN.get(zhi, [])
-        hidden_items = list(item["cang_gan_shi_shen"].items())
-        for i, (cg, ss) in enumerate(hidden_items):
-            if ss in counts:
-                weight = 0.7 if i == 0 else 0.3  # 本气0.7，余气0.3
+            # 藏干权重：统一为 本气(第一个)=0.5，余气(其余)=0.2
+            from .constants import DZ_CANG_GAN
+            zhi = item["zhi"]
+            hidden_list = DZ_CANG_GAN.get(zhi, [])
+            hidden_items = list(item["cang_gan_shi_shen"].items())
+            for i, (cg, ss) in enumerate(hidden_items):
+                if ss in counts:
+                    weight = 0.5 if i == 0 else 0.2  # 本气0.5，余气0.2
                 counts[ss] += weight
 
     # 按类别统计
