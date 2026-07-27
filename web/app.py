@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, request, render_template
 from zhdate import ZhDate
 
-from bazi_immortal import calculate_bazi, find_shen_sha
+from bazi_immortal import calculate_bazi, find_shen_sha, analyze_tiao_hou, merge_tiao_hou_with_strong_weak
 from bazi_immortal.wuxing import analyze_ri_zuo_strong_weak, analyze_wuxing_distribution, analyze_ge_ju
 from bazi_immortal.shisheng import analyze_all_shi_shen
 from bazi_immortal.dayun import calculate_da_yun, get_liu_nian, analyze_liu_nian
@@ -173,6 +173,10 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
     # ── 五行分析（只取基本数据）──
     strength = analyze_ri_zuo_strong_weak(bazi)
     wx_dist = analyze_wuxing_distribution(bazi)
+    
+    # ── 调候用神（穷通宝鉴法）──
+    tiao_hou = analyze_tiao_hou(bazi)
+    strength = merge_tiao_hou_with_strong_weak(strength, tiao_hou)
 
     # ── 十神 ──
     ss_data = analyze_all_shi_shen(bazi)
@@ -261,6 +265,7 @@ def generate_report(year, month, day, hour, minute, gender, target_year=None,
             f"| 用神 | {yong_shen_str} |\n"
             f"| 忌神 | {avoid_god_str} |\n"
             f"| 格局 | {ge_ju['name']}（{ge_ju['category']}） |\n"
+            f"| 调候用神 | {tiao_hou['primary']}（{tiao_hou['score']}/5） |\n"
             f"| 大运方向 | {dayun_data['direction']}运，起运 {dayun_data['start_age']} 岁 |\n"
             f"| 当前大运 | {current_dayun_str} |\n"
             f"| 流年 | {liunian_info['gan_zhi']}（{target_year}年） |\n"
