@@ -1,0 +1,1040 @@
+[
+  {
+    "name": "毛泽东",
+    "birth": "1893年12月26日 7:00",
+    "gender": "男",
+    "bazi": "癸巳 甲子 丁酉 甲辰",
+    "ri_gan": "丁",
+    "ri_wx": "火",
+    "strong_weak": "偏弱",
+    "score": -1,
+    "useful_god": [
+      "火",
+      "木"
+    ],
+    "avoid_god": [
+      "水",
+      "土",
+      "金"
+    ],
+    "ge_ju": "七杀格",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "甲",
+      "score": 5,
+      "present": [
+        "丁(天干)",
+        "甲(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 6.43,
+    "da_yun_direction": "逆排",
+    "category": "开国领袖",
+    "source": "辰时 - 官方记载"
+  },
+  {
+    "name": "周恩来",
+    "birth": "1898年3月5日 7:00",
+    "gender": "男",
+    "bazi": "戊戌 甲寅 丁卯 甲辰",
+    "ri_gan": "丁",
+    "ri_wx": "火",
+    "strong_weak": "偏强",
+    "score": 1.5,
+    "useful_god": [
+      "水",
+      "土",
+      "金",
+      "木"
+    ],
+    "avoid_god": [
+      "火"
+    ],
+    "ge_ju": "伤官格",
+    "tiao_hou": {
+      "primary": "甲",
+      "secondary": "庚",
+      "score": 4,
+      "present": [
+        "甲(天干)",
+        "辛(戌藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 0.24,
+    "da_yun_direction": "顺排",
+    "category": "总理",
+    "source": "辰时推测"
+  },
+  {
+    "name": "邓小平",
+    "birth": "1904年8月22日 6:00",
+    "gender": "男",
+    "bazi": "甲辰 壬申 戊子 乙卯",
+    "ri_gan": "戊",
+    "ri_wx": "土",
+    "strong_weak": "偏弱",
+    "score": -1.5,
+    "useful_god": [
+      "土",
+      "火",
+      "水"
+    ],
+    "avoid_god": [
+      "木",
+      "金"
+    ],
+    "ge_ju": "偏财格",
+    "tiao_hou": {
+      "primary": "癸",
+      "secondary": "丙",
+      "score": 3,
+      "present": [
+        "壬(天干)"
+      ],
+      "missing": [
+        "丙"
+      ]
+    },
+    "da_yun_start": 5.58,
+    "da_yun_direction": "顺排",
+    "category": "改革开放总设计师",
+    "source": "卯时推测"
+  },
+  {
+    "name": "蒋介石",
+    "birth": "1887年10月31日 12:00",
+    "gender": "男",
+    "bazi": "丁亥 庚戌 己巳 庚午",
+    "ri_gan": "己",
+    "ri_wx": "土",
+    "strong_weak": "身强",
+    "score": 4,
+    "useful_god": [
+      "木",
+      "金",
+      "水",
+      "火"
+    ],
+    "avoid_god": [
+      "土"
+    ],
+    "ge_ju": "偏印格",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "",
+      "score": 3,
+      "present": [
+        "丁(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 7.83,
+    "da_yun_direction": "逆排",
+    "category": "民国总统",
+    "source": "午时推测"
+  },
+  {
+    "name": "马云",
+    "birth": "1964年9月10日 12:00",
+    "gender": "男",
+    "bazi": "甲辰 癸酉 壬戌 丙午",
+    "ri_gan": "壬",
+    "ri_wx": "水",
+    "strong_weak": "偏强",
+    "score": 2.5,
+    "useful_god": [
+      "土",
+      "木",
+      "火"
+    ],
+    "avoid_god": [
+      "水",
+      "金"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "戊",
+      "secondary": "丁",
+      "score": 3.5,
+      "present": [
+        "戊(辰藏)",
+        "戊(戌藏)",
+        "己(午藏)",
+        "丙(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 9.17,
+    "da_yun_direction": "顺排",
+    "category": "阿里巴巴创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "马化腾",
+    "birth": "1971年10月29日 15:00",
+    "gender": "男",
+    "bazi": "辛亥 戊戌 丁亥 戊申",
+    "ri_gan": "丁",
+    "ri_wx": "火",
+    "strong_weak": "中和",
+    "score": -0.5,
+    "useful_god": [
+      "火",
+      "木",
+      "金"
+    ],
+    "avoid_god": [
+      "水"
+    ],
+    "ge_ju": "偏财格",
+    "tiao_hou": {
+      "primary": "甲",
+      "secondary": "庚",
+      "score": 3.5,
+      "present": [
+        "甲(亥藏)",
+        "甲(亥藏)",
+        "辛(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 7.21,
+    "da_yun_direction": "逆排",
+    "category": "腾讯创始人",
+    "source": "申时 - 多次报道"
+  },
+  {
+    "name": "雷军",
+    "birth": "1969年12月16日 12:00",
+    "gender": "男",
+    "bazi": "己酉 丙子 乙丑 壬午",
+    "ri_gan": "乙",
+    "ri_wx": "木",
+    "strong_weak": "偏弱",
+    "score": -2,
+    "useful_god": [
+      "木",
+      "水",
+      "火"
+    ],
+    "avoid_god": [
+      "金",
+      "土"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "",
+      "score": 3,
+      "present": [
+        "丙(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 3.17,
+    "da_yun_direction": "逆排",
+    "category": "小米创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "刘强东",
+    "birth": "1974年3月10日 7:00",
+    "gender": "男",
+    "bazi": "甲寅 丁卯 庚戌 庚辰",
+    "ri_gan": "庚",
+    "ri_wx": "金",
+    "strong_weak": "偏弱",
+    "score": -1.5,
+    "useful_god": [
+      "金",
+      "土",
+      "火",
+      "木"
+    ],
+    "avoid_god": [
+      "水"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "丁",
+      "secondary": "甲",
+      "score": 5,
+      "present": [
+        "丁(天干)",
+        "甲(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 8.57,
+    "da_yun_direction": "顺排",
+    "category": "京东创始人",
+    "source": "辰时 - 报道"
+  },
+  {
+    "name": "任正非",
+    "birth": "1944年10月25日 12:00",
+    "gender": "男",
+    "bazi": "甲申 甲戌 壬戌 丙午",
+    "ri_gan": "壬",
+    "ri_wx": "水",
+    "strong_weak": "偏弱",
+    "score": -2,
+    "useful_god": [
+      "水",
+      "金",
+      "木"
+    ],
+    "avoid_god": [
+      "土",
+      "火"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "甲",
+      "secondary": "庚",
+      "score": 4,
+      "present": [
+        "甲(天干)",
+        "庚(申藏)",
+        "辛(戌藏)",
+        "辛(戌藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 4.17,
+    "da_yun_direction": "顺排",
+    "category": "华为创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "张一鸣",
+    "birth": "1983年4月16日 12:00",
+    "gender": "男",
+    "bazi": "癸亥 丙辰 甲戌 庚午",
+    "ri_gan": "甲",
+    "ri_wx": "木",
+    "strong_weak": "偏强",
+    "score": 1,
+    "useful_god": [
+      "金",
+      "火",
+      "土",
+      "水"
+    ],
+    "avoid_god": [
+      "木"
+    ],
+    "ge_ju": "正印格",
+    "tiao_hou": {
+      "primary": "癸",
+      "secondary": "庚",
+      "score": 5,
+      "present": [
+        "癸(天干)",
+        "庚(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 3.83,
+    "da_yun_direction": "逆排",
+    "category": "字节跳动创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "史蒂夫·乔布斯",
+    "birth": "1955年2月24日 12:00",
+    "gender": "男",
+    "bazi": "乙未 戊寅 丙辰 甲午",
+    "ri_gan": "丙",
+    "ri_wx": "火",
+    "strong_weak": "身强",
+    "score": 4,
+    "useful_god": [
+      "水",
+      "土",
+      "金"
+    ],
+    "avoid_god": [
+      "火",
+      "木"
+    ],
+    "ge_ju": "食神格",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "",
+      "score": 1.5,
+      "present": [
+        "癸(辰藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 6.83,
+    "da_yun_direction": "逆排",
+    "category": "苹果创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "埃隆·马斯克",
+    "birth": "1971年6月28日 12:00",
+    "gender": "男",
+    "bazi": "辛亥 甲午 甲申 庚午",
+    "ri_gan": "甲",
+    "ri_wx": "木",
+    "strong_weak": "偏弱",
+    "score": -1,
+    "useful_god": [
+      "木",
+      "水",
+      "金"
+    ],
+    "avoid_god": [
+      "火",
+      "土"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "庚",
+      "score": 3.5,
+      "present": [
+        "壬(亥藏)",
+        "壬(申藏)",
+        "庚(天干)",
+        "辛(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 7.5,
+    "da_yun_direction": "逆排",
+    "category": "特斯拉/SpaceX",
+    "source": "午时推测"
+  },
+  {
+    "name": "杰夫·贝佐斯",
+    "birth": "1964年1月12日 10:00",
+    "gender": "男",
+    "bazi": "癸卯 乙丑 庚申 辛巳",
+    "ri_gan": "庚",
+    "ri_wx": "金",
+    "strong_weak": "偏强",
+    "score": 2,
+    "useful_god": [
+      "火",
+      "水",
+      "木"
+    ],
+    "avoid_god": [
+      "金",
+      "土"
+    ],
+    "ge_ju": "庚乙化气格（金）",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "甲",
+      "score": 3.5,
+      "present": [
+        "丙(巳藏)",
+        "乙(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 2.14,
+    "da_yun_direction": "逆排",
+    "category": "亚马逊创始人",
+    "source": "巳时 - 报道"
+  },
+  {
+    "name": "马克·扎克伯格",
+    "birth": "1984年5月14日 8:00",
+    "gender": "男",
+    "bazi": "甲子 己巳 戊申 丙辰",
+    "ri_gan": "戊",
+    "ri_wx": "土",
+    "strong_weak": "身强",
+    "score": 4,
+    "useful_god": [
+      "木",
+      "金",
+      "水"
+    ],
+    "avoid_god": [
+      "土",
+      "火"
+    ],
+    "ge_ju": "偏印格",
+    "tiao_hou": {
+      "primary": "甲",
+      "secondary": "壬",
+      "score": 4,
+      "present": [
+        "甲(天干)",
+        "癸(子藏)",
+        "壬(申藏)",
+        "癸(辰藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 7.56,
+    "da_yun_direction": "顺排",
+    "category": "Meta创始人",
+    "source": "辰时 - 报道"
+  },
+  {
+    "name": "比尔·盖茨",
+    "birth": "1955年10月28日 12:00",
+    "gender": "男",
+    "bazi": "乙未 丙戌 壬戌 丙午",
+    "ri_gan": "壬",
+    "ri_wx": "水",
+    "strong_weak": "身弱",
+    "score": -4,
+    "useful_god": [
+      "水",
+      "金",
+      "木"
+    ],
+    "avoid_god": [
+      "土",
+      "火"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "甲",
+      "secondary": "庚",
+      "score": 4,
+      "present": [
+        "乙(天干)",
+        "辛(戌藏)",
+        "辛(戌藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 6.83,
+    "da_yun_direction": "逆排",
+    "category": "微软创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "沃伦·巴菲特",
+    "birth": "1930年8月30日 12:00",
+    "gender": "男",
+    "bazi": "庚午 甲申 壬子 丙午",
+    "ri_gan": "壬",
+    "ri_wx": "水",
+    "strong_weak": "身强",
+    "score": 4,
+    "useful_god": [
+      "土",
+      "木",
+      "火"
+    ],
+    "avoid_god": [
+      "水",
+      "金"
+    ],
+    "ge_ju": "偏印格",
+    "tiao_hou": {
+      "primary": "戊",
+      "secondary": "丁",
+      "score": 3.5,
+      "present": [
+        "己(午藏)",
+        "戊(申藏)",
+        "己(午藏)",
+        "丙(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 2.83,
+    "da_yun_direction": "顺排",
+    "category": "股神",
+    "source": "午时推测"
+  },
+  {
+    "name": "山姆·奥特曼",
+    "birth": "1985年4月22日 12:00",
+    "gender": "男",
+    "bazi": "乙丑 庚辰 辛卯 甲午",
+    "ri_gan": "辛",
+    "ri_wx": "金",
+    "strong_weak": "偏强",
+    "score": 1.5,
+    "useful_god": [
+      "火",
+      "水",
+      "木"
+    ],
+    "avoid_god": [
+      "金",
+      "土"
+    ],
+    "ge_ju": "偏财格",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "甲",
+      "score": 3.5,
+      "present": [
+        "癸(丑藏)",
+        "癸(辰藏)",
+        "甲(天干)",
+        "乙(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 5.83,
+    "da_yun_direction": "逆排",
+    "category": "OpenAI CEO",
+    "source": "午时推测"
+  },
+  {
+    "name": "黄仁勋",
+    "birth": "1963年2月17日 12:00",
+    "gender": "男",
+    "bazi": "癸卯 甲寅 辛卯 甲午",
+    "ri_gan": "辛",
+    "ri_wx": "金",
+    "strong_weak": "身弱",
+    "score": -3,
+    "useful_god": [
+      "金",
+      "土",
+      "水",
+      "火"
+    ],
+    "avoid_god": [
+      "木"
+    ],
+    "ge_ju": "从财格",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "丙",
+      "score": 4,
+      "present": [
+        "癸(天干)",
+        "丙(寅藏)",
+        "丁(午藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 4.5,
+    "da_yun_direction": "逆排",
+    "category": "NVIDIA创始人",
+    "source": "午时推测"
+  },
+  {
+    "name": "刘德华",
+    "birth": "1961年9月27日 21:00",
+    "gender": "男",
+    "bazi": "辛丑 丁酉 癸亥 癸亥",
+    "ri_gan": "癸",
+    "ri_wx": "水",
+    "strong_weak": "偏强",
+    "score": 2,
+    "useful_god": [
+      "土",
+      "木",
+      "火",
+      "金"
+    ],
+    "avoid_god": [
+      "水"
+    ],
+    "ge_ju": "偏印格",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "辛",
+      "score": 5,
+      "present": [
+        "丁(天干)",
+        "辛(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 6.62,
+    "da_yun_direction": "逆排",
+    "category": "四大天王",
+    "source": "亥时 - 报道"
+  },
+  {
+    "name": "周杰伦",
+    "birth": "1979年1月18日 12:00",
+    "gender": "男",
+    "bazi": "戊午 乙丑 乙酉 壬午",
+    "ri_gan": "乙",
+    "ri_wx": "木",
+    "strong_weak": "偏弱",
+    "score": -1,
+    "useful_god": [
+      "木",
+      "水",
+      "火"
+    ],
+    "avoid_god": [
+      "金",
+      "土"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "",
+      "score": 1.5,
+      "present": [
+        "丁(午藏)",
+        "丁(午藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 5.5,
+    "da_yun_direction": "顺排",
+    "category": "音乐天王",
+    "source": "午时推测"
+  },
+  {
+    "name": "成龙",
+    "birth": "1954年4月7日 12:00",
+    "gender": "男",
+    "bazi": "甲午 戊辰 癸巳 戊午",
+    "ri_gan": "癸",
+    "ri_wx": "水",
+    "strong_weak": "偏弱",
+    "score": -2.5,
+    "useful_god": [
+      "水",
+      "金",
+      "木"
+    ],
+    "avoid_god": [
+      "土",
+      "火"
+    ],
+    "ge_ju": "正官格",
+    "tiao_hou": {
+      "primary": "庚",
+      "secondary": "甲",
+      "score": 3.5,
+      "present": [
+        "庚(巳藏)",
+        "甲(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 9.5,
+    "da_yun_direction": "顺排",
+    "category": "功夫巨星",
+    "source": "午时推测"
+  },
+  {
+    "name": "李小龙",
+    "birth": "1940年11月27日 7:00",
+    "gender": "男",
+    "bazi": "庚辰 丁亥 甲戌 戊辰",
+    "ri_gan": "甲",
+    "ri_wx": "木",
+    "strong_weak": "偏强",
+    "score": 2,
+    "useful_god": [
+      "金",
+      "火",
+      "土"
+    ],
+    "avoid_god": [
+      "木",
+      "水"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "戊",
+      "score": 5,
+      "present": [
+        "丁(天干)",
+        "戊(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 3.24,
+    "da_yun_direction": "顺排",
+    "category": "功夫巨星",
+    "source": "辰时 - 记载"
+  },
+  {
+    "name": "周润发",
+    "birth": "1955年5月18日 14:00",
+    "gender": "男",
+    "bazi": "乙未 辛巳 己卯 辛未",
+    "ri_gan": "己",
+    "ri_wx": "土",
+    "strong_weak": "偏强",
+    "score": 2,
+    "useful_god": [
+      "木",
+      "金",
+      "水",
+      "火"
+    ],
+    "avoid_god": [
+      "土"
+    ],
+    "ge_ju": "月刃格",
+    "tiao_hou": {
+      "primary": "癸",
+      "secondary": "丙",
+      "score": 0,
+      "present": [
+        "丁(未藏)",
+        "丙(巳藏)",
+        "丁(未藏)"
+      ],
+      "missing": [
+        "癸"
+      ]
+    },
+    "da_yun_start": 4.19,
+    "da_yun_direction": "逆排",
+    "category": "影帝",
+    "source": "未时 - 报道"
+  },
+  {
+    "name": "林青霞",
+    "birth": "1954年11月3日 21:00",
+    "gender": "女",
+    "bazi": "甲午 甲戌 癸亥 癸亥",
+    "ri_gan": "癸",
+    "ri_wx": "水",
+    "strong_weak": "偏弱",
+    "score": -2,
+    "useful_god": [
+      "水",
+      "金",
+      "木"
+    ],
+    "avoid_god": [
+      "土",
+      "火"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "辛",
+      "secondary": "甲",
+      "score": 3.5,
+      "present": [
+        "辛(戌藏)",
+        "甲(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 8.96,
+    "da_yun_direction": "逆排",
+    "category": "一代女神",
+    "source": "亥时 - 报道"
+  },
+  {
+    "name": "姚明",
+    "birth": "1980年9月12日 12:00",
+    "gender": "男",
+    "bazi": "庚申 乙酉 戊子 戊午",
+    "ri_gan": "戊",
+    "ri_wx": "土",
+    "strong_weak": "偏弱",
+    "score": -1,
+    "useful_god": [
+      "土",
+      "火",
+      "水"
+    ],
+    "avoid_god": [
+      "木",
+      "金"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "癸",
+      "score": 2.5,
+      "present": [
+        "丁(午藏)",
+        "壬(申藏)",
+        "癸(子藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 8.5,
+    "da_yun_direction": "顺排",
+    "category": "NBA巨星",
+    "source": "午时推测"
+  },
+  {
+    "name": "迈克尔·乔丹",
+    "birth": "1963年2月17日 12:00",
+    "gender": "男",
+    "bazi": "癸卯 甲寅 辛卯 甲午",
+    "ri_gan": "辛",
+    "ri_wx": "金",
+    "strong_weak": "身弱",
+    "score": -3,
+    "useful_god": [
+      "金",
+      "土",
+      "水",
+      "火"
+    ],
+    "avoid_god": [
+      "木"
+    ],
+    "ge_ju": "从财格",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "丙",
+      "score": 4,
+      "present": [
+        "癸(天干)",
+        "丙(寅藏)",
+        "丁(午藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 4.5,
+    "da_yun_direction": "逆排",
+    "category": "篮球之神",
+    "source": "午时推测"
+  },
+  {
+    "name": "梅西",
+    "birth": "1987年6月24日 12:00",
+    "gender": "男",
+    "bazi": "丁卯 丙午 甲辰 庚午",
+    "ri_gan": "甲",
+    "ri_wx": "木",
+    "strong_weak": "偏弱",
+    "score": -1,
+    "useful_god": [
+      "木",
+      "水",
+      "金"
+    ],
+    "avoid_god": [
+      "火",
+      "土"
+    ],
+    "ge_ju": "伤官格",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "庚",
+      "score": 3.5,
+      "present": [
+        "癸(辰藏)",
+        "庚(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 6.17,
+    "da_yun_direction": "逆排",
+    "category": "球王",
+    "source": "午时推测"
+  },
+  {
+    "name": "C罗",
+    "birth": "1985年2月5日 12:00",
+    "gender": "男",
+    "bazi": "乙丑 戊寅 乙亥 壬午",
+    "ri_gan": "乙",
+    "ri_wx": "木",
+    "strong_weak": "身强",
+    "score": 5,
+    "useful_god": [
+      "金",
+      "火",
+      "土",
+      "水"
+    ],
+    "avoid_god": [
+      "木"
+    ],
+    "ge_ju": "正财格",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "癸",
+      "score": 3.5,
+      "present": [
+        "丙(寅藏)",
+        "丁(午藏)",
+        "壬(天干)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 0.5,
+    "da_yun_direction": "逆排",
+    "category": "足坛巨星",
+    "source": "午时推测"
+  },
+  {
+    "name": "爱因斯坦",
+    "birth": "1879年3月14日 12:00",
+    "gender": "男",
+    "bazi": "己卯 丁卯 丙申 甲午",
+    "ri_gan": "丙",
+    "ri_wx": "火",
+    "strong_weak": "身强",
+    "score": 3,
+    "useful_god": [
+      "水",
+      "土",
+      "金"
+    ],
+    "avoid_god": [
+      "火",
+      "木"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "壬",
+      "secondary": "",
+      "score": 1.5,
+      "present": [
+        "壬(申藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 2.83,
+    "da_yun_direction": "逆排",
+    "category": "相对论之父",
+    "source": "午时推测"
+  },
+  {
+    "name": "斯蒂芬·霍金",
+    "birth": "1942年1月8日 12:00",
+    "gender": "男",
+    "bazi": "辛巳 辛丑 辛酉 甲午",
+    "ri_gan": "辛",
+    "ri_wx": "金",
+    "strong_weak": "身强",
+    "score": 3,
+    "useful_god": [
+      "火",
+      "水",
+      "木"
+    ],
+    "avoid_god": [
+      "金",
+      "土"
+    ],
+    "ge_ju": "正格（无特殊格局）",
+    "tiao_hou": {
+      "primary": "丙",
+      "secondary": "壬",
+      "score": 2.5,
+      "present": [
+        "丙(巳藏)",
+        "丁(午藏)",
+        "癸(丑藏)"
+      ],
+      "missing": []
+    },
+    "da_yun_start": 0.83,
+    "da_yun_direction": "逆排",
+    "category": "宇宙学家",
+    "source": "午时推测"
+  }
+]
