@@ -260,12 +260,17 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         elif ss in ("正官", "七杀", "正财", "偏财", "食神", "伤官"):
             harming_count += 1  # 天干克泄耗各+1（降低极端化）
 
-    # 也看地支藏干中的扶助（藏干力量轻）
+    # 也看地支藏干（藏干力量轻，但扶助和克泄耗都要统计）
     for zhi in zhi_list:
         hidden = DZ_CANG_GAN.get(zhi, [])
         for hg in hidden:
-            if TG_WU_XING[hg] == ri_wx or WU_XING_SHENG.get(TG_WU_XING[hg]) == ri_wx:
+            hg_wx = TG_WU_XING[hg]
+            if hg_wx == ri_wx or WU_XING_SHENG.get(hg_wx) == ri_wx:
+                # 生扶日主的藏干（印比）
                 helping_count += 0.5
+            elif hg_wx == WU_XING_KE.get(ri_wx) or WU_XING_KE.get(hg_wx) == ri_wx or WU_XING_SHENG.get(ri_wx) == hg_wx:
+                # 克泄耗日主的藏干（官杀/财/食伤）
+                harming_count += 0.5
     
     is_de_shi = helping_count > harming_count
 
@@ -291,11 +296,23 @@ def analyze_ri_zuo_strong_weak(bazi: BaZi) -> Dict:
         reasoning.append("失地：地支无根")
 
     if is_de_shi:
-        score += 1
-        reasoning.append(f"得势：天干印比助力较多（+{_fmt_val(helping_count)}），得势有力")
+        # 得势力度：印比远多于克泄耗 → 强得势
+        helping_net = helping_count - harming_count
+        if helping_net >= 2:
+            score += 2
+            reasoning.append(f"得势：天干印比远多于克泄耗（+{_fmt_val(helping_count)}:-{_fmt_val(harming_count)}），强得势")
+        else:
+            score += 1
+            reasoning.append(f"得势：天干印比助力较多（+{_fmt_val(helping_count)}:-{_fmt_val(harming_count)}），得势有力")
     else:
-        score -= 1
-        reasoning.append(f"失势：天干克泄耗较多（+{_fmt_val(harming_count)}），失势无助")
+        # 失势力度：克泄耗远多于印比 → 强失势
+        harming_net = harming_count - helping_count
+        if harming_net >= 2:
+            score -= 2
+            reasoning.append(f"失势：天干克泄耗远多于印比（+{_fmt_val(harming_count)}:-{_fmt_val(helping_count)}），强失势")
+        else:
+            score -= 1
+            reasoning.append(f"失势：天干克泄耗较多（+{_fmt_val(harming_count)}:-{_fmt_val(helping_count)}），失势无助")
 
     # 最终判断
     if score >= 3:
